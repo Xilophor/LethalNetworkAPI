@@ -11,16 +11,18 @@ public class LethalNetworkMessage<T>
 {
     #region Public Constructors
     /// <summary>
-    /// Create a new network message of an <a href="https://docs-multiplayer.unity3d.com/netcode/1.5.2/advanced-topics/serialization/serialization-intro/">allowed type.</a>
+    /// Create a new network message of an <a href="https://www.newtonsoft.com/json/help/html/SerializationGuide.htm">allowed type.</a>
     /// </summary>
     /// <param name="guid">An identifier for the message. GUIDs are specific to a per-mod basis.</param>
     /// <example><code> customStringMessage = new LethalNetworkMessage&lt;string&gt;(guid: "customStringMessageGuid");</code></example>
     public LethalNetworkMessage(string guid)
     {
-        _messageGuid = $"{Assembly.GetCallingAssembly().GetName().Name}.message.{guid}";
+        _messageGuid = $"{Assembly.GetCallingAssembly().GetName().Name}.msg.{guid}";
         NetworkHandler.OnMessage += ReceiveMessage;
 
+#if DEBUG
         Plugin.Logger.LogDebug($"NetworkMessage with guid \"{_messageGuid}\" has been created.");
+#endif
     }
     
     #endregion
@@ -34,7 +36,9 @@ public class LethalNetworkMessage<T>
     {
         NetworkHandler.Instance.MessageServerRpc(_messageGuid, JsonParser.Parse(data));
         
+#if DEBUG
         Plugin.Logger.LogDebug("Attempted to Send Message to Server with data: "+JsonParser.Parse(data));
+#endif
     }
 
     /// <summary>
@@ -86,22 +90,38 @@ public class LethalNetworkMessage<T>
             NetworkHandler.Instance.MessageClientRpc(_messageGuid, JsonParser.Parse(data), new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIds = clientIds } } );
         }
         
+#if DEBUG
         Plugin.Logger.LogDebug($"Attempted to Send Message to All Clients {receiveOnHost} with data: {JsonParser.Parse(data)}");
+#endif
     }
     
     /// <summary>
-    /// The callback to invoke when a message is received.
+    /// The callback to invoke when a message is received by the server.
     /// </summary>
-    /// <example><code>customStringMessage.OnReceived += CustomMethod; &#xA; &#xA;private static void CustomMethod(string data)</code></example>
-    public event Action<T> OnReceived;
+    /// <example><code>customStringMessage.OnServerReceived += CustomMethod; &#xA; &#xA;private static void CustomMethod(string data)</code></example>
+    public event Action<T> OnServerReceived;
+    
+    
+    /// <summary>
+    /// The callback to invoke when a message is received by the client.
+    /// </summary>
+    /// <example><code>customStringMessage.OnClientReceived += CustomMethod; &#xA; &#xA;private static void CustomMethod(string data)</code></example>
+    public event Action<T> OnClientReceived;
 
     #endregion
 
-    private void ReceiveMessage(string guid, string message)
+    private void ReceiveMessage(string guid, string data, bool isServerMessage)
     {
         if (guid != _messageGuid) return;
+
+        if (isServerMessage)
+            OnServerReceived?.Invoke((T)JsonParser.Parse(data));
+        else
+            OnClientReceived?.Invoke((T)JsonParser.Parse(data));
         
-        OnReceived?.Invoke((T)JsonParser.Parse(message));
+#if DEBUG
+        Plugin.Logger.LogDebug($"Received data: {JsonParser.Parse(data)}");
+#endif
     }
 
     private readonly string _messageGuid;

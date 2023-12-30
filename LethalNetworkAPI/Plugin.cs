@@ -15,8 +15,6 @@ internal class Plugin : BaseUnityPlugin
         Instance ??= this;
         _harmony ??= new Harmony(PluginInfo.PLUGIN_GUID);
         Logger = base.Logger;
-
-        Logger.LogInfo("test");
         
         NetcodeWeaver();
         

@@ -6,17 +6,20 @@ using Unity.Netcode;
 namespace TestMod
 {
     [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
+    [BepInDependency("LethalNetworkAPI")]
     public class Plugin : BaseUnityPlugin
     {
         private void Awake()
         {
             // Plugin startup logic
-            Logger.LogDebug($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            Logger.LogDebug($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
             Instance = this;
 
             Harmony.CreateAndPatchAll(typeof(Test));
 
-            StringMessage.OnReceived += Receive;
+            StringMessage = new LethalNetworkMessage<string>("customStringMessage");
+
+            StringMessage.OnClientReceived += Receive;
         }
 
         private void Receive(string data)
@@ -25,7 +28,7 @@ namespace TestMod
         } 
 
         public static Plugin Instance;
-        public static readonly LethalNetworkMessage<string> StringMessage = new("customStringMessage");
+        public static LethalNetworkMessage<string> StringMessage;
     }
 
     [HarmonyPatch]
@@ -35,7 +38,7 @@ namespace TestMod
         private static void TestPrint()
         {
             if (NetworkManager.Singleton.IsHost)
-                Plugin.StringMessage.SendAllClients("poo-poo", false);
+                Plugin.StringMessage.SendAllClients("poo-poo", true);
         }
     }
 }

@@ -26,13 +26,17 @@
 
     <ItemGroup>
         <Reference Include="Assembly-CSharp" Publicize="true">
-            <HintPath>..\..\..\..\Lethal_Deps\deps\Assembly-CSharp.dll</HintPath>
+            <HintPath>$(LC_REFERENCES)\Assembly-CSharp.dll</HintPath>
         </Reference>
         <Reference Include="LethalNetworkAPI">
           <HintPath>..\LethalNetworkAPI\bin\Debug\netstandard2.1\LethalNetworkAPI.dll</HintPath>
         </Reference>
         <Reference Include="Unity.Netcode.Runtime">
-            <HintPath>..\..\..\..\Lethal_Deps\deps\Unity.Netcode.Runtime.dll</HintPath>
+            <HintPath>$(LC_REFERENCES)\Unity.Netcode.Runtime.dll</HintPath>
         </Reference>
     </ItemGroup>
+
+    <Target Name="CopyFiles" AfterTargets="PostBuildEvent">
+        <Copy SourceFiles="$(TargetDir)$(TargetFileName)" DestinationFolder="D:\SteamLibrary\steamapps\common\Lethal Company\BepInEx\plugins" />
+    </Target>
 </Project>

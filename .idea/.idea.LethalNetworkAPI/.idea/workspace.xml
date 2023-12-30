@@ -5,18 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fe5d51d2-1873-4924-b711-a5dd06bc3594" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/LethalNetworkAPI.sln" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/LethalNetworkAPI.sln.DotSettings.user" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/LethalNetworkAPI/JsonParser.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/LethalNetworkAPI/LethalNetworkEvent.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/LethalNetworkAPI/LethalNetworkMessage.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/LethalNetworkAPI/Networking/NetworkHandler.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/LethalNetworkAPI/Networking/NetworkManager.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/LethalNetworkAPI/asset" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/TestMod/NuGet.Config" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/TestMod/Plugin.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/TestMod/TestMod.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.LethalNetworkAPI/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.LethalNetworkAPI/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LethalNetworkAPI/LethalNetworkAPI.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/LethalNetworkAPI/LethalNetworkAPI.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LethalNetworkAPI/LethalNetworkEvent.cs" beforeDir="false" afterPath="$PROJECT_DIR$/LethalNetworkAPI/LethalNetworkEvent.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LethalNetworkAPI/LethalNetworkMessage.cs" beforeDir="false" afterPath="$PROJECT_DIR$/LethalNetworkAPI/LethalNetworkMessage.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LethalNetworkAPI/Networking/NetworkHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/LethalNetworkAPI/Networking/NetworkHandler.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LethalNetworkAPI/Plugin.cs" beforeDir="false" afterPath="$PROJECT_DIR$/LethalNetworkAPI/Plugin.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TestMod/Plugin.cs" beforeDir="false" afterPath="$PROJECT_DIR$/TestMod/Plugin.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TestMod/TestMod.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/TestMod/TestMod.csproj" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -56,14 +52,14 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.pathVariables",
+    "settings.editor.selected.configurable": "preferences.keymap",
     "vue.rearranger.settings.migration": "true"
   },
   "keyToStringList": {
     "rider.external.source.directories": [
-      "/home/ryan/.config/JetBrains/Rider2023.3/resharper-host/DecompilerCache",
-      "/home/ryan/.config/JetBrains/Rider2023.3/resharper-host/SourcesCache",
-      "/home/ryan/.local/share/Symbols/src"
+      "C:\\Users\\Ryan\\AppData\\Roaming\\JetBrains\\Rider2023.3\\resharper-host\\DecompilerCache",
+      "C:\\Users\\Ryan\\AppData\\Roaming\\JetBrains\\Rider2023.3\\resharper-host\\SourcesCache",
+      "C:\\Users\\Ryan\\AppData\\Local\\Symbols\\src"
     ]
   }
 }]]></component>
@@ -95,6 +91,7 @@
       <workItem from="1703884591155" duration="14936000" />
       <workItem from="1703906183483" duration="2462000" />
       <workItem from="1703943261500" duration="13626000" />
+      <workItem from="1703968358445" duration="6058000" />
     </task>
     <servers />
   </component>

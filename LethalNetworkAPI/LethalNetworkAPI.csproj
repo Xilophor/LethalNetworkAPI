@@ -26,13 +26,13 @@
 
     <ItemGroup>
       <Reference Include="Assembly-CSharp" Publicize="true">
-        <HintPath>..\..\..\..\Lethal_Deps\deps\Assembly-CSharp.dll</HintPath>
+        <HintPath>$(LC_REFERENCES)\Assembly-CSharp.dll</HintPath>
       </Reference>
       <Reference Include="Newtonsoft.Json">
-        <HintPath>..\..\..\..\Lethal_Deps\deps\Newtonsoft.Json.dll</HintPath>
+        <HintPath>$(LC_REFERENCES)\Newtonsoft.Json.dll</HintPath>
       </Reference>
       <Reference Include="Unity.Netcode.Runtime">
-        <HintPath>..\..\..\..\Lethal_Deps\deps\Unity.Netcode.Runtime.dll</HintPath>
+        <HintPath>$(LC_REFERENCES)\Unity.Netcode.Runtime.dll</HintPath>
       </Reference>
     </ItemGroup>
 
@@ -42,4 +42,12 @@
     <ItemGroup>
         <EmbeddedResource Include="asset" />
     </ItemGroup>
+    
+    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+      <Exec Command="cd D:\NetcodePatcher&#xA;NetcodePatcher.dll $(TargetDir) deps/" />
+    </Target>
+
+    <Target Name="CopyFiles" AfterTargets="PostBuildEvent">
+        <Copy SourceFiles="$(TargetDir)$(TargetFileName)" DestinationFolder="D:\SteamLibrary\steamapps\common\Lethal Company\BepInEx\plugins" />
+    </Target>
 </Project>

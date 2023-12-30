@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="fe5d51d2-1873-4924-b711-a5dd06bc3594" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/LethalNetworkAPI.sln" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/LethalNetworkAPI.sln.DotSettings.user" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/LethalNetworkAPI/JsonParser.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/LethalNetworkAPI/LethalNetworkEvent.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/LethalNetworkAPI/LethalNetworkMessage.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/LethalNetworkAPI/Networking/NetworkHandler.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/LethalNetworkAPI/Networking/NetworkManager.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/LethalNetworkAPI/asset" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/TestMod/NuGet.Config" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/TestMod/Plugin.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/TestMod/TestMod.csproj" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/44743d9474784365a095189c7617530114fc00/f2/5639718d/GameNetworkManager.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/metadata/44743d9474784365a095189c7617530114fc00/7e/068a1dc9/Assembly-CSharp.cs" root0="SKIP_HIGHLIGHTING" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="Toolset" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 1
+}</component>
+  <component name="ProjectId" id="2aDVmd7eW1IK3EkhHeeqe8xzNrB" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "master",
+    "last_opened_file_path": "/home/ryan/Documents/Repos/Lethal Company/LethalNetworkAPI/LethalNetworkAPI/bin/Debug/netstandard2.1/LethalNetworkAPI.dll",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.pathVariables",
+    "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "rider.external.source.directories": [
+      "/home/ryan/.config/JetBrains/Rider2023.3/resharper-host/DecompilerCache",
+      "/home/ryan/.config/JetBrains/Rider2023.3/resharper-host/SourcesCache",
+      "/home/ryan/.local/share/Symbols/src"
+    ]
+  }
+}]]></component>
+  <component name="RunManager">
+    <configuration name="Attach to Unity Editor" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="Unity Debug" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost">
+      <option name="allowRunningInParallel" value="false" />
+      <option name="listenPortForConnections" value="false" />
+      <option name="pid" />
+      <option name="projectPathOnTarget" />
+      <option name="selectedOptions">
+        <list />
+      </option>
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="fe5d51d2-1873-4924-b711-a5dd06bc3594" name="Changes" comment="" />
+      <created>1703853297718</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1703853297718</updated>
+      <workItem from="1703853299135" duration="328000" />
+      <workItem from="1703853639891" duration="243000" />
+      <workItem from="1703853893134" duration="9303000" />
+      <workItem from="1703882397578" duration="527000" />
+      <workItem from="1703882941056" duration="1403000" />
+      <workItem from="1703884591155" duration="14936000" />
+      <workItem from="1703906183483" duration="2462000" />
+      <workItem from="1703943261500" duration="13626000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+    <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+  </component>
+</project>

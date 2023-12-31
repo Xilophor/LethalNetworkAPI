@@ -105,8 +105,6 @@ public class LethalNetworkEvent
     /// </summary>
     public void SendOtherClientsSynced()
     {
-        if (!(NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)) return;
-
         var time = NetworkManager.Singleton.LocalTime.Time;
         
         NetworkHandler.Instance.SyncedEventServerRpc(_eventGuid, time);

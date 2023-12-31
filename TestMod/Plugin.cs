@@ -40,7 +40,7 @@ namespace TestMod
         private static void TestPrint()
         {
             if (NetworkManager.Singleton.IsHost)
-                Plugin.Message.SendAllClients(GameNetworkManager.Instance.localPlayerController.transform.position);
+                Plugin.Message.SendAllClients(GameNetworkManager.Instance.localPlayerController.transform.position, false);
         }
     }
 }

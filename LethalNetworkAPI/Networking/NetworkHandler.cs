@@ -20,12 +20,17 @@ internal class NetworkHandler : NetworkBehaviour
     #region Messages
     
     [ServerRpc(RequireOwnership = false)]
-    internal void MessageServerRpc(string guid, string data) =>
+    internal void MessageServerRpc(string guid, string data)
+    {
         OnMessage?.Invoke(guid, data, true);
-    
+    }
+
     [ClientRpc]
-    internal void MessageClientRpc(string guid, string data, ClientRpcParams clientRpcParams = default) =>
+    internal void MessageClientRpc(string guid, string data, ClientRpcParams clientRpcParams = default)
+    {
         OnMessage?.Invoke(guid, data, false);
+        clientRpcParams.Send.TargetClientIdsNativeArray?.Dispose();
+    }
 
     #endregion Messages
 
@@ -45,6 +50,28 @@ internal class NetworkHandler : NetworkBehaviour
     internal void EventClientRpc(string guid, ClientRpcParams clientRpcParams = default)
     {
         OnEvent?.Invoke(guid, false);
+        clientRpcParams.Send.TargetClientIdsNativeArray?.Dispose();
+        
+#if DEBUG
+        Plugin.Logger.LogDebug($"Received event with guid: {guid}");
+#endif
+    }
+    
+    [ServerRpc(RequireOwnership = false)]
+    internal void SyncedEventServerRpc(string guid, double time, ServerRpcParams serverRpcParams = default)
+    {
+        OnSyncedServerEvent?.Invoke(guid, time, serverRpcParams.Receive.SenderClientId);
+        
+#if DEBUG
+        Plugin.Logger.LogDebug($"Received server data: {guid}");
+#endif
+    }
+
+    [ClientRpc]
+    internal void SyncedEventClientRpc(string guid, double time, ClientRpcParams clientRpcParams = default)
+    {
+        OnSyncedClientEvent?.Invoke(guid, time);
+        clientRpcParams.Send.TargetClientIdsNativeArray?.Dispose();
         
 #if DEBUG
         Plugin.Logger.LogDebug($"Received event with guid: {guid}");
@@ -57,4 +84,6 @@ internal class NetworkHandler : NetworkBehaviour
     
     internal static event Action<string, string, bool> OnMessage; // guid, message, isServerMessage
     internal static event Action<string, bool> OnEvent; // guid, isServerEvent
+    internal static event Action<string, double, ulong> OnSyncedServerEvent; // guid, time, originatorClientId
+    internal static event Action<string, double> OnSyncedClientEvent; // guid, time
 }

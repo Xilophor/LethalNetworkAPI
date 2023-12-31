@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using LethalNetworkAPI.Networking;
+using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -56,7 +57,7 @@ public class LethalNetworkMessage<T>
         if (!(NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)) return;
         if (!NetworkManager.Singleton.ConnectedClientsIds.Contains(clientId)) return;
         
-        NetworkHandler.Instance.MessageClientRpc(_messageGuid, JsonUtility.ToJson(data), new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIds = new List<ulong> { clientId } } } );
+        NetworkHandler.Instance.MessageClientRpc(_messageGuid, JsonUtility.ToJson(data), new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIdsNativeArray = new NativeArray<ulong>(new [] {clientId}, Allocator.Persistent) } } );
     }
     
     /// <summary>
@@ -68,11 +69,11 @@ public class LethalNetworkMessage<T>
     {
         if (!(NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)) return;
 
-        var allowedClientIds = clientIds.Where(i => NetworkManager.Singleton.ConnectedClientsIds.Contains(i)).ToArray();
+        var allowedClientIds = new NativeArray<ulong>(clientIds.Where(i => NetworkManager.Singleton.ConnectedClientsIds.Contains(i)).ToArray(), Allocator.Persistent);
         
         if (!allowedClientIds.Any()) return;
         
-        NetworkHandler.Instance.MessageClientRpc(_messageGuid, JsonUtility.ToJson(data), new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIds = allowedClientIds } } );
+        NetworkHandler.Instance.MessageClientRpc(_messageGuid, JsonUtility.ToJson(data), new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIdsNativeArray = allowedClientIds } } );
     }
     
     
@@ -90,11 +91,11 @@ public class LethalNetworkMessage<T>
             NetworkHandler.Instance.MessageClientRpc(_messageGuid, JsonUtility.ToJson(data));
         else
         {
-            var clientIds = NetworkManager.Singleton.ConnectedClientsIds.Where(i => i != NetworkManager.ServerClientId).ToArray();
+            var clientIds = new NativeArray<ulong>(NetworkManager.Singleton.ConnectedClientsIds.Where(i => i != NetworkManager.ServerClientId).ToArray(), Allocator.Persistent);
 
             if (!clientIds.Any()) return;
             
-            NetworkHandler.Instance.MessageClientRpc(_messageGuid, JsonUtility.ToJson(this), new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIds = clientIds } } );
+            NetworkHandler.Instance.MessageClientRpc(_messageGuid, JsonUtility.ToJson(data), new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIdsNativeArray = clientIds } } );
         }
         
 #if DEBUG

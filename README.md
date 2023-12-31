@@ -1,6 +1,6 @@
 # LethalNetworkAPI
 
-Currently in preview.
+Currently in preview. [Unity Netcode Weaver/Patcher](https://github.com/EvaisaDev/UnityNetcodeWeaver/) is **not** required.
 
 ## Usage
 

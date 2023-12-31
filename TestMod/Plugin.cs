@@ -1,7 +1,9 @@
 ﻿using BepInEx;
+using GameNetcodeStuff;
 using HarmonyLib;
 using LethalNetworkAPI;
 using Unity.Netcode;
+using UnityEngine;
 
 namespace TestMod
 {
@@ -17,18 +19,18 @@ namespace TestMod
 
             Harmony.CreateAndPatchAll(typeof(Test));
 
-            StringMessage = new LethalNetworkMessage<string>("customStringMessage");
+            Message = new ("customMessage");
 
-            StringMessage.OnClientReceived += Receive;
+            Message.OnClientReceived += Receive;
         }
 
-        private void Receive(string data)
+        private void Receive(Vector3 data)
         {
-            Logger.LogInfo(data);
+            Logger.LogInfo($"Player position: {data}");
         } 
 
         public static Plugin Instance;
-        public static LethalNetworkMessage<string> StringMessage;
+        public static LethalNetworkMessage<Vector3> Message;
     }
 
     [HarmonyPatch]
@@ -38,7 +40,7 @@ namespace TestMod
         private static void TestPrint()
         {
             if (NetworkManager.Singleton.IsHost)
-                Plugin.StringMessage.SendAllClients("poo-poo", true);
+                Plugin.Message.SendAllClients(GameNetworkManager.Instance.localPlayerController.transform.position);
         }
     }
 }

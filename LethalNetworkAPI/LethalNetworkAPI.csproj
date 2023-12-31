@@ -25,15 +25,12 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Reference Include="Assembly-CSharp" Publicize="true">
-        <HintPath>$(LC_REFERENCES)\Assembly-CSharp.dll</HintPath>
-      </Reference>
-      <Reference Include="Newtonsoft.Json">
-        <HintPath>$(LC_REFERENCES)\Newtonsoft.Json.dll</HintPath>
-      </Reference>
-      <Reference Include="Unity.Netcode.Runtime">
-        <HintPath>$(LC_REFERENCES)\Unity.Netcode.Runtime.dll</HintPath>
-      </Reference>
+        <Reference Include="Assembly-CSharp" Publicize="true">
+            <HintPath>$(LC_DEPS_DIR)\Assembly-CSharp.dll</HintPath>
+        </Reference>
+        <Reference Include="Unity.Netcode.Runtime">
+            <HintPath>$(LC_DEPS_DIR)\Unity.Netcode.Runtime.dll</HintPath>
+        </Reference>
     </ItemGroup>
 
     <ItemGroup>
@@ -43,11 +40,15 @@
         <EmbeddedResource Include="asset" />
     </ItemGroup>
     
+    <ItemGroup>
+        <Content Include="LethalNetworkAPI.csproj.user" />
+    </ItemGroup>
+    
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-      <Exec Command="cd D:\NetcodePatcher&#xA;NetcodePatcher.dll $(TargetDir) deps/" />
+      <Exec Command="cd $(NETCODE_PATCHER)&#xA;NetcodePatcher.dll $(TargetDir) deps/" />
     </Target>
 
     <Target Name="CopyFiles" AfterTargets="PostBuildEvent">
-        <Copy SourceFiles="$(TargetDir)$(TargetFileName)" DestinationFolder="D:\SteamLibrary\steamapps\common\Lethal Company\BepInEx\plugins" />
+        <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(LC_PLUGIN_DIR)" />
     </Target>
 </Project>

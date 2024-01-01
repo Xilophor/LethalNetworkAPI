@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Reflection;
 using LethalNetworkAPI.Networking;
 using Unity.Netcode;
@@ -6,6 +7,10 @@ using UnityEngine;
 
 namespace LethalNetworkAPI;
 
+/// <summary>
+/// A networked variable of the specified type.
+/// </summary>
+/// <typeparam name="T">Any serializable type using <a href="https://docs.unity3d.com/2022.3/Documentation/Manual/script-Serialization.html#SerializationRules">Unity's Serializer.</a></typeparam>
 public class LethalNetworkVariable<T>
 {
     #region Public Constructors
@@ -13,13 +18,15 @@ public class LethalNetworkVariable<T>
     /// Create a new network variable of a serializable type. See <a href="https://docs.unity3d.com/2022.3/Documentation/Manual/script-Serialization.html#SerializationRules">Unity Serialization Docs</a> for specifics.
     /// </summary>
     /// <param name="guid">An identifier for the variable. GUIDs are specific to a per-mod basis.</param>
-    /// <example><code> customEvent = new LethalNetworkEvent(guid: "customStringMessageGuid");</code></example>
     public LethalNetworkVariable(string guid)
     {
         _variableGuid = $"{Assembly.GetCallingAssembly().GetName().Name}.evt.{guid}";
         NetworkHandler.OnVariableUpdate += ReceiveUpdate;
         NetworkHandler.OnOwnershipChange += OwnershipChange;
         OnValueChange += SendUpdate;
+
+        if (typeof(LethalNetworkVariable<T>).GetCustomAttributes(typeof(LethalNetworkProtectedAttribute), true).Any())
+            _protect = true;
         
 #if DEBUG
         Plugin.Logger.LogDebug($"NetworkVariable with guid \"{_variableGuid}\" has been created.");
@@ -30,14 +37,22 @@ public class LethalNetworkVariable<T>
 
     #region Public Methods
 
+    /// <summary>
+    /// Set ownership of the Network Variable so only the owner client can change the values. Only applies if the Network Variable as the <see cref="LethalNetworkProtectedAttribute"/> attribute.
+    /// </summary>
+    /// <param name="clientId">(<see cref="ulong"/>) The client ID of the new owner.</param>
+    /// <returns>(<see cref="bool"/>) Whether new owner was able to be set.</returns>
     public bool SetOwnership(ulong clientId)
     {
+        if (!_protect) return false;
+        
         if (!(NetworkManager.Singleton.LocalClientId == NetworkManager.ServerClientId ||
-              NetworkManager.Singleton.LocalClientId == _ownerClientId || _ownerClientId == DefaultId)) return false;
+              NetworkManager.Singleton.LocalClientId == _ownerClientId) && _ownerClientId != DefaultId) return false;
 
+        if (!NetworkManager.Singleton.ConnectedClientsIds.Contains(clientId)) return false;
         
         if (NetworkManager.Singleton.IsServer)
-            NetworkHandler.Instance.UpdateOwnershipClientRpc(_variableGuid, new []{_ownerClientId, clientId});
+            NetworkHandler.Instance.UpdateOwnershipClientRpc(_variableGuid, [_ownerClientId, clientId]);
         else
             NetworkHandler.Instance.UpdateOwnershipServerRpc(_variableGuid, clientId);
         
@@ -47,6 +62,34 @@ public class LethalNetworkVariable<T>
     }
 
     #endregion
+
+    #region Public Properties & Events
+
+    /// <summary>
+    /// Get or set the value of the variable.
+    /// </summary>
+    public T Value
+    {
+        get => default;
+        set
+        {
+            if (_protect && _ownerClientId == DefaultId) return;
+            if (value.Equals(_previousValue)) return;
+            
+            _previousValue = value;
+            OnValueChange?.Invoke(value);
+        }
+    }
+
+    /// <summary>
+    /// The callback to invoke when the variable's value changes.
+    /// </summary>
+    /// <remarks>Invoked when changed locally and on the network.</remarks>
+    public event Action<T> OnValueChange;
+
+    #endregion
+
+    #region Private Methods
 
     private void SendUpdate(T data)
     {
@@ -74,24 +117,26 @@ public class LethalNetworkVariable<T>
         _ownerClientId = clientIds[1];
     }
 
+    #endregion
+
+    #region Private Variables
+
     private readonly string _variableGuid;
+    private readonly bool _protect;
     
     private T _previousValue;
     private const ulong DefaultId = 123412341234;
     private ulong _ownerClientId = DefaultId;
-
-    public T Value
-    {
-        get => default;
-        set
-        {
-            if (_ownerClientId == DefaultId) return;
-            if (value.Equals(_previousValue)) return;
-            
-            _previousValue = value; 
-            OnValueChange?.Invoke(value);
-        }
-    }
-
-    public event Action<T> OnValueChange;
+    
+    #endregion
 }
+
+/// <summary>
+/// Declare <see cref="LethalNetworkVariable&lt;T&gt;" /> as protected.
+/// </summary>
+/// <example><code>
+/// [LethalNetworkProtected]
+/// private LethalNetworkVariable&lt;string&gt; customNetworkVariable;
+/// </code></example>
+[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
+public class LethalNetworkProtectedAttribute : Attribute {}

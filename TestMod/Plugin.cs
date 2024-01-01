@@ -30,6 +30,8 @@ namespace TestMod
         } 
 
         public static Plugin Instance;
+        
+        [LethalNetworkProtected]
         public static LethalNetworkMessage<Vector3> Message;
     }
 

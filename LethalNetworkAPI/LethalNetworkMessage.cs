@@ -16,7 +16,7 @@ public class LethalNetworkMessage<T>
     #region Constructor
     
     /// <summary>
-    /// Create a new network message of a serializable type. See <a href="https://docs.unity3d.com/2022.3/Documentation/Manual/script-Serialization.html#SerializationRules">Unity Serialization Docs</a> for additional.
+    /// Create a new network message of a serializable type. See <a href="https://docs.unity3d.com/2022.3/Documentation/Manual/script-Serialization.html#SerializationRules">Unity Serialization Docs</a> for specifics.
     /// </summary>
     /// <param name="guid">An identifier for the message. GUIDs are specific to a per-mod basis.</param>
     /// <example><code> customStringMessage = new LethalNetworkMessage&lt;string&gt;(guid: "customStringMessageGuid");</code></example>

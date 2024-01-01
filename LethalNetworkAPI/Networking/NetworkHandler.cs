@@ -15,6 +15,8 @@ internal class NetworkHandler : NetworkBehaviour
         if ((NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer) && Instance != null)
             Instance.gameObject.GetComponent<NetworkObject>().Despawn(); 
         Instance = this;
+        
+        NetworkSpawn?.Invoke();
     }
 
     #region Messages
@@ -80,9 +82,39 @@ internal class NetworkHandler : NetworkBehaviour
 
     #endregion Events
 
+    #region Variables
+    
+    [ServerRpc(RequireOwnership = false)]
+    internal void UpdateVariableServerRpc(string guid, string data)
+    {
+        OnVariableUpdate?.Invoke(guid, data);
+        UpdateVariableClientRpc(guid, data);
+#if DEBUG
+        Plugin.Logger.LogDebug($"Received variable with guid: {guid}");
+#endif
+    }
+
+    [ClientRpc]
+    private void UpdateVariableClientRpc(string guid, string data, ClientRpcParams clientRpcParams = default)
+    {
+        OnVariableUpdate?.Invoke(guid, data);
+        clientRpcParams.Send.TargetClientIdsNativeArray?.Dispose();
+        
+#if DEBUG
+        Plugin.Logger.LogDebug($"Received variable with guid: {guid}");
+#endif
+    }
+
+    #endregion
+
     internal static NetworkHandler Instance { get; private set; }
     
-    internal static event Action<string, string, bool> OnMessage; // guid, message, isServerMessage
+    internal static event Action NetworkSpawn;
+    
+    internal static event Action<string, string, bool> OnMessage; // guid, data, isServerMessage
+    
+    internal static event Action<string, string> OnVariableUpdate; // guid, data
+    
     internal static event Action<string, bool> OnEvent; // guid, isServerEvent
     internal static event Action<string, double, ulong> OnSyncedServerEvent; // guid, time, originatorClientId
     internal static event Action<string, double> OnSyncedClientEvent; // guid, time

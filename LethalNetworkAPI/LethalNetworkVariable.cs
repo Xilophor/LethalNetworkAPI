@@ -23,7 +23,7 @@ public class LethalNetworkVariable<T>
         _variableGuid = $"{Assembly.GetCallingAssembly().GetName().Name}.evt.{guid}";
         NetworkHandler.OnVariableUpdate += ReceiveUpdate;
         NetworkHandler.OnOwnershipChange += OwnershipChange;
-        OnValueChange += SendUpdate;
+        NetworkHandler.NetworkTick += OnNetworkTick;
 
         if (typeof(LethalNetworkVariable<T>).GetCustomAttributes(typeof(LethalNetworkProtectedAttribute), true).Any())
             _protect = true;
@@ -76,7 +76,6 @@ public class LethalNetworkVariable<T>
             if (_protect && _ownerClientId == DefaultId) return;
             if (value.Equals(_previousValue)) return;
             
-            _previousValue = value;
             OnValueChange?.Invoke(value);
         }
     }
@@ -91,9 +90,9 @@ public class LethalNetworkVariable<T>
 
     #region Private Methods
 
-    private void SendUpdate(T data)
+    private void SendUpdate()
     {
-        NetworkHandler.Instance.UpdateVariableServerRpc(_variableGuid, JsonUtility.ToJson(data));
+        NetworkHandler.Instance.UpdateVariableServerRpc(_variableGuid, JsonUtility.ToJson(Value));
     }
     
     private void ReceiveUpdate(string guid, string data)
@@ -115,6 +114,14 @@ public class LethalNetworkVariable<T>
         if (_ownerClientId != clientIds[0] && _ownerClientId != DefaultId) return;
 
         _ownerClientId = clientIds[1];
+    }
+
+    private void OnNetworkTick()
+    {
+        if (_previousValue.Equals(Value)) return;
+        
+        _previousValue = Value;
+        SendUpdate();
     }
 
     #endregion

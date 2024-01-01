@@ -17,6 +17,7 @@ internal class NetworkHandler : NetworkBehaviour
         Instance = this;
         
         NetworkSpawn?.Invoke();
+        NetworkManager.NetworkTickSystem.Tick += NetworkTick;
     }
 
     #region Messages
@@ -124,6 +125,7 @@ internal class NetworkHandler : NetworkBehaviour
     internal static NetworkHandler Instance { get; private set; }
     
     internal static event Action NetworkSpawn;
+    internal static event Action NetworkTick;
     
     internal static event Action<string, string, bool> OnMessage; // guid, data, isServerMessage
     

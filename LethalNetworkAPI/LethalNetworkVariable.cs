@@ -1,6 +1,7 @@
 using System;
 using System.Reflection;
 using LethalNetworkAPI.Networking;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace LethalNetworkAPI;
@@ -17,13 +18,34 @@ public class LethalNetworkVariable<T>
     {
         _variableGuid = $"{Assembly.GetCallingAssembly().GetName().Name}.evt.{guid}";
         NetworkHandler.OnVariableUpdate += ReceiveUpdate;
-        OnValueChanged += SendUpdate;
+        NetworkHandler.OnOwnershipChange += OwnershipChange;
+        OnValueChange += SendUpdate;
         
 #if DEBUG
         Plugin.Logger.LogDebug($"NetworkVariable with guid \"{_variableGuid}\" has been created.");
 #endif
     }
     
+    #endregion
+
+    #region Public Methods
+
+    public bool SetOwnership(ulong clientId)
+    {
+        if (!(NetworkManager.Singleton.LocalClientId == NetworkManager.ServerClientId ||
+              NetworkManager.Singleton.LocalClientId == _ownerClientId || _ownerClientId == DefaultId)) return false;
+
+        
+        if (NetworkManager.Singleton.IsServer)
+            NetworkHandler.Instance.UpdateOwnershipClientRpc(_variableGuid, new []{_ownerClientId, clientId});
+        else
+            NetworkHandler.Instance.UpdateOwnershipServerRpc(_variableGuid, clientId);
+        
+        _ownerClientId = clientId;
+        
+        return true;
+    }
+
     #endregion
 
     private void SendUpdate(T data)
@@ -40,25 +62,36 @@ public class LethalNetworkVariable<T>
         if (newValue.Equals(_previousValue)) return;
 
         _previousValue = newValue;
-        OnValueChanged?.Invoke(newValue);
+        OnValueChange?.Invoke(newValue);
+    }
+
+    private void OwnershipChange(string guid, ulong[] clientIds)
+    {
+        if (guid != _variableGuid) return;
+
+        if (_ownerClientId != clientIds[0] && _ownerClientId != DefaultId) return;
+
+        _ownerClientId = clientIds[1];
     }
 
     private readonly string _variableGuid;
-    private readonly bool _protect;
     
     private T _previousValue;
-    private ulong _ownerClientId;
+    private const ulong DefaultId = 123412341234;
+    private ulong _ownerClientId = DefaultId;
 
     public T Value
     {
         get => default;
         set
         {
-            if (_protect) return;
+            if (_ownerClientId == DefaultId) return;
+            if (value.Equals(_previousValue)) return;
+            
             _previousValue = value; 
-            OnValueChanged?.Invoke(value);
+            OnValueChange?.Invoke(value);
         }
     }
 
-    public event Action<T> OnValueChanged;
+    public event Action<T> OnValueChange;
 }

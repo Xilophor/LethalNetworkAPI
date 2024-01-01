@@ -37,9 +37,9 @@ internal class Plugin : BaseUnityPlugin
         }
     }
 
-    internal static Plugin Instance;
-    internal new static BepInEx.Logging.ManualLogSource Logger { get; private set; }
-    private static Harmony _harmony;
+    internal static Plugin Instance = null!;
+    internal new static BepInEx.Logging.ManualLogSource Logger { get; private set; } = null!;
+    private static Harmony _harmony = null!;
 }
 
 [Serializable]

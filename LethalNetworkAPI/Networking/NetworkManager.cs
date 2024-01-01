@@ -16,7 +16,7 @@ internal class NetworkObjectManager
             .GetManifestResourceStream("LethalNetworkAPI.asset"));
         _networkPrefab = (GameObject)mainAssetBundle.LoadAsset("Assets/LethalNetworkAPI.Handler.prefab");
         
-        NetworkManager.Singleton.AddNetworkPrefab(_networkPrefab);
+        NetworkManager.Singleton.AddNetworkPrefab(_networkPrefab); 
     }
 
     [HarmonyPostfix, HarmonyPatch(typeof(StartOfRound), nameof(StartOfRound.Awake))]
@@ -28,5 +28,5 @@ internal class NetworkObjectManager
         networkHandlerHost.GetComponent<NetworkObject>().Spawn();
     }
     
-    private static GameObject _networkPrefab;
+    private static GameObject _networkPrefab = null!;
 }

@@ -1,6 +1,6 @@
 # LethalNetworkAPI
 
-[Unity Netcode Patcher](https://github.com/EvaisaDev/UnityNetcodePatcher/) is **not** required.
+[Unity Netcode Patcher](https://github.com/EvaisaDev/UnityNetcodePatcher/) is **not** required to use this API for your mod.
 
 ## Usage
 

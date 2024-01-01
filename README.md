@@ -25,37 +25,37 @@ There are quite a few methods available to invoke the event.
 1. Invoke an event to the server:
 
 ```csharp
-customEvent.SendServer();
+customEvent.InvokeServer();
 ```
 
 2. Invoke an event to all clients:
 
 ```csharp
-customEvent.SendAllClients(bool receiveOnHost = true);
+customEvent.InvokeAllClients(bool receiveOnHost = true);
 ```
 
 3. Invoke an event to a specific client:
 
 ```csharp
-customEvent.SendClient(ulong clientId);
+customEvent.InvokeClient(ulong clientId);
 ```
 
 4. Invoke an event to specific clients:
 
 ```csharp
-customEvent.SendClients(ulong[] clientId);
+customEvent.InvokeClients(ulong[] clientId);
 ```
 
 5. Invoke a synchronized event to all clients:
 
 ```csharp
-customEvent.SendAllClientsSynced(bool receiveOnHost = true);
+customEvent.InvokeAllClientsSynced(bool receiveOnHost = true);
 ```
 
 6. Invoke a synchronized event to other clients:
 
 ```csharp
-customEvent.SendOtherClientsSynced();
+customEvent.InvokeOtherClientsSynced();
 ```
 
 > Synchronized Events will attempt to invoke at the same time regardless of latency (within reason).
@@ -72,7 +72,15 @@ customEvent.OnServerReceived += CustomMethod;
 private void CustomMethod() {}
 ```
 
-2. `OnClientReceived`
+2. `OnServerReceivedFrom`
+
+```csharp
+customEvent.OnServerReceived += CustomMethod;
+
+private void CustomMethod(ulong originClientId) {}
+```
+
+3. `OnClientReceived`
 
 ```csharp
 customEvent.OnClientReceived += CustomMethod;
@@ -136,7 +144,15 @@ customMessage.OnServerReceived += CustomMethod;
 private void CustomMethod(Type data) {}
 ```
 
-2. `OnClientReceived`
+2. `OnServerReceivedFrom`
+
+```csharp
+customMessage.OnServerReceived += CustomMethod;
+
+private void CustomMethod(Type data, ulong originClientId) {}
+```
+
+3. `OnClientReceived`
 
 ```csharp
 customMessage.OnClientReceived += CustomMethod;
@@ -150,12 +166,18 @@ private void CustomMethod(Type data) {}
 
 The final addition of the API, available in any serializable data type.
 
-#### Constructor
+#### Constructor/Initializer
 
 When creating a Network Variable, you have to specify the `Type` of the variable.
 
 ```csharp
 LethalNetworkVariable<Type> customVariable = new LethalNetworkVariable<Type>(guid: "customGuid");
+```
+
+If you want to initialize it with data, you can use an object initializer:
+
+```csharp
+LethalNetworkVariable<Type> customVariable = new LethalNetworkVariable<Type>(guid: "customGuid") { Value = (Type)data; };
 ```
 
 > If you want to make a protected variable (that other clients can't modify), you need to add the `[LethalNetworkProtected]` attribute as so:

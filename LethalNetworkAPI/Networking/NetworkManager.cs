@@ -24,7 +24,7 @@ internal class NetworkObjectManager
     {
         if (!NetworkManager.Singleton.IsHost && !NetworkManager.Singleton.IsServer) return;
 
-        var networkHandlerHost = Object.Instantiate(_networkPrefab, Vector3.zero, Quaternion.identity);
+        var networkHandlerHost = Object.Instantiate(_networkPrefab, Vector3.zero, Quaternion.identity, StartOfRound.Instance.transform);
         networkHandlerHost.GetComponent<NetworkObject>().Spawn();
     }
     

@@ -7,20 +7,18 @@ using UnityEngine;
 
 namespace LethalNetworkAPI;
 
-/// <summary>
-/// A networked variable of the specified type.
-/// </summary>
-/// <typeparam name="T">Any serializable type using <a href="https://docs.unity3d.com/2022.3/Documentation/Manual/script-Serialization.html#SerializationRules">Unity's Serializer.</a></typeparam>
+/// <typeparam name="T">The <a href="https://docs.unity3d.com/2022.3/Documentation/Manual/script-Serialization.html#SerializationRules">serializable data type</a> of the message.</typeparam>
 public class LethalNetworkVariable<T>
 {
     #region Public Constructors
     /// <summary>
-    /// Create a new network variable of a serializable type. See <a href="https://docs.unity3d.com/2022.3/Documentation/Manual/script-Serialization.html#SerializationRules">Unity Serialization Docs</a> for specifics.
+    /// Create a new network variable.
     /// </summary>
-    /// <param name="guid">An identifier for the variable. GUIDs are specific to a per-mod basis.</param>
+    /// <param name="guid">(<see cref="string"/>) An identifier for the variable.</param>
+    /// <remarks>GUIDs are specific to a per-mod basis.</remarks>
     public LethalNetworkVariable(string guid)
     {
-        _variableGuid = $"{Assembly.GetCallingAssembly().GetName().Name}.evt.{guid}";
+        _variableGuid = $"{Assembly.GetCallingAssembly().GetName().Name}.var.{guid}";
         NetworkHandler.OnVariableUpdate += ReceiveUpdate;
         NetworkHandler.OnOwnershipChange += OwnershipChange;
         NetworkHandler.NetworkTick += OnNetworkTick;
@@ -141,9 +139,5 @@ public class LethalNetworkVariable<T>
 /// <summary>
 /// Declare <see cref="LethalNetworkVariable&lt;T&gt;" /> as protected.
 /// </summary>
-/// <example><code>
-/// [LethalNetworkProtected]
-/// private LethalNetworkVariable&lt;string&gt; customNetworkVariable;
-/// </code></example>
 [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
 public class LethalNetworkProtectedAttribute : Attribute {}

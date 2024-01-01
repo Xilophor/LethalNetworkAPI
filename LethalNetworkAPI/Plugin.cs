@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using BepInEx;
 using HarmonyLib;
 using LethalNetworkAPI.Networking;
@@ -16,14 +16,14 @@ internal class Plugin : BaseUnityPlugin
         _harmony = new Harmony(PluginInfo.PLUGIN_GUID);
         Logger = base.Logger;
         
-        NetcodeWeaver();
+        NetcodePatcher();
         
         _harmony.PatchAll(typeof(NetworkObjectManager));
 
         Logger.LogDebug("LethalNetworkAPI Patches Applied");
     }
 
-    private static void NetcodeWeaver()
+    private static void NetcodePatcher()
     {
         var types = Assembly.GetExecutingAssembly().GetTypes();
         foreach (var type in types)

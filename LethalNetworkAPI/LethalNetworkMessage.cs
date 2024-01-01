@@ -11,15 +11,16 @@ using UnityEngine;
 
 namespace LethalNetworkAPI;
 
+/// <typeparam name="T">The <a href="https://docs.unity3d.com/2022.3/Documentation/Manual/script-Serialization.html#SerializationRules">serializable data type</a> of the message.</typeparam>
 public class LethalNetworkMessage<T>
 {
     #region Constructor
     
     /// <summary>
-    /// Create a new network message of a serializable type. See <a href="https://docs.unity3d.com/2022.3/Documentation/Manual/script-Serialization.html#SerializationRules">Unity Serialization Docs</a> for specifics.
+    /// Create a new network message.
     /// </summary>
-    /// <param name="guid">An identifier for the message. GUIDs are specific to a per-mod basis.</param>
-    /// <example><code> customStringMessage = new LethalNetworkMessage&lt;string&gt;(guid: "customStringMessageGuid");</code></example>
+    /// <param name="guid">(<see cref="string"/>) An identifier for the variable.</param>
+    /// <remarks>GUIDs are specific to a per-mod basis.</remarks>
     public LethalNetworkMessage(string guid)
     {
         _messageGuid = $"{Assembly.GetCallingAssembly().GetName().Name}.msg.{guid}";
@@ -37,7 +38,7 @@ public class LethalNetworkMessage<T>
     /// <summary>
     /// Send data to the server/host.
     /// </summary>
-    /// <param name="data">The data of type <typeparamref name="T"/> to send.</param>
+    /// <param name="data">(<typeparamref name="T"/>) The data to send.</param>
     public void SendServer(T data)
     {
         NetworkHandler.Instance.MessageServerRpc(_messageGuid, JsonUtility.ToJson(data));
@@ -48,10 +49,10 @@ public class LethalNetworkMessage<T>
     }
 
     /// <summary>
-    /// Send data to a specific client.
+    /// Send data to a specified client.
     /// </summary>
-    /// <param name="data">The data of type <typeparamref name="T"/> to send.</param>
-    /// <param name="clientId">The client to send the data to.</param>
+    /// <param name="data">(<typeparamref name="T"/>) The data to send.</param>
+    /// <param name="clientId">(<see cref="UInt64">ulong</see>) The client to send the data to.</param>
     public void SendClient(T data, ulong clientId)
     {
         if (!(NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)) return;
@@ -61,10 +62,10 @@ public class LethalNetworkMessage<T>
     }
     
     /// <summary>
-    /// Send data to specific clients.
+    /// Send data to the specified clients.
     /// </summary>
-    /// <param name="data">The data of type <typeparamref name="T"/> to send.</param>
-    /// <param name="clientIds">The clients to send the data to.</param>
+    /// <param name="data">(<typeparamref name="T"/>) The data to send.</param>
+    /// <param name="clientIds">(<see cref="IEnumerable{UInt64}">IEnumerable&lt;ulong&gt;</see>) The clients to send the data to.</param>
     public void SendClients(T data, IEnumerable<ulong> clientIds)
     {
         if (!(NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)) return;
@@ -76,13 +77,11 @@ public class LethalNetworkMessage<T>
         NetworkHandler.Instance.MessageClientRpc(_messageGuid, JsonUtility.ToJson(data), new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIdsNativeArray = allowedClientIds } } );
     }
     
-    
-    
     /// <summary>
     /// Send data to all clients.
     /// </summary>
-    /// <param name="data">The data of type <typeparamref name="T"/> to send.</param>
-    /// <param name="receiveOnHost">Whether the host client should receive as well. Only set to <c>false</c> when absolutely necessary</param>
+    /// <param name="data">(<typeparamref name="T"/>) The data to send.</param>
+    /// <param name="receiveOnHost">(<see cref="bool"/>) Whether the host client should receive as well.</param>
     public void SendAllClients(T data, bool receiveOnHost = true)
     {
         if (!(NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)) return;
@@ -106,14 +105,12 @@ public class LethalNetworkMessage<T>
     /// <summary>
     /// The callback to invoke when a message is received by the server.
     /// </summary>
-    /// <example><code>customStringMessage.OnServerReceived += CustomMethod; &#xA; &#xA;private static void CustomMethod(string data)</code></example>
     public event Action<T> OnServerReceived;
     
     
     /// <summary>
     /// The callback to invoke when a message is received by the client.
     /// </summary>
-    /// <example><code>customStringMessage.OnClientReceived += CustomMethod; &#xA; &#xA;private static void CustomMethod(string data)</code></example>
     public event Action<T> OnClientReceived;
 
     #endregion

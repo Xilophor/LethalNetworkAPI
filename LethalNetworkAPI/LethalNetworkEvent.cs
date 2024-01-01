@@ -16,8 +16,8 @@ public class LethalNetworkEvent
     /// <summary>
     /// Create a new network event.
     /// </summary>
-    /// <param name="guid">An identifier for the event. GUIDs are specific to a per-mod basis.</param>
-    /// <example><code> customEvent = new LethalNetworkEvent(guid: "customStringMessageGuid");</code></example>
+    /// <param name="guid">(<see cref="string"/>) An identifier for the event.</param>
+    /// <remarks>GUIDs are specific to a per-mod basis.</remarks>
     public LethalNetworkEvent(string guid)
     {
         _eventGuid = $"{Assembly.GetCallingAssembly().GetName().Name}.evt.{guid}";
@@ -34,18 +34,18 @@ public class LethalNetworkEvent
 
     #region Public Methods and Event
     /// <summary>
-    /// Send event to the server/host.
+    /// Invoke event to the server/host.
     /// </summary>
-    public void SendServer()
+    public void InvokeServer()
     {
         NetworkHandler.Instance.EventServerRpc(_eventGuid);
     }
 
     /// <summary>
-    /// Send event to a specific client.
+    /// Invoke event to a specific client.
     /// </summary>
-    /// <param name="clientId">The client to send the event to.</param>
-    public void SendClient(ulong clientId)
+    /// <param name="clientId">(<see cref="UInt64">ulong</see>) The client to invoke the event to.</param>
+    public void InvokeClient(ulong clientId)
     {
         if (!(NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)) return;
         if (!NetworkManager.Singleton.ConnectedClientsIds.Contains(clientId)) return;
@@ -53,15 +53,15 @@ public class LethalNetworkEvent
         NetworkHandler.Instance.EventClientRpc(_eventGuid, new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIdsNativeArray = new NativeArray<ulong>(new []{clientId}, Allocator.Persistent) } } );       
         
 #if DEBUG
-        Plugin.Logger.LogDebug($"Attempted to send Event to Client {clientId} with guid: {_eventGuid}");
+        Plugin.Logger.LogDebug($"Attempted to invoke Event to Client {clientId} with guid: {_eventGuid}");
 #endif
     }
     
     /// <summary>
-    /// Send event to specific clients.
+    /// Invoke event to specific clients.
     /// </summary>
-    /// <param name="clientIds">The clients to send the event to.</param>
-    public void SendClients(IEnumerable<ulong> clientIds)
+    /// <param name="clientIds">(<see cref="IEnumerable{UInt64}">IEnumerable&lt;ulong&gt;</see>) The clients to invoke the event to.</param>
+    public void InvokeClients(IEnumerable<ulong> clientIds)
     {
         if (!(NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)) return;
 
@@ -71,15 +71,15 @@ public class LethalNetworkEvent
         NetworkHandler.Instance.EventClientRpc(_eventGuid, new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIdsNativeArray = allowedClientIds } } );
         
 #if DEBUG
-        Plugin.Logger.LogDebug($"Attempted to send Event to Clients {clientIds} with guid: {_eventGuid}");
+        Plugin.Logger.LogDebug($"Attempted to invoke Event to Clients {clientIds} with guid: {_eventGuid}");
 #endif
     }
 
     /// <summary>
-    /// Send event to all clients.
+    /// Invoke event to all clients.
     /// </summary>
-    /// <param name="receiveOnHost">Whether the host client should receive as well. Only set to <c>false</c> when absolutely necessary</param>
-    public void SendAllClients(bool receiveOnHost = true)
+    /// <param name="receiveOnHost">(<see cref="bool"/>) Whether the host client should receive as well.</param>
+    public void InvokeAllClients(bool receiveOnHost = true)
     {
         if (!(NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)) return;
         
@@ -94,16 +94,16 @@ public class LethalNetworkEvent
         }
         
 #if DEBUG
-        Plugin.Logger.LogDebug($"Attempted to send Event to All Clients {receiveOnHost} with guid: {_eventGuid}");
+        Plugin.Logger.LogDebug($"Attempted to invoke Event to All Clients {receiveOnHost} with guid: {_eventGuid}");
 #endif
     }
     
     //? Synced Events
     
     /// <summary>
-    /// Send synchronized event to other clients.
+    /// Invoke synchronized event to other clients.
     /// </summary>
-    public void SendOtherClientsSynced()
+    public void InvokeOtherClientsSynced()
     {
         var time = NetworkManager.Singleton.LocalTime.Time;
         
@@ -111,44 +111,42 @@ public class LethalNetworkEvent
         NetworkHandler.Instance.StartCoroutine(WaitAndInvokeEvent(0, false));
         
 #if DEBUG
-        Plugin.Logger.LogDebug($"Attempted to send Synced Event to Other Clients with guid: {_eventGuid}");
+        Plugin.Logger.LogDebug($"Attempted to invoke Synced Event to Other Clients with guid: {_eventGuid}");
 #endif
     }
     
     /// <summary>
-    /// Send synchronized event to all clients.
+    /// Invoke synchronized event to all clients.
     /// </summary>
-    /// <param name="receiveOnHost">Whether the host client should receive as well. Only set to <c>false</c> when absolutely necessary</param>
-    public void SendAllClientsSynced(bool receiveOnHost = true)
+    /// <param name="receiveOnHost">(<see cref="bool"/>) Whether the host client should receive as well.</param>
+    public void InvokeAllClientsSynced(bool receiveOnHost = true)
     {
         if (!(NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)) return;
         
         if (receiveOnHost)
-            NetworkHandler.Instance.EventClientRpc(_eventGuid);
+            NetworkHandler.Instance.SyncedEventClientRpc(_eventGuid, NetworkManager.Singleton.ServerTime.Time);
         else
         {
             var clientIds = new NativeArray<ulong>(NetworkManager.Singleton.ConnectedClientsIds.Where(i => i != NetworkManager.ServerClientId).ToArray(), Allocator.Persistent);
             if (!clientIds.Any()) return;
             
-            NetworkHandler.Instance.EventClientRpc(_eventGuid, new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIdsNativeArray = clientIds } } );
+            NetworkHandler.Instance.SyncedEventClientRpc(_eventGuid, NetworkManager.Singleton.ServerTime.Time, new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIdsNativeArray = clientIds } } );
         }
         
 #if DEBUG
-        Plugin.Logger.LogDebug($"Attempted to send Synced Event to All Clients {receiveOnHost} with guid: {_eventGuid}");
+        Plugin.Logger.LogDebug($"Attempted to invoke Synced Event to All Clients {receiveOnHost} with guid: {_eventGuid}");
 #endif
     }
     
     /// <summary>
     /// The callback to invoke when an event is received by the server.
     /// </summary>
-    /// <example><code>customEvent.OnServerReceived += CustomMethod; &#xA; &#xA;private static void CustomMethod()</code></example>
     public event Action OnServerReceived;
     
     
     /// <summary>
     /// The callback to invoke when an event is received by the client.
     /// </summary>
-    /// <example><code>customEvent.OnClientReceived += CustomMethod; &#xA; &#xA;private static void CustomMethod()</code></example>
     public event Action OnClientReceived;
 
     #endregion

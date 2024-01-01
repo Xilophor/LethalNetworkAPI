@@ -2,6 +2,8 @@
 
 // ReSharper disable MemberCanBeMadeStatic.Global
 
+using Unity.Collections;
+
 namespace LethalNetworkAPI.Networking;
 
 internal class NetworkHandler : NetworkBehaviour
@@ -84,12 +86,16 @@ internal class NetworkHandler : NetworkBehaviour
     #region Variables
     
     [ServerRpc(RequireOwnership = false)]
-    internal void UpdateVariableServerRpc(string guid, string data)
+    internal void UpdateVariableServerRpc(string guid, string data, ServerRpcParams serverRpcParams = default)
     {
-        OnVariableUpdate?.Invoke(guid, data);
-        UpdateVariableClientRpc(guid, data);
+        if (serverRpcParams.Receive.SenderClientId != NetworkManager.ServerClientId) OnVariableUpdate?.Invoke(guid, data);
+        
+        var clientIds = new NativeArray<ulong>(NetworkManager.Singleton.ConnectedClientsIds.Where(i => i != serverRpcParams.Receive.SenderClientId).ToArray(), Allocator.Persistent);
+        if (!clientIds.Any()) return;
+        
+        UpdateVariableClientRpc(guid, data, new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIdsNativeArray = clientIds } });
 #if DEBUG
-        Plugin.Logger.LogDebug($"Received variable with guid: {guid}");
+        Plugin.Logger.LogDebug($"Received variable with guid: {guid}; data: {data}");
 #endif
     }
 
@@ -120,19 +126,19 @@ internal class NetworkHandler : NetworkBehaviour
 
     #endregion
 
-    internal static NetworkHandler Instance { get; private set; }
+    internal static NetworkHandler? Instance { get; private set; }
     
-    internal static event Action NetworkSpawn;
-    internal static event Action NetworkTick;
+    internal static event Action? NetworkSpawn;
+    internal static event Action? NetworkTick;
     
-    internal static event Action<string, string, ulong> OnServerMessage; // guid, data, originatorClientId
-    internal static event Action<string, string> OnClientMessage; // guid, data
+    internal static event Action<string, string, ulong>? OnServerMessage; // guid, data, originatorClientId
+    internal static event Action<string, string>? OnClientMessage; // guid, data
     
-    internal static event Action<string, string> OnVariableUpdate; // guid, data
-    internal static event Action<string, ulong[]> OnOwnershipChange; // guid, clientIds
+    internal static event Action<string, string>? OnVariableUpdate; // guid, data
+    internal static event Action<string, ulong[]>? OnOwnershipChange; // guid, clientIds
     
-    internal static event Action<string, ulong> OnServerEvent; // guid, originatorClientId
-    internal static event Action<string> OnClientEvent; // guid
-    internal static event Action<string, double, ulong> OnSyncedServerEvent; // guid, time, originatorClientId
-    internal static event Action<string, double> OnSyncedClientEvent; // guid, time
+    internal static event Action<string, ulong>? OnServerEvent; // guid, originatorClientId
+    internal static event Action<string>? OnClientEvent; // guid
+    internal static event Action<string, double, ulong>? OnSyncedServerEvent; // guid, time, originatorClientId
+    internal static event Action<string, double>? OnSyncedClientEvent; // guid, time
 }

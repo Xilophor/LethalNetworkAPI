@@ -36,8 +36,9 @@ public class LethalNetworkMessage<T>
     /// <param name="data">(<typeparamref name="T"/>) The data to send.</param>
     public void SendServer(T data)
     {
-        NetworkHandler.Instance.MessageServerRpc(_messageGuid, JsonUtility.ToJson(data));
-        
+        if (NetworkHandler.Instance != null)
+            NetworkHandler.Instance.MessageServerRpc(_messageGuid, JsonUtility.ToJson(new ValueWrapper<T>(data)));
+
 #if DEBUG
         Plugin.Logger.LogDebug($"Attempted to Send Message to Server with data: {data}");
 #endif
@@ -50,10 +51,11 @@ public class LethalNetworkMessage<T>
     /// <param name="clientId">(<see cref="UInt64">ulong</see>) The client to send the data to.</param>
     public void SendClient(T data, ulong clientId)
     {
-        if (!(NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)) return;
+        if (!(NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer) || NetworkHandler.Instance == null) return;
         if (!NetworkManager.Singleton.ConnectedClientsIds.Contains(clientId)) return;
         
-        NetworkHandler.Instance.MessageClientRpc(_messageGuid, JsonUtility.ToJson(data), new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIdsNativeArray = new NativeArray<ulong>(new [] {clientId}, Allocator.Persistent) } } );
+        NetworkHandler.Instance.MessageClientRpc(_messageGuid, JsonUtility.ToJson(new ValueWrapper<T>(data)), 
+            new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIdsNativeArray = new NativeArray<ulong>(new [] {clientId}, Allocator.Persistent) } } );
     }
     
     /// <summary>
@@ -63,13 +65,15 @@ public class LethalNetworkMessage<T>
     /// <param name="clientIds">(<see cref="IEnumerable{UInt64}">IEnumerable&lt;ulong&gt;</see>) The clients to send the data to.</param>
     public void SendClients(T data, IEnumerable<ulong> clientIds)
     {
-        if (!(NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)) return;
+        if (!(NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer) || NetworkHandler.Instance == null) return;
 
-        var allowedClientIds = new NativeArray<ulong>(clientIds.Where(i => NetworkManager.Singleton.ConnectedClientsIds.Contains(i)).ToArray(), Allocator.Persistent);
+        var allowedClientIds = new NativeArray<ulong>(clientIds
+            .Where(i => NetworkManager.Singleton.ConnectedClientsIds.Contains(i)).ToArray(), Allocator.Persistent);
         
         if (!allowedClientIds.Any()) return;
         
-        NetworkHandler.Instance.MessageClientRpc(_messageGuid, JsonUtility.ToJson(data), new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIdsNativeArray = allowedClientIds } } );
+        NetworkHandler.Instance.MessageClientRpc(_messageGuid, JsonUtility.ToJson(new ValueWrapper<T>(data)), 
+            new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIdsNativeArray = allowedClientIds } } );
     }
     
     /// <summary>
@@ -79,39 +83,41 @@ public class LethalNetworkMessage<T>
     /// <param name="receiveOnHost">(<see cref="bool"/>) Whether the host client should receive as well.</param>
     public void SendAllClients(T data, bool receiveOnHost = true)
     {
-        if (!(NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)) return;
+        if (!(NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer) || NetworkHandler.Instance == null) return;
         
         if (receiveOnHost)
-            NetworkHandler.Instance.MessageClientRpc(_messageGuid, JsonUtility.ToJson(data));
+            NetworkHandler.Instance.MessageClientRpc(_messageGuid, JsonUtility.ToJson(new ValueWrapper<T>(data)));
         else
         {
-            var clientIds = new NativeArray<ulong>(NetworkManager.Singleton.ConnectedClientsIds.Where(i => i != NetworkManager.ServerClientId).ToArray(), Allocator.Persistent);
+            var clientIds = new NativeArray<ulong>(NetworkManager.Singleton.ConnectedClientsIds
+                .Where(i => i != NetworkManager.ServerClientId).ToArray(), Allocator.Persistent);
 
             if (!clientIds.Any()) return;
             
-            NetworkHandler.Instance.MessageClientRpc(_messageGuid, JsonUtility.ToJson(data), new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIdsNativeArray = clientIds } } );
+            NetworkHandler.Instance.MessageClientRpc(_messageGuid, JsonUtility.ToJson(new ValueWrapper<T>(data)), 
+                new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIdsNativeArray = clientIds } } );
         }
         
 #if DEBUG
-        Plugin.Logger.LogDebug($"Attempted to Send Message to All Clients {receiveOnHost} with data: {data}; {JsonUtility.ToJson(data)}");
+        Plugin.Logger.LogDebug($"Attempted to Send Message to All Clients {receiveOnHost} with data: {data}; {JsonUtility.ToJson(new ValueWrapper<T>(data))}");
 #endif
     }
     
     /// <summary>
     /// The callback to invoke when a message is received by the server.
     /// </summary>
-    public event Action<T> OnServerReceived;
+    public event Action<T>? OnServerReceived;
     
     /// <summary>
     /// The callback to invoke when a message is received by the server.
     /// </summary>
     /// <typeparam name="clientId">(<see cref="UInt64">ulong</see>) The origin client.</typeparam>
-    public event Action<T, ulong> OnServerReceivedFrom;
+    public event Action<T, ulong>? OnServerReceivedFrom;
     
     /// <summary>
     /// The callback to invoke when a message is received by the client.
     /// </summary>
-    public event Action<T> OnClientReceived;
+    public event Action<T>? OnClientReceived;
 
     #endregion
 
@@ -119,8 +125,8 @@ public class LethalNetworkMessage<T>
     {
         if (guid != _messageGuid) return;
 
-        OnServerReceived?.Invoke(JsonUtility.FromJson<T>(data));
-        OnServerReceivedFrom?.Invoke(JsonUtility.FromJson<T>(data), originClientId);
+        OnServerReceived?.Invoke(JsonUtility.FromJson<ValueWrapper<T>>(data).var!);
+        OnServerReceivedFrom?.Invoke(JsonUtility.FromJson<ValueWrapper<T>>(data).var!, originClientId);
         
 #if DEBUG
         Plugin.Logger.LogDebug($"Received data: {data}");
@@ -131,7 +137,7 @@ public class LethalNetworkMessage<T>
     {
         if (guid != _messageGuid) return;
 
-        OnClientReceived?.Invoke(JsonUtility.FromJson<T>(data));
+        OnClientReceived?.Invoke(JsonUtility.FromJson<ValueWrapper<T>>(data).var!);
         
 #if DEBUG
         Plugin.Logger.LogDebug($"Received data: {data}");

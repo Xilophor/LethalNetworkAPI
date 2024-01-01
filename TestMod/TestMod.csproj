@@ -38,5 +38,6 @@
 
     <Target Name="CopyFiles" AfterTargets="PostBuildEvent">
         <Copy SourceFiles="$(TargetDir)$(TargetFileName)" DestinationFolder="D:\SteamLibrary\steamapps\common\Lethal Company\BepInEx\plugins" />
+        <Copy SourceFiles="$(TargetDir)\$(TargetName).pdb" DestinationFolder="D:\SteamLibrary\steamapps\common\Lethal Company\BepInEx\plugins" />
     </Target>
 </Project>

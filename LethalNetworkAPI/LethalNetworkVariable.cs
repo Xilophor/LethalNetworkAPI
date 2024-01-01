@@ -35,7 +35,7 @@ public class LethalNetworkVariable<T>
     /// <returns>(<see cref="bool"/>) Whether new owner was able to be set.</returns>
     public bool SetOwnership(ulong clientId)
     {
-        if (!_protect) return false;
+        if (!_protect || NetworkHandler.Instance == null) return false;
         
         if (!(NetworkManager.Singleton.LocalClientId == NetworkManager.ServerClientId ||
               NetworkManager.Singleton.LocalClientId == _ownerClientId) && _ownerClientId != DefaultId) return false;
@@ -61,13 +61,21 @@ public class LethalNetworkVariable<T>
     /// </summary>
     public T Value
     {
-        get => default;
+        get { return _value!; }
         set
         {
             if (_protect && _ownerClientId == DefaultId) return;
-            if (value.Equals(_previousValue)) return;
+            if (value == null) return;
             
-            OnValueChanged?.Invoke(value);
+            if (value.Equals(_value)) return;
+            
+            _value = value;
+            
+#if DEBUG
+            Plugin.Logger.LogDebug($"New Value: ({typeof(T).FullName}) {_value}");
+#endif
+            
+            OnValueChanged?.Invoke(_value);
         }
     }
 
@@ -75,7 +83,7 @@ public class LethalNetworkVariable<T>
     /// The callback to invoke when the variable's value changes.
     /// </summary>
     /// <remarks>Invoked when changed locally and on the network.</remarks>
-    public event Action<T> OnValueChanged;
+    public event Action<T>? OnValueChanged;
 
     #endregion
 
@@ -83,20 +91,34 @@ public class LethalNetworkVariable<T>
 
     private void SendUpdate()
     {
-        NetworkHandler.Instance.UpdateVariableServerRpc(_variableGuid, JsonUtility.ToJson(Value));
+        if (NetworkHandler.Instance == null) return;
+        
+#if DEBUG
+        Plugin.Logger.LogDebug($"New Value: ({typeof(T).FullName}) {_value}; {JsonUtility.ToJson(new ValueWrapper<T>(_value))}");
+#endif
+        
+        NetworkHandler.Instance.UpdateVariableServerRpc(_variableGuid,
+            JsonUtility.ToJson(new ValueWrapper<T>(_value)));
     }
     
     private void ReceiveUpdate(string guid, string data)
     {
         if (guid != _variableGuid) return;
 
-        var newValue = JsonUtility.FromJson<T>(data);
+        var newValue = JsonUtility.FromJson<ValueWrapper<T>>(data).var;
 
+        if (newValue == null) return;
         if (newValue.Equals(_previousValue)) return;
 
         _previousValue = newValue;
+        Value = newValue;
+        
+#if DEBUG
+        Plugin.Logger.LogDebug($"New Value: ({typeof(T).FullName}) {newValue}");
+#endif
+        
         OnValueChanged?.Invoke(newValue);
-    }
+    } 
 
     private void OwnershipChange(string guid, ulong[] clientIds)
     {
@@ -109,9 +131,10 @@ public class LethalNetworkVariable<T>
 
     private void OnNetworkTick()
     {
-        if (_previousValue.Equals(Value)) return;
+        if (_value == null) return;
+        if (_value.Equals(_previousValue)) return;
         
-        _previousValue = Value;
+        _previousValue = _value;
         SendUpdate();
     }
 
@@ -122,7 +145,9 @@ public class LethalNetworkVariable<T>
     private readonly string _variableGuid;
     private readonly bool _protect;
     
-    private T _previousValue;
+    private T? _previousValue;
+    private T? _value;
+    
     private const ulong DefaultId = 999999;
     private ulong _ownerClientId = DefaultId;
     

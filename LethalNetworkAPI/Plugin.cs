@@ -41,3 +41,9 @@ internal class Plugin : BaseUnityPlugin
     internal new static BepInEx.Logging.ManualLogSource Logger { get; private set; }
     private static Harmony _harmony;
 }
+
+[Serializable]
+internal class ValueWrapper<T>(T? value)
+{
+    public T? var = value;
+}

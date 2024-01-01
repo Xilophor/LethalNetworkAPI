@@ -12,8 +12,8 @@ internal class Plugin : BaseUnityPlugin
 {
     private void Awake()
     {
-        Instance ??= this;
-        _harmony ??= new Harmony(PluginInfo.PLUGIN_GUID);
+        Instance = this;
+        _harmony = new Harmony(PluginInfo.PLUGIN_GUID);
         Logger = base.Logger;
         
         NetcodeWeaver();

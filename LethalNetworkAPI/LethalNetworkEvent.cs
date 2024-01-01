@@ -1,12 +1,8 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using LethalNetworkAPI.Networking;
 using Unity.Collections;
-using Unity.Netcode;
-using UnityEngine;
+
+// ReSharper disable InvalidXmlDocComment
 
 namespace LethalNetworkAPI;
 
@@ -21,7 +17,8 @@ public class LethalNetworkEvent
     public LethalNetworkEvent(string guid)
     {
         _eventGuid = $"{Assembly.GetCallingAssembly().GetName().Name}.evt.{guid}";
-        NetworkHandler.OnEvent += ReceiveEvent;
+        NetworkHandler.OnServerEvent += ReceiveServerEvent;
+        NetworkHandler.OnClientEvent += ReceiveClientEvent;
         NetworkHandler.OnSyncedServerEvent += ReceiveSyncedServerEvent;
         NetworkHandler.OnSyncedClientEvent += ReceiveSyncedClientEvent;
 
@@ -108,7 +105,7 @@ public class LethalNetworkEvent
         var time = NetworkManager.Singleton.LocalTime.Time;
         
         NetworkHandler.Instance.SyncedEventServerRpc(_eventGuid, time);
-        NetworkHandler.Instance.StartCoroutine(WaitAndInvokeEvent(0, false));
+        NetworkHandler.Instance.StartCoroutine(WaitAndInvokeEvent(0));
         
 #if DEBUG
         Plugin.Logger.LogDebug($"Attempted to invoke Synced Event to Other Clients with guid: {_eventGuid}");
@@ -143,6 +140,12 @@ public class LethalNetworkEvent
     /// </summary>
     public event Action OnServerReceived;
     
+    /// <summary>
+    /// The callback to invoke when an event is received by the server.
+    /// </summary>
+    /// <typeparam name="clientId">(<see cref="UInt64">ulong</see>) The origin client.</typeparam>
+    public event Action<ulong> OnServerReceivedFrom;
+    
     
     /// <summary>
     /// The callback to invoke when an event is received by the client.
@@ -151,14 +154,23 @@ public class LethalNetworkEvent
 
     #endregion
 
-    private void ReceiveEvent(string guid, bool isServerEvent)
+    private void ReceiveServerEvent(string guid, ulong originClientId)
     {
         if (guid != _eventGuid) return;
 
-        if (isServerEvent)
-            OnServerReceived?.Invoke();
-        else
-            OnClientReceived?.Invoke();
+        OnServerReceived?.Invoke();
+        OnServerReceivedFrom?.Invoke(originClientId);
+        
+#if DEBUG
+        Plugin.Logger.LogDebug($"Received event with guid: {_eventGuid}");
+#endif
+    }
+    
+    private void ReceiveClientEvent(string guid)
+    {
+        if (guid != _eventGuid) return;
+        
+        OnClientReceived?.Invoke();
         
 #if DEBUG
         Plugin.Logger.LogDebug($"Received event with guid: {_eventGuid}");
@@ -176,7 +188,7 @@ public class LethalNetworkEvent
         
         NetworkHandler.Instance.SyncedEventClientRpc(guid, time, new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIdsNativeArray = clientIds } } );
         
-        NetworkHandler.Instance.StartCoroutine(WaitAndInvokeEvent((float)timeToWait, true));
+        NetworkHandler.Instance.StartCoroutine(WaitAndInvokeEvent((float)timeToWait, originatorClientId));
         
 #if DEBUG
         Plugin.Logger.LogDebug($"Received synced event with guid: {_eventGuid}");
@@ -189,20 +201,23 @@ public class LethalNetworkEvent
         
         var timeToWait = time - NetworkManager.Singleton.ServerTime.Time;
         
-        NetworkHandler.Instance.StartCoroutine(WaitAndInvokeEvent((float)timeToWait, false));
+        NetworkHandler.Instance.StartCoroutine(WaitAndInvokeEvent((float)timeToWait));
         
 #if DEBUG
         Plugin.Logger.LogDebug($"Received synced event with guid: {_eventGuid}");
 #endif
     }
     
-    private IEnumerator WaitAndInvokeEvent(float timeToWait, bool isServerEvent)
+    private IEnumerator WaitAndInvokeEvent(float timeToWait, ulong clientId = 99999)
     {
         if (timeToWait > 0)
             yield return new WaitForSeconds(timeToWait);
         
-        if (isServerEvent)
+        if (clientId != 99999)
+        {
             OnServerReceived?.Invoke();
+            OnServerReceivedFrom?.Invoke(clientId);
+        }
         else
             OnClientReceived?.Invoke();
         

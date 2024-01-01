@@ -1,10 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using HarmonyLib;
-using Unity.Netcode;
-using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace LethalNetworkAPI.Networking;
@@ -35,5 +29,4 @@ internal class NetworkObjectManager
     }
     
     private static GameObject _networkPrefab;
-    // internal static IEnumerable<ulong[]> ClientIdCollections { get; private set; }
 }

@@ -1,13 +1,7 @@
-using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.Serialization.Formatters.Binary;
-using LethalNetworkAPI.Networking;
 using Unity.Collections;
-using Unity.Netcode;
-using UnityEngine;
+
+// ReSharper disable InvalidXmlDocComment
 
 namespace LethalNetworkAPI;
 
@@ -24,7 +18,8 @@ public class LethalNetworkMessage<T>
     public LethalNetworkMessage(string guid)
     {
         _messageGuid = $"{Assembly.GetCallingAssembly().GetName().Name}.msg.{guid}";
-        NetworkHandler.OnMessage += ReceiveMessage;
+        NetworkHandler.OnServerMessage += ReceiveServerMessage;
+        NetworkHandler.OnClientMessage += ReceiveClientMessage;
 
 #if DEBUG
         Plugin.Logger.LogDebug($"NetworkMessage with guid \"{_messageGuid}\" has been created.");
@@ -107,6 +102,11 @@ public class LethalNetworkMessage<T>
     /// </summary>
     public event Action<T> OnServerReceived;
     
+    /// <summary>
+    /// The callback to invoke when a message is received by the server.
+    /// </summary>
+    /// <typeparam name="clientId">(<see cref="UInt64">ulong</see>) The origin client.</typeparam>
+    public event Action<T, ulong> OnServerReceivedFrom;
     
     /// <summary>
     /// The callback to invoke when a message is received by the client.
@@ -115,14 +115,23 @@ public class LethalNetworkMessage<T>
 
     #endregion
 
-    private void ReceiveMessage(string guid, string data, bool isServerMessage)
+    private void ReceiveServerMessage(string guid, string data, ulong originClientId)
     {
         if (guid != _messageGuid) return;
 
-        if (isServerMessage)
-            OnServerReceived?.Invoke(JsonUtility.FromJson<T>(data));
-        else
-            OnClientReceived?.Invoke(JsonUtility.FromJson<T>(data));
+        OnServerReceived?.Invoke(JsonUtility.FromJson<T>(data));
+        OnServerReceivedFrom?.Invoke(JsonUtility.FromJson<T>(data), originClientId);
+        
+#if DEBUG
+        Plugin.Logger.LogDebug($"Received data: {data}");
+#endif
+    }
+    
+    private void ReceiveClientMessage(string guid, string data)
+    {
+        if (guid != _messageGuid) return;
+
+        OnClientReceived?.Invoke(JsonUtility.FromJson<T>(data));
         
 #if DEBUG
         Plugin.Logger.LogDebug($"Received data: {data}");

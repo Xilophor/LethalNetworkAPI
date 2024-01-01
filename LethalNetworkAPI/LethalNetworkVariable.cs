@@ -1,10 +1,3 @@
-using System;
-using System.Linq;
-using System.Reflection;
-using LethalNetworkAPI.Networking;
-using Unity.Netcode;
-using UnityEngine;
-
 namespace LethalNetworkAPI;
 
 /// <typeparam name="T">The <a href="https://docs.unity3d.com/2022.3/Documentation/Manual/script-Serialization.html#SerializationRules">serializable data type</a> of the message.</typeparam>
@@ -74,7 +67,7 @@ public class LethalNetworkVariable<T>
             if (_protect && _ownerClientId == DefaultId) return;
             if (value.Equals(_previousValue)) return;
             
-            OnValueChange?.Invoke(value);
+            OnValueChanged?.Invoke(value);
         }
     }
 
@@ -82,7 +75,7 @@ public class LethalNetworkVariable<T>
     /// The callback to invoke when the variable's value changes.
     /// </summary>
     /// <remarks>Invoked when changed locally and on the network.</remarks>
-    public event Action<T> OnValueChange;
+    public event Action<T> OnValueChanged;
 
     #endregion
 
@@ -102,7 +95,7 @@ public class LethalNetworkVariable<T>
         if (newValue.Equals(_previousValue)) return;
 
         _previousValue = newValue;
-        OnValueChange?.Invoke(newValue);
+        OnValueChanged?.Invoke(newValue);
     }
 
     private void OwnershipChange(string guid, ulong[] clientIds)
@@ -130,7 +123,7 @@ public class LethalNetworkVariable<T>
     private readonly bool _protect;
     
     private T _previousValue;
-    private const ulong DefaultId = 123412341234;
+    private const ulong DefaultId = 999999;
     private ulong _ownerClientId = DefaultId;
     
     #endregion
@@ -140,4 +133,4 @@ public class LethalNetworkVariable<T>
 /// Declare <see cref="LethalNetworkVariable&lt;T&gt;" /> as protected.
 /// </summary>
 [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-public class LethalNetworkProtectedAttribute : Attribute {}
+public class LethalNetworkProtectedAttribute : Attribute;

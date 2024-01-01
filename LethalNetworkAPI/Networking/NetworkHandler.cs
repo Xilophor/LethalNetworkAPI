@@ -1,7 +1,5 @@
-using System;
-using System.Runtime.CompilerServices;
-using Unity.Netcode;
-using UnityEngine;
+
+
 // ReSharper disable MemberCanBeMadeStatic.Global
 
 namespace LethalNetworkAPI.Networking;
@@ -23,15 +21,15 @@ internal class NetworkHandler : NetworkBehaviour
     #region Messages
     
     [ServerRpc(RequireOwnership = false)]
-    internal void MessageServerRpc(string guid, string data)
+    internal void MessageServerRpc(string guid, string data, ServerRpcParams serverRpcParams = default)
     {
-        OnMessage?.Invoke(guid, data, true);
+        OnServerMessage?.Invoke(guid, data, serverRpcParams.Receive.SenderClientId);
     }
 
     [ClientRpc]
     internal void MessageClientRpc(string guid, string data, ClientRpcParams clientRpcParams = default)
     {
-        OnMessage?.Invoke(guid, data, false);
+        OnClientMessage?.Invoke(guid, data);
         clientRpcParams.Send.TargetClientIdsNativeArray?.Dispose();
     }
 
@@ -40,9 +38,9 @@ internal class NetworkHandler : NetworkBehaviour
     #region Events
 
     [ServerRpc(RequireOwnership = false)]
-    internal void EventServerRpc(string guid)
+    internal void EventServerRpc(string guid, ServerRpcParams serverRpcParams = default)
     {
-        OnEvent?.Invoke(guid, true);
+        OnServerEvent?.Invoke(guid, serverRpcParams.Receive.SenderClientId);
         
 #if DEBUG
         Plugin.Logger.LogDebug($"Received server data: {guid}");
@@ -52,7 +50,7 @@ internal class NetworkHandler : NetworkBehaviour
     [ClientRpc]
     internal void EventClientRpc(string guid, ClientRpcParams clientRpcParams = default)
     {
-        OnEvent?.Invoke(guid, false);
+        OnClientEvent?.Invoke(guid);
         clientRpcParams.Send.TargetClientIdsNativeArray?.Dispose();
         
 #if DEBUG
@@ -111,7 +109,7 @@ internal class NetworkHandler : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     internal void UpdateOwnershipServerRpc(string guid, ulong newClientId, ServerRpcParams serverRpcParams = default)
     {
-        UpdateOwnershipClientRpc(guid, new []{serverRpcParams.Receive.SenderClientId, newClientId});
+        UpdateOwnershipClientRpc(guid, [serverRpcParams.Receive.SenderClientId, newClientId]);
     }
     
     [ClientRpc]
@@ -127,12 +125,14 @@ internal class NetworkHandler : NetworkBehaviour
     internal static event Action NetworkSpawn;
     internal static event Action NetworkTick;
     
-    internal static event Action<string, string, bool> OnMessage; // guid, data, isServerMessage
+    internal static event Action<string, string, ulong> OnServerMessage; // guid, data, originatorClientId
+    internal static event Action<string, string> OnClientMessage; // guid, data
     
     internal static event Action<string, string> OnVariableUpdate; // guid, data
     internal static event Action<string, ulong[]> OnOwnershipChange; // guid, clientIds
     
-    internal static event Action<string, bool> OnEvent; // guid, isServerEvent
+    internal static event Action<string, ulong> OnServerEvent; // guid, originatorClientId
+    internal static event Action<string> OnClientEvent; // guid
     internal static event Action<string, double, ulong> OnSyncedServerEvent; // guid, time, originatorClientId
     internal static event Action<string, double> OnSyncedClientEvent; // guid, time
 }

@@ -10,13 +10,13 @@ The simplest addition of the API. Used to trigger methods on the server or other
 
 #### Constructor
 
-To create a new Network Event, all you need is the simple constructor with your event guid:
+To create a new Network Event, all you need is the simple constructor with your event identifier:
 
 ```csharp
-LethalNetworkEvent customEvent = new LethalNetworkEvent(guid: "customGuid");
+LethalNetworkEvent customEvent = new LethalNetworkEvent(identifier: "customIdentifier");
 ```
 
-Any invoke of this event will be received by events with the same guid on other clients.
+Any invoke of this event will be received by events with the same identifier on other clients.
 
 #### Methods
 
@@ -99,7 +99,7 @@ Another way of sending information to other clients is via `LethalNetworkMessage
 When creating a Network Message, you have to specify the `Type` of the message.
 
 ```csharp
-LethalNetworkMessage<Type> customMessage = new LethalNetworkMessage<Type>(guid: "customGuid");
+LethalNetworkMessage<Type> customMessage = new LethalNetworkMessage<Type>(identifier: "customIdentifier");
 ```
 
 The type can be any of the aforementioned serializable data types.
@@ -171,20 +171,20 @@ The final addition of the API, available in any serializable data type.
 When creating a Network Variable, you have to specify the `Type` of the variable.
 
 ```csharp
-LethalNetworkVariable<Type> customVariable = new LethalNetworkVariable<Type>(guid: "customGuid");
+LethalNetworkVariable<Type> customVariable = new LethalNetworkVariable<Type>(identifier: "customIdentifier");
 ```
 
 If you want to initialize it with data, you can use an object initializer:
 
 ```csharp
-LethalNetworkVariable<Type> customVariable = new LethalNetworkVariable<Type>(guid: "customGuid") { Value = (Type)data; };
+LethalNetworkVariable<Type> customVariable = new LethalNetworkVariable<Type>(identifier: "customIdentifier") { Value = (Type)data; };
 ```
 
 > If you want to make a protected variable (that other clients can't modify), you need to add the `[LethalNetworkProtected]` attribute as so:
 > 
 > ```csharp
 > [LethalNetworkProtected]
-> LethalNetworkVariable<Type> protectedCustomVariable = new LethalNetworkVariable<Type>(guid: "customGuid");
+> LethalNetworkVariable<Type> protectedCustomVariable = new LethalNetworkVariable<Type>(identifier: "customIdentifier");
 > ```
 > 
 > Ownership of the variable cannot be assigned until after the lobby is created/joined.

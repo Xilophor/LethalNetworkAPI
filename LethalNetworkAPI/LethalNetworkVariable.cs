@@ -7,11 +7,11 @@ public class LethalNetworkVariable<T>
     /// <summary>
     /// Create a new network variable.
     /// </summary>
-    /// <param name="guid">(<see cref="string"/>) An identifier for the variable.</param>
-    /// <remarks>GUIDs are specific to a per-mod basis.</remarks>
-    public LethalNetworkVariable(string guid)
+    /// <param name="identifier">(<see cref="string"/>) An identifier for the variable.</param>
+    /// <remarks>Identifiers are specific to a per-mod basis.</remarks>
+    public LethalNetworkVariable(string identifier)
     {
-        _variableGuid = $"{Assembly.GetCallingAssembly().GetName().Name}.var.{guid}";
+        _variableIdentifier = $"{Assembly.GetCallingAssembly().GetName().Name}.var.{identifier}";
         NetworkHandler.OnVariableUpdate += ReceiveUpdate;
         NetworkHandler.OnOwnershipChange += OwnershipChange;
         NetworkHandler.NetworkTick += OnNetworkTick;
@@ -20,7 +20,7 @@ public class LethalNetworkVariable<T>
             _protect = true;
         
 #if DEBUG
-        Plugin.Logger.LogDebug($"NetworkVariable with guid \"{_variableGuid}\" has been created.");
+        Plugin.Logger.LogDebug($"NetworkVariable with identifier \"{_variableIdentifier}\" has been created.");
 #endif
     }
     
@@ -43,9 +43,9 @@ public class LethalNetworkVariable<T>
         if (!NetworkManager.Singleton.ConnectedClientsIds.Contains(clientId)) return false;
         
         if (NetworkManager.Singleton.IsServer)
-            NetworkHandler.Instance.UpdateOwnershipClientRpc(_variableGuid, [_ownerClientId, clientId]);
+            NetworkHandler.Instance.UpdateOwnershipClientRpc(_variableIdentifier, [_ownerClientId, clientId]);
         else
-            NetworkHandler.Instance.UpdateOwnershipServerRpc(_variableGuid, clientId);
+            NetworkHandler.Instance.UpdateOwnershipServerRpc(_variableIdentifier, clientId);
         
         _ownerClientId = clientId;
         
@@ -97,13 +97,13 @@ public class LethalNetworkVariable<T>
         Plugin.Logger.LogDebug($"New Value: ({typeof(T).FullName}) {_value}; {JsonUtility.ToJson(new ValueWrapper<T>(_value))}");
 #endif
         
-        NetworkHandler.Instance.UpdateVariableServerRpc(_variableGuid,
+        NetworkHandler.Instance.UpdateVariableServerRpc(_variableIdentifier,
             JsonUtility.ToJson(new ValueWrapper<T>(_value)));
     }
     
-    private void ReceiveUpdate(string guid, string data)
+    private void ReceiveUpdate(string identifier, string data)
     {
-        if (guid != _variableGuid) return;
+        if (identifier != _variableIdentifier) return;
 
         var newValue = JsonUtility.FromJson<ValueWrapper<T>>(data).var;
 
@@ -120,9 +120,9 @@ public class LethalNetworkVariable<T>
         OnValueChanged?.Invoke(newValue);
     } 
 
-    private void OwnershipChange(string guid, ulong[] clientIds)
+    private void OwnershipChange(string identifier, ulong[] clientIds)
     {
-        if (guid != _variableGuid) return;
+        if (identifier != _variableIdentifier) return;
 
         if (_ownerClientId != clientIds[0] && _ownerClientId != DefaultId) return;
 
@@ -142,7 +142,7 @@ public class LethalNetworkVariable<T>
 
     #region Private Variables
 
-    private readonly string _variableGuid;
+    private readonly string _variableIdentifier;
     private readonly bool _protect;
     
     private T? _previousValue;

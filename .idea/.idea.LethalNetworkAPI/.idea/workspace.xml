@@ -5,14 +5,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fe5d51d2-1873-4924-b711-a5dd06bc3594" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/LethalNetworkAPI/LethalNetworkHelper.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/LethalNetworkAPI/Patches/NetworkPatcher.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.LethalNetworkAPI/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.LethalNetworkAPI/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LethalNetworkAPI/LethalNetworkAPI.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/LethalNetworkAPI/LethalNetworkAPI.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LethalNetworkAPI.sln.DotSettings.user" beforeDir="false" afterPath="$PROJECT_DIR$/LethalNetworkAPI.sln.DotSettings.user" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/LethalNetworkAPI/LethalNetworkEvent.cs" beforeDir="false" afterPath="$PROJECT_DIR$/LethalNetworkAPI/LethalNetworkEvent.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/LethalNetworkAPI/LethalNetworkMessage.cs" beforeDir="false" afterPath="$PROJECT_DIR$/LethalNetworkAPI/LethalNetworkMessage.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LethalNetworkAPI/LethalNetworkVariable.cs" beforeDir="false" afterPath="$PROJECT_DIR$/LethalNetworkAPI/LethalNetworkVariable.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/LethalNetworkAPI/Networking/NetworkHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/LethalNetworkAPI/Networking/NetworkHandler.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LethalNetworkAPI/Networking/NetworkManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/LethalNetworkAPI/Networking/NetworkManager.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/LethalNetworkAPI/Plugin.cs" beforeDir="false" afterPath="$PROJECT_DIR$/LethalNetworkAPI/Plugin.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TestMod/Plugin.cs" beforeDir="false" afterPath="$PROJECT_DIR$/TestMod/Plugin.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TestMod/TestMod.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/TestMod/TestMod.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -23,8 +26,18 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/1b23ec5fcbfc4fbca0db70afcdb9b71550000/5f/a753ceaa/ServerRpcAttribute.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/29e3dfd7379d434ca9881f8263fe42fea8e00/45/5fd64ffc/VersionConverter.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/29e3dfd7379d434ca9881f8263fe42fea8e00/f6/b7a09d68/StringEnumConverter.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/44743d9474784365a095189c7617530114fc00/34/2788b92e/StartOfRound.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/44743d9474784365a095189c7617530114fc00/3e/a34b5e97/RoundManager.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/44743d9474784365a095189c7617530114fc00/f2/5639718d/GameNetworkManager.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/6b1444477c1d41c692ef6c02a838308529ac30/6d/3a3f93ab/Attribute.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/metadata/29e3dfd7379d434ca9881f8263fe42fea8e00/5f/0af6f2ae/Newtonsoft.Json.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/metadata/44743d9474784365a095189c7617530114fc00/7e/068a1dc9/Assembly-CSharp.cs" root0="SKIP_HIGHLIGHTING" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
   </component>
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="Toolset" />
@@ -40,29 +53,29 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_ADD_EXTERNAL_FILES": "true",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "master",
-    "last_opened_file_path": "/home/ryan/Documents/Repos/Lethal Company/LethalNetworkAPI/LethalNetworkAPI/bin/Debug/netstandard2.1/LethalNetworkAPI.dll",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.keymap",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/ryan/Documents/Repos/Lethal Company/LethalNetworkAPI/LethalNetworkAPI/bin/Debug/netstandard2.1/LethalNetworkAPI.dll&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.keymap&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "rider.external.source.directories": [
-      "C:\\Users\\Ryan\\AppData\\Roaming\\JetBrains\\Rider2023.3\\resharper-host\\DecompilerCache",
-      "C:\\Users\\Ryan\\AppData\\Roaming\\JetBrains\\Rider2023.3\\resharper-host\\SourcesCache",
-      "C:\\Users\\Ryan\\AppData\\Local\\Symbols\\src"
+  &quot;keyToStringList&quot;: {
+    &quot;rider.external.source.directories&quot;: [
+      &quot;C:\\Users\\Ryan\\AppData\\Roaming\\JetBrains\\Rider2023.3\\resharper-host\\DecompilerCache&quot;,
+      &quot;C:\\Users\\Ryan\\AppData\\Roaming\\JetBrains\\Rider2023.3\\resharper-host\\SourcesCache&quot;,
+      &quot;C:\\Users\\Ryan\\AppData\\Local\\Symbols\\src&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration name="Attach to Unity Editor" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="Unity Debug" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost">
       <option name="allowRunningInParallel" value="false" />
@@ -91,7 +104,9 @@
       <workItem from="1703884591155" duration="14936000" />
       <workItem from="1703906183483" duration="2462000" />
       <workItem from="1703943261500" duration="13626000" />
-      <workItem from="1703968358445" duration="6058000" />
+      <workItem from="1703968358445" duration="41120000" />
+      <workItem from="1704066639163" duration="33448000" />
+      <workItem from="1704162345735" duration="6920000" />
     </task>
     <servers />
   </component>

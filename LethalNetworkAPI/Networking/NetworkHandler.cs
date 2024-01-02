@@ -20,18 +20,23 @@ internal class NetworkHandler : NetworkBehaviour
         NetworkManager.NetworkTickSystem.Tick += NetworkTick;
     }
 
+    public override void OnNetworkDespawn()
+    {
+        NetworkDespawn?.Invoke();
+    }
+    
     #region Messages
     
     [ServerRpc(RequireOwnership = false)]
-    internal void MessageServerRpc(string guid, string data, ServerRpcParams serverRpcParams = default)
+    internal void MessageServerRpc(string identifier, string data, ServerRpcParams serverRpcParams = default)
     {
-        OnServerMessage?.Invoke(guid, data, serverRpcParams.Receive.SenderClientId);
+        OnServerMessage?.Invoke(identifier, data, serverRpcParams.Receive.SenderClientId);
     }
 
     [ClientRpc]
-    internal void MessageClientRpc(string guid, string data, ClientRpcParams clientRpcParams = default)
+    internal void MessageClientRpc(string identifier, string data, ClientRpcParams clientRpcParams = default)
     {
-        OnClientMessage?.Invoke(guid, data);
+        OnClientMessage?.Invoke(identifier, data);
         clientRpcParams.Send.TargetClientIdsNativeArray?.Dispose();
     }
 
@@ -40,44 +45,44 @@ internal class NetworkHandler : NetworkBehaviour
     #region Events
 
     [ServerRpc(RequireOwnership = false)]
-    internal void EventServerRpc(string guid, ServerRpcParams serverRpcParams = default)
+    internal void EventServerRpc(string identifier, ServerRpcParams serverRpcParams = default)
     {
-        OnServerEvent?.Invoke(guid, serverRpcParams.Receive.SenderClientId);
+        OnServerEvent?.Invoke(identifier, serverRpcParams.Receive.SenderClientId);
         
 #if DEBUG
-        Plugin.Logger.LogDebug($"Received server data: {guid}");
+        Plugin.Logger.LogDebug($"Received server data: {identifier}");
 #endif
     }
 
     [ClientRpc]
-    internal void EventClientRpc(string guid, ClientRpcParams clientRpcParams = default)
+    internal void EventClientRpc(string identifier, ClientRpcParams clientRpcParams = default)
     {
-        OnClientEvent?.Invoke(guid);
+        OnClientEvent?.Invoke(identifier);
         clientRpcParams.Send.TargetClientIdsNativeArray?.Dispose();
         
 #if DEBUG
-        Plugin.Logger.LogDebug($"Received event with guid: {guid}");
+        Plugin.Logger.LogDebug($"Received event with identifier: {identifier}");
 #endif
     }
     
     [ServerRpc(RequireOwnership = false)]
-    internal void SyncedEventServerRpc(string guid, double time, ServerRpcParams serverRpcParams = default)
+    internal void SyncedEventServerRpc(string identifier, double time, ServerRpcParams serverRpcParams = default)
     {
-        OnSyncedServerEvent?.Invoke(guid, time, serverRpcParams.Receive.SenderClientId);
+        OnSyncedServerEvent?.Invoke(identifier, time, serverRpcParams.Receive.SenderClientId);
         
 #if DEBUG
-        Plugin.Logger.LogDebug($"Received server data: {guid}");
+        Plugin.Logger.LogDebug($"Received server data: {identifier}");
 #endif
     }
 
     [ClientRpc]
-    internal void SyncedEventClientRpc(string guid, double time, ClientRpcParams clientRpcParams = default)
+    internal void SyncedEventClientRpc(string identifier, double time, ClientRpcParams clientRpcParams = default)
     {
-        OnSyncedClientEvent?.Invoke(guid, time);
+        OnSyncedClientEvent?.Invoke(identifier, time);
         clientRpcParams.Send.TargetClientIdsNativeArray?.Dispose();
         
 #if DEBUG
-        Plugin.Logger.LogDebug($"Received event with guid: {guid}");
+        Plugin.Logger.LogDebug($"Received event with identifier: {identifier}");
 #endif
     }
 
@@ -86,42 +91,42 @@ internal class NetworkHandler : NetworkBehaviour
     #region Variables
     
     [ServerRpc(RequireOwnership = false)]
-    internal void UpdateVariableServerRpc(string guid, string data, ServerRpcParams serverRpcParams = default)
+    internal void UpdateVariableServerRpc(string identifier, string data, ServerRpcParams serverRpcParams = default)
     {
-        if (serverRpcParams.Receive.SenderClientId != NetworkManager.ServerClientId) OnVariableUpdate?.Invoke(guid, data);
+        if (serverRpcParams.Receive.SenderClientId != NetworkManager.ServerClientId) OnVariableUpdate?.Invoke(identifier, data);
         
         var clientIds = new NativeArray<ulong>(NetworkManager.Singleton.ConnectedClientsIds.Where(i => i != serverRpcParams.Receive.SenderClientId).ToArray(), Allocator.Persistent);
         if (!clientIds.Any()) return;
         
-        UpdateVariableClientRpc(guid, data, new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIdsNativeArray = clientIds } });
+        UpdateVariableClientRpc(identifier, data, new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIdsNativeArray = clientIds } });
 #if DEBUG
-        Plugin.Logger.LogDebug($"Received variable with guid: {guid}; data: {data}");
+        Plugin.Logger.LogDebug($"Received variable with identifier: {identifier}; data: {data}");
 #endif
     }
 
     [ClientRpc]
-    private void UpdateVariableClientRpc(string guid, string data, ClientRpcParams clientRpcParams = default)
+    private void UpdateVariableClientRpc(string identifier, string data, ClientRpcParams clientRpcParams = default)
     {
-        OnVariableUpdate?.Invoke(guid, data);
+        OnVariableUpdate?.Invoke(identifier, data);
         clientRpcParams.Send.TargetClientIdsNativeArray?.Dispose();
         
 #if DEBUG
-        Plugin.Logger.LogDebug($"Received variable with guid: {guid}");
+        Plugin.Logger.LogDebug($"Received variable with identifier: {identifier}");
 #endif
     }
 
 
 
     [ServerRpc(RequireOwnership = false)]
-    internal void UpdateOwnershipServerRpc(string guid, ulong newClientId, ServerRpcParams serverRpcParams = default)
+    internal void UpdateOwnershipServerRpc(string identifier, ulong newClientId, ServerRpcParams serverRpcParams = default)
     {
-        UpdateOwnershipClientRpc(guid, [serverRpcParams.Receive.SenderClientId, newClientId]);
+        UpdateOwnershipClientRpc(identifier, [serverRpcParams.Receive.SenderClientId, newClientId]);
     }
     
     [ClientRpc]
-    internal void UpdateOwnershipClientRpc(string guid, ulong[] clientIds)
+    internal void UpdateOwnershipClientRpc(string identifier, ulong[] clientIds)
     {
-        OnOwnershipChange?.Invoke(guid, clientIds);
+        OnOwnershipChange?.Invoke(identifier, clientIds);
     }
 
     #endregion
@@ -129,16 +134,17 @@ internal class NetworkHandler : NetworkBehaviour
     internal static NetworkHandler? Instance { get; private set; }
     
     internal static event Action? NetworkSpawn;
+    internal static event Action? NetworkDespawn;
     internal static event Action? NetworkTick;
     
-    internal static event Action<string, string, ulong>? OnServerMessage; // guid, data, originatorClientId
-    internal static event Action<string, string>? OnClientMessage; // guid, data
+    internal static event Action<string, string, ulong>? OnServerMessage; // identifier, data, originatorClientId
+    internal static event Action<string, string>? OnClientMessage; // identifier, data
     
-    internal static event Action<string, string>? OnVariableUpdate; // guid, data
-    internal static event Action<string, ulong[]>? OnOwnershipChange; // guid, clientIds
+    internal static event Action<string, string>? OnVariableUpdate; // identifier, data
+    internal static event Action<string, ulong[]>? OnOwnershipChange; // identifier, clientIds
     
-    internal static event Action<string, ulong>? OnServerEvent; // guid, originatorClientId
-    internal static event Action<string>? OnClientEvent; // guid
-    internal static event Action<string, double, ulong>? OnSyncedServerEvent; // guid, time, originatorClientId
-    internal static event Action<string, double>? OnSyncedClientEvent; // guid, time
+    internal static event Action<string, ulong>? OnServerEvent; // identifier, originatorClientId
+    internal static event Action<string>? OnClientEvent; // identifier
+    internal static event Action<string, double, ulong>? OnSyncedServerEvent; // identifier, time, originatorClientId
+    internal static event Action<string, double>? OnSyncedClientEvent; // identifier, time
 }

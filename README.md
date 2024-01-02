@@ -232,6 +232,18 @@ This will be invoked any time the variable is changed locally, and anytime a cha
 
 ---
 
+### LethalNetworkExtensions
+
+Additional methods/tools to help with networking.
+
+#### GetPlayerFromId
+
+Gets the `PlayerControllerB` from a given clientId. Will return `null` if the controller is not found.
+
+```csharp
+PlayerControllerB? controller = LethalNetworkExtensions.GetPlayerFromId(clientId);
+```
+
 ## Acknowledgements
 
 This API uses [@EvaisaDev](https://github.com/EvaisaDev/)'s [Unity Netcode Patcher](https://github.com/EvaisaDev/UnityNetcodePatcher/). Without it, this API would not be possible as it is currently done.

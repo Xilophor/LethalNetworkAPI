@@ -5,16 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fe5d51d2-1873-4924-b711-a5dd06bc3594" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/LethalNetworkAPI/LethalNetworkHelper.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/LethalNetworkAPI/Patches/NetworkPatcher.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.LethalNetworkAPI/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.LethalNetworkAPI/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LethalNetworkAPI.sln.DotSettings.user" beforeDir="false" afterPath="$PROJECT_DIR$/LethalNetworkAPI.sln.DotSettings.user" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LethalNetworkAPI/LethalNetworkEvent.cs" beforeDir="false" afterPath="$PROJECT_DIR$/LethalNetworkAPI/LethalNetworkEvent.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LethalNetworkAPI/LethalNetworkMessage.cs" beforeDir="false" afterPath="$PROJECT_DIR$/LethalNetworkAPI/LethalNetworkMessage.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LethalNetworkAPI/LethalNetworkVariable.cs" beforeDir="false" afterPath="$PROJECT_DIR$/LethalNetworkAPI/LethalNetworkVariable.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LethalNetworkAPI/Networking/NetworkHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/LethalNetworkAPI/Networking/NetworkHandler.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LethalNetworkAPI/Networking/NetworkManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/LethalNetworkAPI/Networking/NetworkManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LethalNetworkAPI/Plugin.cs" beforeDir="false" afterPath="$PROJECT_DIR$/LethalNetworkAPI/Plugin.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LethalNetworkAPI/LethalNetworkExtensions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/LethalNetworkAPI/LethalNetworkExtensions.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -29,9 +21,13 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/1b23ec5fcbfc4fbca0db70afcdb9b71550000/5f/a753ceaa/ServerRpcAttribute.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/29e3dfd7379d434ca9881f8263fe42fea8e00/45/5fd64ffc/VersionConverter.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/29e3dfd7379d434ca9881f8263fe42fea8e00/f6/b7a09d68/StringEnumConverter.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/44743d9474784365a095189c7617530114fc00/22/cbf4f981/KillLocalPlayer.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/44743d9474784365a095189c7617530114fc00/34/2788b92e/StartOfRound.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/44743d9474784365a095189c7617530114fc00/3e/a34b5e97/RoundManager.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/44743d9474784365a095189c7617530114fc00/88/6b62a57f/PlayerControllerB.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/44743d9474784365a095189c7617530114fc00/f2/5639718d/GameNetworkManager.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/44743d9474784365a095189c76175301157800/37/fc9d1997/StartOfRound.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/44743d9474784365a095189c76175301157800/d4/32f186e9/PlayerControllerB.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/6b1444477c1d41c692ef6c02a838308529ac30/6d/3a3f93ab/Attribute.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/metadata/29e3dfd7379d434ca9881f8263fe42fea8e00/5f/0af6f2ae/Newtonsoft.Json.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/metadata/44743d9474784365a095189c7617530114fc00/7e/068a1dc9/Assembly-CSharp.cs" root0="SKIP_HIGHLIGHTING" />
@@ -106,7 +102,7 @@
       <workItem from="1703943261500" duration="13626000" />
       <workItem from="1703968358445" duration="41120000" />
       <workItem from="1704066639163" duration="33448000" />
-      <workItem from="1704162345735" duration="6920000" />
+      <workItem from="1704162345735" duration="8896000" />
     </task>
     <servers />
   </component>

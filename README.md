@@ -75,7 +75,7 @@ private void CustomMethod() {}
 2. `OnServerReceivedFrom`
 
 ```csharp
-customEvent.OnServerReceived += CustomMethod;
+customEvent.OnServerReceivedFrom += CustomMethod;
 
 private void CustomMethod(ulong originClientId) {}
 ```
@@ -147,7 +147,7 @@ private void CustomMethod(Type data) {}
 2. `OnServerReceivedFrom`
 
 ```csharp
-customMessage.OnServerReceived += CustomMethod;
+customMessage.OnServerReceivedFrom += CustomMethod;
 
 private void CustomMethod(Type data, ulong originClientId) {}
 ```

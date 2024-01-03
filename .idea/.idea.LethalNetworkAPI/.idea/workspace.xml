@@ -5,9 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fe5d51d2-1873-4924-b711-a5dd06bc3594" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/LethalNetworkAPI/Serializer.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.LethalNetworkAPI/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.LethalNetworkAPI/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LethalNetworkAPI/LethalNetworkExtensions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/LethalNetworkAPI/LethalNetworkExtensions.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LethalNetworkAPI.sln.DotSettings.user" beforeDir="false" afterPath="$PROJECT_DIR$/LethalNetworkAPI.sln.DotSettings.user" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LethalNetworkAPI/LethalNetworkAPI.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/LethalNetworkAPI/LethalNetworkAPI.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LethalNetworkAPI/LethalNetworkMessage.cs" beforeDir="false" afterPath="$PROJECT_DIR$/LethalNetworkAPI/LethalNetworkMessage.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LethalNetworkAPI/LethalNetworkVariable.cs" beforeDir="false" afterPath="$PROJECT_DIR$/LethalNetworkAPI/LethalNetworkVariable.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LethalNetworkAPI/Networking/NetworkHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/LethalNetworkAPI/Networking/NetworkHandler.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LethalNetworkAPI/Plugin.cs" beforeDir="false" afterPath="$PROJECT_DIR$/LethalNetworkAPI/Plugin.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TestMod/Plugin.cs" beforeDir="false" afterPath="$PROJECT_DIR$/TestMod/Plugin.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -27,10 +33,20 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/44743d9474784365a095189c7617530114fc00/88/6b62a57f/PlayerControllerB.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/44743d9474784365a095189c7617530114fc00/f2/5639718d/GameNetworkManager.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/44743d9474784365a095189c76175301157800/37/fc9d1997/StartOfRound.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/44743d9474784365a095189c76175301157800/d4/32f186e9/PlayerControllerB.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/44743d9474784365a095189c76175301157800/d4/32f186e9/PlayerControllerB.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/4fc7262ffd104caaae77d1b3d95df2a917600/bd/36c72ef5/JsonObject.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/4fc7262ffd104caaae77d1b3d95df2a917600/f4/cd45ffb4/JsonObjectCollectionConverter.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/6b1444477c1d41c692ef6c02a838308529ac30/6d/3a3f93ab/Attribute.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/91809ff8b21947849b826367a7e812d7b800/6a/715f5c59/UnityTypeContractResolver.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/91809ff8b21947849b826367a7e812d7b800/72/8401cbc9/ConverterGrouping.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/91809ff8b21947849b826367a7e812d7b800/7f/ff5fa4b7/UnityConverterInitializer.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/91809ff8b21947849b826367a7e812d7b800/e7/eecfb6ee/CullingGroupEventConverter.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/91809ff8b21947849b826367a7e812d7b800/f4/14e1ddc3/Color32Converter.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/91809ff8b21947849b826367a7e812d7b800/fc/f70319ab/PartialConverter`1.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/metadata/29e3dfd7379d434ca9881f8263fe42fea8e00/5f/0af6f2ae/Newtonsoft.Json.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/metadata/44743d9474784365a095189c7617530114fc00/7e/068a1dc9/Assembly-CSharp.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/metadata/91809ff8b21947849b826367a7e812d7b800/b4/4e630136/Newtonsoft.Json.UnityConverters.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../unity stuff/Newtonsoft.Json-for-Unity.Converters/Packages/Newtonsoft.Json-for-Unity.Converters/UnityConverters/UnityConverterInitializer.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -102,7 +118,9 @@
       <workItem from="1703943261500" duration="13626000" />
       <workItem from="1703968358445" duration="41120000" />
       <workItem from="1704066639163" duration="33448000" />
-      <workItem from="1704162345735" duration="8896000" />
+      <workItem from="1704162345735" duration="9498000" />
+      <workItem from="1704243619125" duration="9879000" />
+      <workItem from="1704259831350" duration="6257000" />
     </task>
     <servers />
   </component>

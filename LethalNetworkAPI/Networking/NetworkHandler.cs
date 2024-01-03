@@ -32,11 +32,29 @@ internal class NetworkHandler : NetworkBehaviour
     {
         OnServerMessage?.Invoke(identifier, data, serverRpcParams.Receive.SenderClientId);
     }
+    
+    [ServerRpc(RequireOwnership = false)]
+    internal void MessageOthersServerRpc(string identifier, string data, ServerRpcParams serverRpcParams = default)
+    {
+        var clientIds = new NativeArray<ulong>(NetworkManager.Singleton.ConnectedClientsIds
+            .Where(i => i != serverRpcParams.Receive.SenderClientId).ToArray(), Allocator.Persistent);
+        if (!clientIds.Any()) return;
+        
+        MessageOthersClientRpc(identifier, data, serverRpcParams.Receive.SenderClientId, 
+            new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIdsNativeArray = clientIds } });
+    }
 
     [ClientRpc]
     internal void MessageClientRpc(string identifier, string data, ClientRpcParams clientRpcParams = default)
     {
         OnClientMessage?.Invoke(identifier, data);
+        clientRpcParams.Send.TargetClientIdsNativeArray?.Dispose();
+    }
+    
+    [ClientRpc]
+    private void MessageOthersClientRpc(string identifier, string data, ulong originatorClient, ClientRpcParams clientRpcParams = default)
+    {
+        OnClientMessageFrom?.Invoke(identifier, data, originatorClient);
         clientRpcParams.Send.TargetClientIdsNativeArray?.Dispose();
     }
 
@@ -139,6 +157,7 @@ internal class NetworkHandler : NetworkBehaviour
     
     internal static event Action<string, string, ulong>? OnServerMessage; // identifier, data, originatorClientId
     internal static event Action<string, string>? OnClientMessage; // identifier, data
+    internal static event Action<string, string, ulong>? OnClientMessageFrom; // identifier, data, originatorClientId
     
     internal static event Action<string, string>? OnVariableUpdate; // identifier, data
     internal static event Action<string, ulong[]>? OnOwnershipChange; // identifier, clientIds

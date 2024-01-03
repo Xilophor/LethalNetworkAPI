@@ -20,6 +20,7 @@ public class LethalNetworkMessage<T>
         _messageIdentifier = $"{Assembly.GetCallingAssembly().GetName().Name}.msg.{identifier}";
         NetworkHandler.OnServerMessage += ReceiveServerMessage;
         NetworkHandler.OnClientMessage += ReceiveClientMessage;
+        NetworkHandler.OnClientMessageFrom += ReceiveFromClientMessage;
 
 #if DEBUG
         Plugin.Logger.LogDebug($"NetworkMessage with identifier \"{_messageIdentifier}\" has been created.");
@@ -37,10 +38,24 @@ public class LethalNetworkMessage<T>
     public void SendServer(T data)
     {
         if (NetworkHandler.Instance != null)
-            NetworkHandler.Instance.MessageServerRpc(_messageIdentifier, JsonUtility.ToJson(new ValueWrapper<T>(data)));
+            NetworkHandler.Instance.MessageServerRpc(_messageIdentifier, Serializer.Serialize(new ValueWrapper<T>(data)));
 
 #if DEBUG
         Plugin.Logger.LogDebug($"Attempted to Send Message to Server with data: {data}");
+#endif
+    }
+    
+    /// <summary>
+    /// Send data to other clients.
+    /// </summary>
+    /// <param name="data">(<typeparamref name="T"/>) The data to send.</param>
+    public void SendOtherClients(T data)
+    {
+        if (NetworkHandler.Instance != null)
+            NetworkHandler.Instance.MessageOthersServerRpc(_messageIdentifier, Serializer.Serialize(new ValueWrapper<T>(data)));
+
+#if DEBUG
+        Plugin.Logger.LogDebug($"Attempted to Send Message to Other Clients with data: {data}");
 #endif
     }
 
@@ -53,8 +68,8 @@ public class LethalNetworkMessage<T>
     {
         if (!(NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer) || NetworkHandler.Instance == null) return;
         if (!NetworkManager.Singleton.ConnectedClientsIds.Contains(clientId)) return;
-        
-        NetworkHandler.Instance.MessageClientRpc(_messageIdentifier, JsonUtility.ToJson(new ValueWrapper<T>(data)), 
+
+        NetworkHandler.Instance.MessageClientRpc(_messageIdentifier, Serializer.Serialize(new ValueWrapper<T>(data)),
             new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIdsNativeArray = new NativeArray<ulong>(new [] {clientId}, Allocator.Persistent) } } );
     }
     
@@ -72,7 +87,7 @@ public class LethalNetworkMessage<T>
         
         if (!allowedClientIds.Any()) return;
         
-        NetworkHandler.Instance.MessageClientRpc(_messageIdentifier, JsonUtility.ToJson(new ValueWrapper<T>(data)), 
+        NetworkHandler.Instance.MessageClientRpc(_messageIdentifier, Serializer.Serialize(new ValueWrapper<T>(data)), 
             new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIdsNativeArray = allowedClientIds } } );
     }
     
@@ -86,7 +101,7 @@ public class LethalNetworkMessage<T>
         if (!(NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer) || NetworkHandler.Instance == null) return;
         
         if (receiveOnHost)
-            NetworkHandler.Instance.MessageClientRpc(_messageIdentifier, JsonUtility.ToJson(new ValueWrapper<T>(data)));
+            NetworkHandler.Instance.MessageClientRpc(_messageIdentifier, Serializer.Serialize(new ValueWrapper<T>(data)));
         else
         {
             var clientIds = new NativeArray<ulong>(NetworkManager.Singleton.ConnectedClientsIds
@@ -94,12 +109,12 @@ public class LethalNetworkMessage<T>
 
             if (!clientIds.Any()) return;
             
-            NetworkHandler.Instance.MessageClientRpc(_messageIdentifier, JsonUtility.ToJson(new ValueWrapper<T>(data)), 
+            NetworkHandler.Instance.MessageClientRpc(_messageIdentifier, Serializer.Serialize(new ValueWrapper<T>(data)), 
                 new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIdsNativeArray = clientIds } } );
         }
         
 #if DEBUG
-        Plugin.Logger.LogDebug($"Attempted to Send Message to All Clients {receiveOnHost} with data: {data}; {JsonUtility.ToJson(new ValueWrapper<T>(data))}");
+        Plugin.Logger.LogDebug($"Attempted to Send Message to All Clients {receiveOnHost} with data: {data}; {Serializer.Serialize(new ValueWrapper<T>(data))}");
 #endif
     }
     
@@ -119,14 +134,19 @@ public class LethalNetworkMessage<T>
     /// </summary>
     public event Action<T>? OnClientReceived;
 
+    /// <summary>
+    /// The callback to invoke when a message is received by the client from another client;
+    /// </summary>
+    public event Action<T, ulong>? OnClientReceivedFrom;
+
     #endregion
 
     private void ReceiveServerMessage(string identifier, string data, ulong originClientId)
     {
         if (identifier != _messageIdentifier) return;
 
-        OnServerReceived?.Invoke(JsonUtility.FromJson<ValueWrapper<T>>(data).var!);
-        OnServerReceivedFrom?.Invoke(JsonUtility.FromJson<ValueWrapper<T>>(data).var!, originClientId);
+        OnServerReceived?.Invoke(Serializer.Deserialize<ValueWrapper<T>>(data)!.var!);
+        OnServerReceivedFrom?.Invoke(Serializer.Deserialize<ValueWrapper<T>>(data)!.var!, originClientId);
         
 #if DEBUG
         Plugin.Logger.LogDebug($"Received data: {data}");
@@ -137,7 +157,18 @@ public class LethalNetworkMessage<T>
     {
         if (identifier != _messageIdentifier) return;
 
-        OnClientReceived?.Invoke(JsonUtility.FromJson<ValueWrapper<T>>(data).var!);
+        OnClientReceived?.Invoke(Serializer.Deserialize<ValueWrapper<T>>(data)!.var!);
+        
+#if DEBUG
+        Plugin.Logger.LogDebug($"Received data: {data}");
+#endif
+    }
+    
+    private void ReceiveFromClientMessage(string identifier, string data, ulong originatorClient)
+    {
+        if (identifier != _messageIdentifier) return;
+
+        OnClientReceivedFrom?.Invoke(Serializer.Deserialize<ValueWrapper<T>>(data)!.var!, originatorClient);
         
 #if DEBUG
         Plugin.Logger.LogDebug($"Received data: {data}");

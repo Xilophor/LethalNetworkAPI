@@ -1,4 +1,5 @@
-﻿using BepInEx;
+﻿using System;
+using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
 using LethalNetworkAPI;
@@ -22,8 +23,12 @@ public class Plugin : BaseUnityPlugin
         Harmony.CreateAndPatchAll(typeof(Test));
 
         Message = new LethalNetworkMessage<int>("customMessage");
+        ClassMessage = new LethalNetworkMessage<CustomClass>("customClass");
+        StructMessage = new LethalNetworkMessage<CustomStruct>("customStruct");
 
         Message.OnClientReceived += Receive;
+        ClassMessage.OnClientReceivedFrom += ReceiveClass;
+        StructMessage.OnClientReceived += ReceiveStruct;
 
         CustomIntVariable.Value = 7;
         
@@ -32,23 +37,21 @@ public class Plugin : BaseUnityPlugin
         Test.Init();
     }
 
-    private static void Receive(int data)
-    {
+    private static void Receive(int data) =>
         Logger.LogInfo($"Player position: {data}");
-
-        CustomIntVariable.Value = CustomIntVariable.Value switch
-        {
-            > 5 => 5,
-            < -5 => -5,
-            _ => CustomIntVariable.Value
-        };
-    } 
+    
+    private static void ReceiveClass(CustomClass data, ulong originatorClient) =>
+        Logger.LogInfo($"Level: {data.level}; Originator: {originatorClient}");
+    
+    private static void ReceiveStruct(CustomStruct data) =>
+        Logger.LogInfo($"Test: {data.test}");
 
     public static Plugin Instance;
     public new static ManualLogSource Logger;
     
-    [LethalNetworkProtected]
     public static LethalNetworkMessage<int> Message;
+    public static LethalNetworkMessage<CustomClass> ClassMessage;
+    public static LethalNetworkMessage<CustomStruct> StructMessage;
 
     private static readonly LethalNetworkVariable<int> CustomIntVariable = new("customGuid");
 }
@@ -64,6 +67,8 @@ public class Test
         if (!NetworkManager.Singleton.IsHost) return;
             
         Plugin.Message.SendAllClients(8, true);
+        Plugin.ClassMessage.SendOtherClients(new CustomClass() {level = 15});
+        Plugin.StructMessage.SendAllClients(new CustomStruct() {test = Vector3.one});
 
         vbool.Variable.Value = true;
         vchar.Variable.Value = 't';
@@ -141,4 +146,16 @@ public class CustomNetworkVariable<T>
 
     [LethalNetworkProtected]
     public LethalNetworkVariable<T> Variable { get; }
+}
+
+[Serializable]
+public struct CustomClass
+{
+    public int level;
+}
+
+[Serializable]
+public struct CustomStruct
+{
+    public Vector3 test;
 }

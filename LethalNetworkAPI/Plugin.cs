@@ -4,13 +4,13 @@ using HarmonyLib;
 namespace LethalNetworkAPI;
 
 
-[BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
+[BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
 internal class Plugin : BaseUnityPlugin
 {
     private void Awake()
     {
         Instance = this;
-        _harmony = new Harmony(PluginInfo.PLUGIN_GUID);
+        _harmony = new Harmony(MyPluginInfo.PLUGIN_GUID);
         Logger = base.Logger;
         
         NetcodePatcher();

@@ -94,18 +94,18 @@ public class LethalNetworkVariable<T>
         if (NetworkHandler.Instance == null) return;
         
 #if DEBUG
-        Plugin.Logger.LogDebug($"New Value: ({typeof(T).FullName}) {_value}; {JsonUtility.ToJson(new ValueWrapper<T>(_value))}");
+        Plugin.Logger.LogDebug($"New Value: ({typeof(T).FullName}) {_value}; {Serializer.Serialize(new ValueWrapper<T>(_value))}");
 #endif
         
         NetworkHandler.Instance.UpdateVariableServerRpc(_variableIdentifier,
-            JsonUtility.ToJson(new ValueWrapper<T>(_value)));
+            Serializer.Serialize(new ValueWrapper<T>(_value)));
     }
     
     private void ReceiveUpdate(string identifier, string data)
     {
         if (identifier != _variableIdentifier) return;
 
-        var newValue = JsonUtility.FromJson<ValueWrapper<T>>(data).var;
+        var newValue = Serializer.Deserialize<ValueWrapper<T>>(data)!.var;
 
         if (newValue == null) return;
         if (newValue.Equals(_previousValue)) return;

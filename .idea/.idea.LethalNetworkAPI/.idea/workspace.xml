@@ -4,17 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fe5d51d2-1873-4924-b711-a5dd06bc3594" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/LethalNetworkAPI/Serializer.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.LethalNetworkAPI/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.LethalNetworkAPI/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LethalNetworkAPI.sln.DotSettings.user" beforeDir="false" afterPath="$PROJECT_DIR$/LethalNetworkAPI.sln.DotSettings.user" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LethalNetworkAPI/LethalNetworkAPI.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/LethalNetworkAPI/LethalNetworkAPI.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LethalNetworkAPI/LethalNetworkMessage.cs" beforeDir="false" afterPath="$PROJECT_DIR$/LethalNetworkAPI/LethalNetworkMessage.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LethalNetworkAPI/LethalNetworkVariable.cs" beforeDir="false" afterPath="$PROJECT_DIR$/LethalNetworkAPI/LethalNetworkVariable.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LethalNetworkAPI/Networking/NetworkHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/LethalNetworkAPI/Networking/NetworkHandler.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LethalNetworkAPI/Plugin.cs" beforeDir="false" afterPath="$PROJECT_DIR$/LethalNetworkAPI/Plugin.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TestMod/Plugin.cs" beforeDir="false" afterPath="$PROJECT_DIR$/TestMod/Plugin.cs" afterDir="false" />
-    </list>
+    <list default="true" id="fe5d51d2-1873-4924-b711-a5dd06bc3594" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -120,7 +110,7 @@
       <workItem from="1704066639163" duration="33448000" />
       <workItem from="1704162345735" duration="9498000" />
       <workItem from="1704243619125" duration="9879000" />
-      <workItem from="1704259831350" duration="6257000" />
+      <workItem from="1704259831350" duration="7739000" />
     </task>
     <servers />
   </component>

@@ -6,21 +6,19 @@ using Unity.Collections;
 
 namespace LethalNetworkAPI;
 
-public class LethalNetworkEvent
+public class ServerEvent
 {
         #region Public Constructors
     /// <summary>
-    /// Create a new network event.
+    /// Create a new network event for the server.
     /// </summary>
     /// <param name="identifier">(<see cref="string"/>) An identifier for the event.</param>
     /// <remarks>Identifiers are specific to a per-mod basis.</remarks>
-    public LethalNetworkEvent(string identifier)
+    public ServerEvent(string identifier)
     {
         _eventIdentifier = $"{Assembly.GetCallingAssembly().GetName().Name}.evt.{identifier}";
         NetworkHandler.OnServerEvent += ReceiveServerEvent;
-        NetworkHandler.OnClientEvent += ReceiveClientEvent;
         NetworkHandler.OnSyncedServerEvent += ReceiveSyncedServerEvent;
-        NetworkHandler.OnSyncedClientEvent += ReceiveSyncedClientEvent;
 
 #if DEBUG
         Plugin.Logger.LogDebug($"NetworkEvent with identifier \"{_eventIdentifier}\" has been created.");
@@ -30,14 +28,6 @@ public class LethalNetworkEvent
     #endregion
 
     #region Public Methods and Event
-    /// <summary>
-    /// Invoke event to the server/host.
-    /// </summary>
-    public void InvokeServer()
-    {
-        if (NetworkHandler.Instance != null) 
-            NetworkHandler.Instance.EventServerRpc(_eventIdentifier);
-    }
 
     /// <summary>
     /// Invoke event to a specific client.
@@ -48,7 +38,7 @@ public class LethalNetworkEvent
         if (!(NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer) || NetworkHandler.Instance == null) return;
         if (!NetworkManager.Singleton.ConnectedClientsIds.Contains(clientId)) return;
         
-        NetworkHandler.Instance.EventClientRpc(_eventIdentifier,
+        NetworkHandler.Instance.EventClientRpc(_eventIdentifier, 999,
             new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIdsNativeArray = new NativeArray<ulong>(new []{clientId}, Allocator.Persistent) } } );       
         
 #if DEBUG
@@ -68,7 +58,7 @@ public class LethalNetworkEvent
             .Where(i => NetworkManager.Singleton.ConnectedClientsIds.Contains(i)).ToArray(), Allocator.Persistent);
         if (!allowedClientIds.Any()) return;
         
-        NetworkHandler.Instance.EventClientRpc(_eventIdentifier,
+        NetworkHandler.Instance.EventClientRpc(_eventIdentifier, 999,
             new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIdsNativeArray = allowedClientIds } } );
         
 #if DEBUG
@@ -92,7 +82,7 @@ public class LethalNetworkEvent
                 .Where(i => i != NetworkManager.ServerClientId).ToArray(), Allocator.Persistent);
             if (!clientIds.Any()) return;
             
-            NetworkHandler.Instance.EventClientRpc(_eventIdentifier, 
+            NetworkHandler.Instance.EventClientRpc(_eventIdentifier, 999, 
                 new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIdsNativeArray = clientIds } } );
         }
         
@@ -102,23 +92,6 @@ public class LethalNetworkEvent
     }
     
     //? Synced Events
-    
-    /// <summary>
-    /// Invoke synchronized event to other clients.
-    /// </summary>
-    public void InvokeOtherClientsSynced()
-    {
-        var time = NetworkManager.Singleton.LocalTime.Time;
-
-        if (NetworkHandler.Instance == null) return;
-        
-        NetworkHandler.Instance.SyncedEventServerRpc(_eventIdentifier, time);
-        NetworkHandler.Instance.StartCoroutine(WaitAndInvokeEvent(0));
-
-#if DEBUG
-        Plugin.Logger.LogDebug($"Attempted to invoke Synced Event to Other Clients with identifier: {_eventIdentifier}");
-#endif
-    }
     
     /// <summary>
     /// Invoke synchronized event to all clients.
@@ -150,19 +123,8 @@ public class LethalNetworkEvent
     /// <summary>
     /// The callback to invoke when an event is received by the server.
     /// </summary>
-    public event Action? OnServerReceived;
-    
-    /// <summary>
-    /// The callback to invoke when an event is received by the server.
-    /// </summary>
     /// <typeparam name="clientId">(<see cref="UInt64">ulong</see>) The origin client.</typeparam>
-    public event Action<ulong>? OnServerReceivedFrom;
-    
-    
-    /// <summary>
-    /// The callback to invoke when an event is received by the client.
-    /// </summary>
-    public event Action? OnClientReceived;
+    public event Action<ulong>? OnReceived;
 
     #endregion
 
@@ -170,19 +132,7 @@ public class LethalNetworkEvent
     {
         if (identifier != _eventIdentifier) return;
 
-        OnServerReceived?.Invoke();
-        OnServerReceivedFrom?.Invoke(originClientId);
-        
-#if DEBUG
-        Plugin.Logger.LogDebug($"Received event with identifier: {_eventIdentifier}");
-#endif
-    }
-    
-    private void ReceiveClientEvent(string identifier)
-    {
-        if (identifier != _eventIdentifier) return;
-        
-        OnClientReceived?.Invoke();
+        OnReceived?.Invoke(originClientId);
         
 #if DEBUG
         Plugin.Logger.LogDebug($"Received event with identifier: {_eventIdentifier}");
@@ -209,31 +159,12 @@ public class LethalNetworkEvent
 #endif
     }
     
-    private void ReceiveSyncedClientEvent(string identifier, double time)
-    {
-        if (identifier != _eventIdentifier || NetworkHandler.Instance == null) return;
-        
-        var timeToWait = time - NetworkManager.Singleton.ServerTime.Time;
-        
-        NetworkHandler.Instance.StartCoroutine(WaitAndInvokeEvent((float)timeToWait));
-        
-#if DEBUG
-        Plugin.Logger.LogDebug($"Received synced event with identifier: {_eventIdentifier}");
-#endif
-    }
-    
-    private IEnumerator WaitAndInvokeEvent(float timeToWait, ulong clientId = 99999)
+    private IEnumerator WaitAndInvokeEvent(float timeToWait, ulong clientId)
     {
         if (timeToWait > 0)
             yield return new WaitForSeconds(timeToWait);
         
-        if (clientId != 99999)
-        {
-            OnServerReceived?.Invoke();
-            OnServerReceivedFrom?.Invoke(clientId);
-        }
-        else
-            OnClientReceived?.Invoke();
+        OnReceived?.Invoke(clientId);
         
 #if DEBUG
         Plugin.Logger.LogDebug($"Invoked event with identifier: {_eventIdentifier}");

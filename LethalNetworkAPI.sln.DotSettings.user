@@ -17,4 +17,5 @@
   &lt;Assembly Path="D:\Projects\unity stuff\testbuild\Newtonsoft.Json.UnityConverters_Data\Managed\Newtonsoft.Json.UnityConverters.Addressables.dll" /&gt;&#xD;
   &lt;Assembly Path="D:\LC_Assembilies\deps\Unity.Services.QoS.dll" /&gt;&#xD;
   &lt;Assembly Path="D:\Projects\Lethal_Company\LethalNetworkAPI\LethalNetworkAPI\bin\Debug\netstandard2.1\LethalNetworkAPI.dll" /&gt;&#xD;
+  &lt;Assembly Path="D:\Projects\Lethal_Company\LethalNetworkAPI\LethalNetworkAPI\bin\Debug\netstandard2.1\Unity.Netcode.Runtime.dll" /&gt;&#xD;
 &lt;/AssemblyExplorer&gt;</s:String></wpf:ResourceDictionary>

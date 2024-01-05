@@ -6,19 +6,18 @@ using Unity.Collections;
 namespace LethalNetworkAPI;
 
 /// <typeparam name="T">The <a href="https://docs.unity3d.com/2022.3/Documentation/Manual/script-Serialization.html#SerializationRules">serializable data type</a> of the message.</typeparam>
-public class LethalNetworkMessage<T>
+public class ClientMessage<T>
 {
     #region Constructor
     
     /// <summary>
-    /// Create a new network message.
+    /// Create a new network message for clients.
     /// </summary>
     /// <param name="identifier">(<see cref="string"/>) An identifier for the variable.</param>
     /// <remarks>Identifiers are specific to a per-mod basis.</remarks>
-    public LethalNetworkMessage(string identifier)
+    public ClientMessage(string identifier)
     {
         _messageIdentifier = $"{Assembly.GetCallingAssembly().GetName().Name}.msg.{identifier}";
-        NetworkHandler.OnServerMessage += ReceiveServerMessage;
         NetworkHandler.OnClientMessage += ReceiveClientMessage;
         NetworkHandler.OnClientMessageFrom += ReceiveFromClientMessage;
 
@@ -35,10 +34,19 @@ public class LethalNetworkMessage<T>
     /// Send data to the server/host.
     /// </summary>
     /// <param name="data">(<typeparamref name="T"/>) The data to send.</param>
-    public void SendServer(T data)
+    /// <param name="includeLocalClient">Opt. (<see cref="bool"/>) If the local client event should be invoked.</param>
+    /// <param name="waitForServerResponse">Opt. (<see cref="bool"/>) If the local client should wait for a server response before invoking the <see cref="OnReceivedFromClient"/> event.</param>
+    /// <remarks><paramref name="waitForServerResponse"/> will only be considered if <paramref name="includeLocalClient"/> is set to true.</remarks>
+    public void SendServer(T data, bool includeLocalClient = true, bool waitForServerResponse = false)
     {
-        if (NetworkHandler.Instance != null)
-            NetworkHandler.Instance.MessageServerRpc(_messageIdentifier, Serializer.Serialize(new ValueWrapper<T>(data)));
+        if (NetworkHandler.Instance == null) return;
+        
+        NetworkHandler.Instance.MessageServerRpc(_messageIdentifier, Serializer.Serialize(new ValueWrapper<T>(data)),
+            toOtherClients: true, sendToOriginator: (includeLocalClient && waitForServerResponse));
+        
+        if(includeLocalClient && !waitForServerResponse)
+            OnReceivedFromClient?.Invoke(NetworkManager.Singleton.LocalClientId);
+        NetworkHandler.Instance.MessageServerRpc(_messageIdentifier, Serializer.Serialize(new ValueWrapper<T>(data)));
 
 #if DEBUG
         Plugin.Logger.LogDebug($"Attempted to Send Message to Server with data: {data}");
@@ -46,75 +54,16 @@ public class LethalNetworkMessage<T>
     }
     
     /// <summary>
-    /// Send data to other clients.
+    /// Send data to all clients.
     /// </summary>
     /// <param name="data">(<typeparamref name="T"/>) The data to send.</param>
-    public void SendOtherClients(T data)
+    public void SendOtherClients(T data, bool)
     {
         if (NetworkHandler.Instance != null)
             NetworkHandler.Instance.MessageOthersServerRpc(_messageIdentifier, Serializer.Serialize(new ValueWrapper<T>(data)));
 
 #if DEBUG
         Plugin.Logger.LogDebug($"Attempted to Send Message to Other Clients with data: {data}");
-#endif
-    }
-
-    /// <summary>
-    /// Send data to a specified client.
-    /// </summary>
-    /// <param name="data">(<typeparamref name="T"/>) The data to send.</param>
-    /// <param name="clientId">(<see cref="UInt64">ulong</see>) The client to send the data to.</param>
-    public void SendClient(T data, ulong clientId)
-    {
-        if (!(NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer) || NetworkHandler.Instance == null) return;
-        if (!NetworkManager.Singleton.ConnectedClientsIds.Contains(clientId)) return;
-
-        NetworkHandler.Instance.MessageClientRpc(_messageIdentifier, Serializer.Serialize(new ValueWrapper<T>(data)),
-            new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIdsNativeArray = new NativeArray<ulong>(new [] {clientId}, Allocator.Persistent) } } );
-    }
-    
-    /// <summary>
-    /// Send data to the specified clients.
-    /// </summary>
-    /// <param name="data">(<typeparamref name="T"/>) The data to send.</param>
-    /// <param name="clientIds">(<see cref="IEnumerable{UInt64}">IEnumerable&lt;ulong&gt;</see>) The clients to send the data to.</param>
-    public void SendClients(T data, IEnumerable<ulong> clientIds)
-    {
-        if (!(NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer) || NetworkHandler.Instance == null) return;
-
-        var allowedClientIds = new NativeArray<ulong>(clientIds
-            .Where(i => NetworkManager.Singleton.ConnectedClientsIds.Contains(i)).ToArray(), Allocator.Persistent);
-        
-        if (!allowedClientIds.Any()) return;
-        
-        NetworkHandler.Instance.MessageClientRpc(_messageIdentifier, Serializer.Serialize(new ValueWrapper<T>(data)), 
-            new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIdsNativeArray = allowedClientIds } } );
-    }
-    
-    /// <summary>
-    /// Send data to all clients.
-    /// </summary>
-    /// <param name="data">(<typeparamref name="T"/>) The data to send.</param>
-    /// <param name="receiveOnHost">(<see cref="bool"/>) Whether the host client should receive as well.</param>
-    public void SendAllClients(T data, bool receiveOnHost = true)
-    {
-        if (!(NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer) || NetworkHandler.Instance == null) return;
-        
-        if (receiveOnHost)
-            NetworkHandler.Instance.MessageClientRpc(_messageIdentifier, Serializer.Serialize(new ValueWrapper<T>(data)));
-        else
-        {
-            var clientIds = new NativeArray<ulong>(NetworkManager.Singleton.ConnectedClientsIds
-                .Where(i => i != NetworkManager.ServerClientId).ToArray(), Allocator.Persistent);
-
-            if (!clientIds.Any()) return;
-            
-            NetworkHandler.Instance.MessageClientRpc(_messageIdentifier, Serializer.Serialize(new ValueWrapper<T>(data)), 
-                new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIdsNativeArray = clientIds } } );
-        }
-        
-#if DEBUG
-        Plugin.Logger.LogDebug($"Attempted to Send Message to All Clients {receiveOnHost} with data: {data}; {Serializer.Serialize(new ValueWrapper<T>(data))}");
 #endif
     }
     

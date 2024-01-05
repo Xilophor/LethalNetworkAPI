@@ -37,16 +37,24 @@ public class LethalServerEvent
     {
         if (NetworkHandler.Instance == null)
         {
-            Plugin.Logger.LogError(string.Format(TextDefinitions.NotInLobbyEvent, _eventIdentifier));
+            Plugin.Logger.LogError(string.Format(
+                TextDefinitions.NotInLobbyEvent, _eventIdentifier));
             return;
         }
         
         if (!(NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer))
         {
-            Plugin.Logger.LogError(string.Format(TextDefinitions.NotServerInfo, NetworkManager.Singleton.LocalClientId, _eventIdentifier));
+            Plugin.Logger.LogError(string.Format(
+                TextDefinitions.NotServerInfo, NetworkManager.Singleton.LocalClientId, _eventIdentifier));
             return;
         }
-        if (!NetworkManager.Singleton.ConnectedClientsIds.Contains(clientId)) return;
+        
+        if (!NetworkManager.Singleton.ConnectedClientsIds.Contains(clientId))
+        {
+            Plugin.Logger.LogError(string.Format(
+                TextDefinitions.TargetClientNotConnected, clientId, _eventIdentifier));
+            return;
+        }
         
         NetworkHandler.Instance.EventClientRpc(_eventIdentifier, 
             clientRpcParams: new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIdsNativeArray = new NativeArray<ulong>(new []{clientId}, Allocator.Persistent) } } );       
@@ -64,19 +72,27 @@ public class LethalServerEvent
     {
         if (NetworkHandler.Instance == null)
         {
-            Plugin.Logger.LogError(string.Format(TextDefinitions.NotInLobbyEvent, _eventIdentifier));
+            Plugin.Logger.LogError(string.Format(
+                TextDefinitions.NotInLobbyEvent, _eventIdentifier));
             return;
         }
         
         if (!(NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer))
         {
-            Plugin.Logger.LogError(string.Format(TextDefinitions.NotServerInfo, NetworkManager.Singleton.LocalClientId, _eventIdentifier));
+            Plugin.Logger.LogError(string.Format(
+                TextDefinitions.NotServerInfo, NetworkManager.Singleton.LocalClientId, _eventIdentifier));
             return;
         }
 
         var allowedClientIds = new NativeArray<ulong>(clientIds
             .Where(i => NetworkManager.Singleton.ConnectedClientsIds.Contains(i)).ToArray(), Allocator.Persistent);
-        if (!allowedClientIds.Any()) return;
+        
+        if (!allowedClientIds.Any())
+        {
+            Plugin.Logger.LogError(string.Format(
+                TextDefinitions.TargetClientsNotConnected, clientIds, _eventIdentifier));
+            return;
+        }
         
         NetworkHandler.Instance.EventClientRpc(_eventIdentifier,
             clientRpcParams: new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIdsNativeArray = allowedClientIds } } );
@@ -94,13 +110,15 @@ public class LethalServerEvent
     {
         if (NetworkHandler.Instance == null)
         {
-            Plugin.Logger.LogError(string.Format(TextDefinitions.NotInLobbyEvent, _eventIdentifier));
+            Plugin.Logger.LogError(string.Format(
+                TextDefinitions.NotInLobbyEvent, _eventIdentifier));
             return;
         }
         
         if (!(NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer))
         {
-            Plugin.Logger.LogError(string.Format(TextDefinitions.NotServerInfo, NetworkManager.Singleton.LocalClientId, _eventIdentifier));
+            Plugin.Logger.LogError(string.Format(
+                TextDefinitions.NotServerInfo, NetworkManager.Singleton.LocalClientId, _eventIdentifier));
             return;
         }
         

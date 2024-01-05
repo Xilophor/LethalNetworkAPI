@@ -35,7 +35,8 @@ public class LethalClientEvent
     {
         if (NetworkHandler.Instance == null)
         {
-            Plugin.Logger.LogError(string.Format(TextDefinitions.NotInLobbyEvent, _eventIdentifier));
+            Plugin.Logger.LogError(string.Format(
+                TextDefinitions.NotInLobbyEvent, _eventIdentifier));
             return;
         }
         
@@ -52,7 +53,8 @@ public class LethalClientEvent
     {
         if (NetworkHandler.Instance == null)
         {
-            Plugin.Logger.LogError(string.Format(TextDefinitions.NotInLobbyEvent, _eventIdentifier));
+            Plugin.Logger.LogError(string.Format(
+                TextDefinitions.NotInLobbyEvent, _eventIdentifier));
             return;
         }
         
@@ -76,7 +78,8 @@ public class LethalClientEvent
     {
         if (NetworkHandler.Instance == null)
         {
-            Plugin.Logger.LogError(string.Format(TextDefinitions.NotInLobbyEvent, _eventIdentifier));
+            Plugin.Logger.LogError(string.Format(
+                TextDefinitions.NotInLobbyEvent, _eventIdentifier));
             return;
         }
         

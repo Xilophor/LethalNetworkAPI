@@ -16,6 +16,8 @@ internal class Plugin : BaseUnityPlugin
         NetcodePatcher();
         
         _harmony.PatchAll(typeof(NetworkObjectManager));
+        
+        new LethalServerMessage<string>("").SendAllClients("");
 
         Logger.LogDebug("LethalNetworkAPI Patches Applied");
     }

@@ -1,7 +1,7 @@
 namespace LethalNetworkAPI;
 
-/// <typeparam name="T">The <a href="https://docs.unity3d.com/2022.3/Documentation/Manual/script-Serialization.html#SerializationRules">serializable data type</a> of the message.</typeparam>
-public class LethalNetworkVariable<T>
+/// <typeparam name="TData">The <a href="https://docs.unity3d.com/2022.3/Documentation/Manual/script-Serialization.html#SerializationRules">serializable data type</a> of the message.</typeparam>
+public class LethalNetworkVariable<TData>
 {
     #region Public Constructors
     /// <summary>
@@ -16,7 +16,7 @@ public class LethalNetworkVariable<T>
         NetworkHandler.OnOwnershipChange += OwnershipChange;
         NetworkHandler.NetworkTick += OnNetworkTick;
 
-        if (typeof(LethalNetworkVariable<T>).GetCustomAttributes(typeof(LethalNetworkProtectedAttribute), true).Any())
+        if (typeof(LethalNetworkVariable<TData>).GetCustomAttributes(typeof(LethalNetworkProtectedAttribute), true).Any())
             _protect = true;
         
 #if DEBUG
@@ -59,7 +59,7 @@ public class LethalNetworkVariable<T>
     /// <summary>
     /// Get or set the value of the variable.
     /// </summary>
-    public T Value
+    public TData Value
     {
         get { return _value!; }
         set
@@ -72,7 +72,7 @@ public class LethalNetworkVariable<T>
             _value = value;
             
 #if DEBUG
-            Plugin.Logger.LogDebug($"New Value: ({typeof(T).FullName}) {_value}");
+            Plugin.Logger.LogDebug($"New Value: ({typeof(TData).FullName}) {_value}");
 #endif
             
             OnValueChanged?.Invoke(_value);
@@ -83,7 +83,7 @@ public class LethalNetworkVariable<T>
     /// The callback to invoke when the variable's value changes.
     /// </summary>
     /// <remarks>Invoked when changed locally and on the network.</remarks>
-    public event Action<T>? OnValueChanged;
+    public event Action<TData>? OnValueChanged;
 
     #endregion
 
@@ -98,18 +98,18 @@ public class LethalNetworkVariable<T>
         }
 
 #if DEBUG
-        Plugin.Logger.LogDebug($"New Value: ({typeof(T).FullName}) {_value}; {Serializer.Serialize(new ValueWrapper<T>(_value))}");
+        Plugin.Logger.LogDebug($"New Value: ({typeof(TData).FullName}) {_value}; {Serializer.Serialize(new ValueWrapper<TData>(_value))}");
 #endif
         
         NetworkHandler.Instance.UpdateVariableServerRpc(_variableIdentifier,
-            Serializer.Serialize<T>(_value!));
+            Serializer.Serialize<TData>(_value!));
     }
     
     private void ReceiveUpdate(string identifier, string data)
     {
         if (identifier != _variableIdentifier) return;
 
-        var newValue = Serializer.Deserialize<T>(data);
+        var newValue = Serializer.Deserialize<TData>(data);
 
         if (newValue == null) return;
         if (newValue.Equals(_previousValue)) return;
@@ -118,7 +118,7 @@ public class LethalNetworkVariable<T>
         Value = newValue;
         
 #if DEBUG
-        Plugin.Logger.LogDebug($"New Value: ({typeof(T).FullName}) {newValue}");
+        Plugin.Logger.LogDebug($"New Value: ({typeof(TData).FullName}) {newValue}");
 #endif
         
         OnValueChanged?.Invoke(newValue);
@@ -149,8 +149,8 @@ public class LethalNetworkVariable<T>
     private readonly string _variableIdentifier;
     private readonly bool _protect;
     
-    private T? _previousValue;
-    private T? _value;
+    private TData? _previousValue;
+    private TData? _value;
     
     private const ulong DefaultId = 99999;
     private ulong _ownerClientId = DefaultId;
@@ -159,7 +159,7 @@ public class LethalNetworkVariable<T>
 }
 
 /// <summary>
-/// Declare <see cref="LethalNetworkVariable&lt;T&gt;" /> as protected.
+/// Declare <see cref="LethalNetworkVariable{TData}" /> as protected.
 /// </summary>
 [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
 public class LethalNetworkProtectedAttribute : Attribute;

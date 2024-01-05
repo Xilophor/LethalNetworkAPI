@@ -3,4 +3,6 @@ obj/
 /packages/
 riderModule.iml
 /_ReSharper.Caches/
-LethalNetworkAPI/LethalNetworkAPI.csproj.user
+*.DotSettings
+*.user
+/.idea/

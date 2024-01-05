@@ -1,5 +1,3 @@
-
-
 // ReSharper disable MemberCanBeMadeStatic.Global
 
 using Unity.Collections;
@@ -28,12 +26,6 @@ internal class NetworkHandler : NetworkBehaviour
     #region Messages
     
     [ServerRpc(RequireOwnership = false)]
-    internal void MessageServerRpc(string identifier, string data, ServerRpcParams serverRpcParams = default)
-    {
-        OnServerMessage?.Invoke(identifier, data, serverRpcParams.Receive.SenderClientId);
-    }
-    
-    [ServerRpc(RequireOwnership = false)]
     internal void MessageServerRpc(string identifier, string data, bool toOtherClients = false, bool sendToOriginator = false, ServerRpcParams serverRpcParams = default)
     {
         if (!toOtherClients)
@@ -44,22 +36,15 @@ internal class NetworkHandler : NetworkBehaviour
                 .Where(i => i != serverRpcParams.Receive.SenderClientId).ToArray(), Allocator.Persistent);
             if (!clientIds.Any()) return;
             
-            MeesageClientRpc(identifier, data, serverRpcParams.Receive.SenderClientId, 
+            MessageClientRpc(identifier, data, serverRpcParams.Receive.SenderClientId, 
                 new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIdsNativeArray = clientIds } });
         }
         else
-            MeesageClientRpc(identifier, data, serverRpcParams.Receive.SenderClientId);
-        
-        var clientIds = new NativeArray<ulong>(NetworkManager.Singleton.ConnectedClientsIds
-            .Where(i => i != serverRpcParams.Receive.SenderClientId).ToArray(), Allocator.Persistent);
-        if (!clientIds.Any()) return;
-        
-        MessageOthersClientRpc(identifier, data, serverRpcParams.Receive.SenderClientId, 
-            new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIdsNativeArray = clientIds } });
+            MessageClientRpc(identifier, data, serverRpcParams.Receive.SenderClientId);
     }
 
     [ClientRpc]
-    internal void MessageClientRpc(string identifier, string data, ulong originatorClient = 999, ClientRpcParams clientRpcParams = default)
+    internal void MessageClientRpc(string identifier, string data, ulong originatorClient = 99999, ClientRpcParams clientRpcParams = default)
     {
         OnClientMessage?.Invoke(identifier, data, originatorClient);
         clientRpcParams.Send.TargetClientIdsNativeArray?.Dispose();

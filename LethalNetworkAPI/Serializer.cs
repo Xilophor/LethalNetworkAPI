@@ -95,8 +95,9 @@ internal static class Serializer
 
     };
 
-    public static string Serialize<T>(T obj) {
+    public static string Serialize<T>(T originalObj) {
         string text;
+        var obj = new ValueWrapper<T>(originalObj);
         const Formatting formatting = PrettyPrint ? Formatting.Indented : Formatting.None;
         Settings!.Formatting = formatting;
         try {
@@ -113,7 +114,7 @@ internal static class Serializer
         return text;
     }
 
-    public static T? Deserialize<T>(string text) {
-        return JsonConvert.DeserializeObject<T>(text, Settings);
+    public static T Deserialize<T>(string text) {
+        return JsonConvert.DeserializeObject<ValueWrapper<T>>(text, Settings)!.var!;
     }
 }

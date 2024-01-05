@@ -91,21 +91,25 @@ public class LethalNetworkVariable<T>
 
     private void SendUpdate()
     {
-        if (NetworkHandler.Instance == null) return;
-        
+        if (NetworkHandler.Instance == null)
+        {
+            Plugin.Logger.LogError();
+            return;
+        }
+
 #if DEBUG
         Plugin.Logger.LogDebug($"New Value: ({typeof(T).FullName}) {_value}; {Serializer.Serialize(new ValueWrapper<T>(_value))}");
 #endif
         
         NetworkHandler.Instance.UpdateVariableServerRpc(_variableIdentifier,
-            Serializer.Serialize(new ValueWrapper<T>(_value)));
+            Serializer.Serialize<T>(_value!));
     }
     
     private void ReceiveUpdate(string identifier, string data)
     {
         if (identifier != _variableIdentifier) return;
 
-        var newValue = Serializer.Deserialize<ValueWrapper<T>>(data)!.var;
+        var newValue = Serializer.Deserialize<T>(data);
 
         if (newValue == null) return;
         if (newValue.Equals(_previousValue)) return;
@@ -148,7 +152,7 @@ public class LethalNetworkVariable<T>
     private T? _previousValue;
     private T? _value;
     
-    private const ulong DefaultId = 999999;
+    private const ulong DefaultId = 99999;
     private ulong _ownerClientId = DefaultId;
     
     #endregion

@@ -6,15 +6,15 @@ using Unity.Collections;
 
 namespace LethalNetworkAPI;
 
-public class ClientEvent
+public class LethalClientEvent
 {
-        #region Public Constructors
+    #region Public Constructors
     /// <summary>
     /// Create a new network event for clients.
     /// </summary>
     /// <param name="identifier">(<see cref="string"/>) An identifier for the event.</param>
     /// <remarks>Identifiers are specific to a per-mod basis.</remarks>
-    public ClientEvent(string identifier)
+    public LethalClientEvent(string identifier)
     {
         _eventIdentifier = $"{Assembly.GetCallingAssembly().GetName().Name}.evt.{identifier}";
         NetworkHandler.OnClientEvent += ReceiveClientEvent;
@@ -27,7 +27,7 @@ public class ClientEvent
     
     #endregion
 
-    #region Public Methods and Event
+    #region Public Methods and Events
     /// <summary>
     /// Invoke event to the server/host.
     /// </summary>
@@ -85,6 +85,7 @@ public class ClientEvent
     /// <summary>
     /// The callback to invoke when an event is received from another client.
     /// </summary>
+    /// <typeparam name="clientId">(<see cref="UInt64">ulong</see>) The origin client.</typeparam>
     public event Action<ulong>? OnReceivedFromClient;
 
     #endregion

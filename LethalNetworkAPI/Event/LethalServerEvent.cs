@@ -6,7 +6,7 @@ using Unity.Collections;
 
 namespace LethalNetworkAPI;
 
-public class ServerEvent
+public class LethalServerEvent
 {
         #region Public Constructors
     /// <summary>
@@ -14,7 +14,7 @@ public class ServerEvent
     /// </summary>
     /// <param name="identifier">(<see cref="string"/>) An identifier for the event.</param>
     /// <remarks>Identifiers are specific to a per-mod basis.</remarks>
-    public ServerEvent(string identifier)
+    public LethalServerEvent(string identifier)
     {
         _eventIdentifier = $"{Assembly.GetCallingAssembly().GetName().Name}.evt.{identifier}";
         NetworkHandler.OnServerEvent += ReceiveServerEvent;

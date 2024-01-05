@@ -6,7 +6,7 @@ using Unity.Collections;
 namespace LethalNetworkAPI;
 
 /// <typeparam name="T">The <a href="https://docs.unity3d.com/2022.3/Documentation/Manual/script-Serialization.html#SerializationRules">serializable data type</a> of the message.</typeparam>
-public class ServerMessage<T>
+public class LethalServerMessage<T>
 {
     #region Constructor
     
@@ -15,7 +15,7 @@ public class ServerMessage<T>
     /// </summary>
     /// <param name="identifier">(<see cref="string"/>) An identifier for the variable.</param>
     /// <remarks>Identifiers are specific to a per-mod basis.</remarks>
-    public ServerMessage(string identifier)
+    public LethalServerMessage(string identifier)
     {
         _messageIdentifier = $"{Assembly.GetCallingAssembly().GetName().Name}.msg.{identifier}";
         NetworkHandler.OnServerMessage += ReceiveServerMessage;
@@ -79,6 +79,7 @@ public class ServerMessage<T>
     /// <summary>
     /// The callback to invoke when a message is received.
     /// </summary>
+    /// <typeparam name="data">(<typeparamref name="T"/>) The received data.</typeparam>
     /// <typeparam name="clientId">(<see cref="UInt64">ulong</see>) The origin client.</typeparam>
     public event Action<T, ulong>? OnReceived;
 

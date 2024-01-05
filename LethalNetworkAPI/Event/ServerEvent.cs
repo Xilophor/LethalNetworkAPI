@@ -110,6 +110,8 @@ public class ServerEvent
             var clientIds = new NativeArray<ulong>(NetworkManager.Singleton.ConnectedClientsIds
                 .Where(i => i != NetworkManager.ServerClientId).ToArray(), Allocator.Persistent);
             if (!clientIds.Any()) return;
+            
+            var test = (NativeArray<int>.Enumerator)(new NativeArray<int>().GetEnumerator());
 
             NetworkHandler.Instance.SyncedEventClientRpc(_eventIdentifier, NetworkManager.Singleton.ServerTime.Time, 
                 new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIdsNativeArray = clientIds } });

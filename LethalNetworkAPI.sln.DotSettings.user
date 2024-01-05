@@ -7,6 +7,7 @@
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=_002Fhome_002Fryan_002FDocuments_002FLethal_005FDeps_002Fdeps_002FNewtonsoft_002EJson_002Edll/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=_002Fhome_002Fryan_002FDocuments_002FLethal_005FDeps_002Fdeps_002FUnity_002ENetcode_002ERuntime_002Edll/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=_002Fhome_002Fryan_002FDocuments_002FRepos_002FLethal_0020Company_002FLethalNetworkAPI_002FLethalNetworkAPI_002Fbin_002FDebug_002Fnetstandard2_002E1_002FLethalNetworkAPI_002Edll/@EntryIndexedValue">True</s:Boolean>
+<<<<<<< Updated upstream
 	<s:String x:Key="/Default/Environment/AssemblyExplorer/XmlDocument/@EntryValue">&lt;AssemblyExplorer&gt;&#xD;
   &lt;Assembly Path="D:\LC_Assembilies\deps\Newtonsoft.Json.dll" /&gt;&#xD;
   &lt;Assembly Path="D:\LC_Assembilies\deps\Assembly-CSharp.dll" /&gt;&#xD;
@@ -19,3 +20,9 @@
   &lt;Assembly Path="D:\Projects\Lethal_Company\LethalNetworkAPI\LethalNetworkAPI\bin\Debug\netstandard2.1\LethalNetworkAPI.dll" /&gt;&#xD;
   &lt;Assembly Path="D:\Projects\Lethal_Company\LethalNetworkAPI\LethalNetworkAPI\bin\Debug\netstandard2.1\Unity.Netcode.Runtime.dll" /&gt;&#xD;
 &lt;/AssemblyExplorer&gt;</s:String></wpf:ResourceDictionary>
+=======
+	<s:String x:Key="/Default/Environment/AssemblyExplorer/XmlDocument/@EntryValue">&lt;AssemblyExplorer&gt;
+  &lt;Assembly Path="/home/ryan/Documents/Lethal_Deps/deps/Assembly-CSharp.dll" /&gt;
+&lt;/AssemblyExplorer&gt;</s:String>
+	<s:Boolean x:Key="/Default/UnloadedProject/UnloadedProjects/=d94c6cf2_002D5dfb_002D465c_002D99df_002Da97a53a011d3_0023TestMod/@EntryIndexedValue">True</s:Boolean></wpf:ResourceDictionary>
+>>>>>>> Stashed changes

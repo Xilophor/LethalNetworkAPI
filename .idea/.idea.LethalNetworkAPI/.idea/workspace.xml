@@ -4,7 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
+<<<<<<< Updated upstream
     <list default="true" id="fe5d51d2-1873-4924-b711-a5dd06bc3594" name="Changes" comment="" />
+=======
+    <list default="true" id="fe5d51d2-1873-4924-b711-a5dd06bc3594" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.LethalNetworkAPI/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.LethalNetworkAPI/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LethalNetworkAPI.sln.DotSettings.user" beforeDir="false" afterPath="$PROJECT_DIR$/LethalNetworkAPI.sln.DotSettings.user" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LethalNetworkAPI/LethalNetworkEvent.cs" beforeDir="false" afterPath="$PROJECT_DIR$/LethalNetworkAPI/LethalNetworkEvent.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LethalNetworkAPI/Plugin.cs" beforeDir="false" afterPath="$PROJECT_DIR$/LethalNetworkAPI/Plugin.cs" afterDir="false" />
+    </list>
+>>>>>>> Stashed changes
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -14,6 +23,7 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
+<<<<<<< Updated upstream
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/1b23ec5fcbfc4fbca0db70afcdb9b71550000/5f/a753ceaa/ServerRpcAttribute.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/29e3dfd7379d434ca9881f8263fe42fea8e00/45/5fd64ffc/VersionConverter.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/29e3dfd7379d434ca9881f8263fe42fea8e00/f6/b7a09d68/StringEnumConverter.cs" root0="SKIP_HIGHLIGHTING" />
@@ -37,6 +47,15 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/metadata/44743d9474784365a095189c7617530114fc00/7e/068a1dc9/Assembly-CSharp.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/metadata/91809ff8b21947849b826367a7e812d7b800/b4/4e630136/Newtonsoft.Json.UnityConverters.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/../../unity stuff/Newtonsoft.Json-for-Unity.Converters/Packages/Newtonsoft.Json-for-Unity.Converters/UnityConverters/UnityConverterInitializer.cs" root0="SKIP_HIGHLIGHTING" />
+=======
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/44743d9474784365a095189c7617530114fc00/34/2788b92e/StartOfRound.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/44743d9474784365a095189c7617530114fc00/f2/5639718d/GameNetworkManager.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/metadata/44743d9474784365a095189c7617530114fc00/7e/068a1dc9/Assembly-CSharp.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/LethalNetworkAPI/LethalNetworkEvent.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/LethalNetworkAPI/LethalNetworkVariable.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/LethalNetworkAPI/Networking/NetworkHandler.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/TestMod/Plugin.cs" root0="SKIP_HIGHLIGHTING" />
+>>>>>>> Stashed changes
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -55,6 +74,7 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
+<<<<<<< Updated upstream
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
     &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
@@ -75,6 +95,28 @@
       &quot;C:\\Users\\Ryan\\AppData\\Roaming\\JetBrains\\Rider2023.3\\resharper-host\\DecompilerCache&quot;,
       &quot;C:\\Users\\Ryan\\AppData\\Roaming\\JetBrains\\Rider2023.3\\resharper-host\\SourcesCache&quot;,
       &quot;C:\\Users\\Ryan\\AppData\\Local\\Symbols\\src&quot;
+=======
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "master",
+    "last_opened_file_path": "/home/ryan/Documents/Repos/Lethal Company/HighEffortScrapPosts/HighEffortScrapPosts/HighEffortScrapPosts.csproj",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.keymap",
+    "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "rider.external.source.directories": [
+      "/home/ryan/.config/JetBrains/Rider2023.3/resharper-host/DecompilerCache",
+      "/home/ryan/.config/JetBrains/Rider2023.3/resharper-host/SourcesCache",
+      "/home/ryan/.local/share/Symbols/src"
+>>>>>>> Stashed changes
     ]
   }
 }</component>
@@ -106,11 +148,16 @@
       <workItem from="1703884591155" duration="14936000" />
       <workItem from="1703906183483" duration="2462000" />
       <workItem from="1703943261500" duration="13626000" />
+<<<<<<< Updated upstream
       <workItem from="1703968358445" duration="41120000" />
       <workItem from="1704066639163" duration="33448000" />
       <workItem from="1704162345735" duration="9498000" />
       <workItem from="1704243619125" duration="9879000" />
       <workItem from="1704259831350" duration="7739000" />
+=======
+      <workItem from="1703968358445" duration="6058000" />
+      <workItem from="1704068155747" duration="14379000" />
+>>>>>>> Stashed changes
     </task>
     <servers />
   </component>

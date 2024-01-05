@@ -93,7 +93,7 @@ public class LethalNetworkVariable<T>
     {
         if (NetworkHandler.Instance == null)
         {
-            Plugin.Logger.LogError();
+            Plugin.Logger.LogError(string.Format(TextDefinitions.NetworkHandlerDoesNotExist));
             return;
         }
 

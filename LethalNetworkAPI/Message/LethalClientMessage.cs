@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using Unity.Collections;
-
 // ReSharper disable InvalidXmlDocComment
 
 namespace LethalNetworkAPI;
@@ -34,8 +31,13 @@ public class LethalClientMessage<T>
     /// </summary>
     public void SendServer(T data)
     {
-        if (NetworkHandler.Instance != null) 
-            NetworkHandler.Instance.MessageServerRpc(_messageIdentifier, Serializer.Serialize(data));
+        if (NetworkHandler.Instance == null)
+        {
+            Plugin.Logger.LogError(string.Format(TextDefinitions.NotInLobbyMessage, _messageIdentifier, data));
+            return;
+        }
+        
+        NetworkHandler.Instance.MessageServerRpc(_messageIdentifier, Serializer.Serialize(data));
     }
     
     /// <summary>
@@ -47,7 +49,11 @@ public class LethalClientMessage<T>
     /// <remarks><paramref name="waitForServerResponse"/> will only be considered if <paramref name="includeLocalClient"/> is set to true.</remarks>
     public void SendAllClients(T data, bool includeLocalClient = true, bool waitForServerResponse = false)
     {
-        if (NetworkHandler.Instance == null) return;
+        if (NetworkHandler.Instance == null)
+        {
+            Plugin.Logger.LogError(string.Format(TextDefinitions.NotInLobbyMessage, _messageIdentifier, data));
+            return;
+        }
         
         NetworkHandler.Instance.MessageServerRpc(_messageIdentifier, Serializer.Serialize(data),
             toOtherClients: true, sendToOriginator: (includeLocalClient && waitForServerResponse));

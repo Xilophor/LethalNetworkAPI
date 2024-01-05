@@ -97,9 +97,9 @@ internal class NetworkHandler : NetworkBehaviour
     }
 
     [ClientRpc]
-    internal void SyncedEventClientRpc(string identifier, double time, ClientRpcParams clientRpcParams = default)
+    internal void SyncedEventClientRpc(string identifier, double time, ulong originatorClient, ClientRpcParams clientRpcParams = default)
     {
-        OnSyncedClientEvent?.Invoke(identifier, time);
+        OnSyncedClientEvent?.Invoke(identifier, time, originatorClient);
         clientRpcParams.Send.TargetClientIdsNativeArray?.Dispose();
         
 #if DEBUG

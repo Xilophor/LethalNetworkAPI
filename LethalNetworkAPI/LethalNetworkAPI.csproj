@@ -16,9 +16,9 @@
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="BepInEx.Core" Version="5.*"/>
-        <PackageReference Include="BepInEx.PluginInfoProps" Version="2.1.0" />
-        <PackageReference Include="UnityEngine.Modules" Version="2022.3.9" IncludeAssets="compile"/>
+        <PackageReference Include="BepInEx.Core" Version="5.*" PrivateAssets="all"/>
+        <PackageReference Include="BepInEx.PluginInfoProps" Version="2.1.0" PrivateAssets="all"/>
+        <PackageReference Include="UnityEngine.Modules" Version="2022.3.9" IncludeAssets="compile" PrivateAssets="all"/>
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
@@ -26,13 +26,13 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Reference Include="Assembly-CSharp" Publicize="true">
+        <Reference Include="Assembly-CSharp" Publicize="true" PrivateAssets="all">
             <HintPath>$(LC_DEPS_DIR)\Assembly-CSharp.dll</HintPath>
         </Reference>
-        <Reference Include="Newtonsoft.Json">
+        <Reference Include="Newtonsoft.Json" PrivateAssets="all">
           <HintPath>$(LC_DEPS_DIR)\Newtonsoft.Json.dll</HintPath>
         </Reference>
-        <Reference Include="Unity.Netcode.Runtime">
+        <Reference Include="Unity.Netcode.Runtime" PrivateAssets="all">
             <HintPath>$(LC_DEPS_DIR)\Unity.Netcode.Runtime.dll</HintPath>
         </Reference>
     </ItemGroup>

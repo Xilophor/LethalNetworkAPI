@@ -33,8 +33,13 @@ public class LethalClientEvent
     /// </summary>
     public void InvokeServer()
     {
-        if (NetworkHandler.Instance != null) 
-            NetworkHandler.Instance.EventServerRpc(_eventIdentifier);
+        if (NetworkHandler.Instance == null)
+        {
+            Plugin.Logger.LogError(string.Format(TextDefinitions.NotInLobbyEvent, _eventIdentifier));
+            return;
+        }
+        
+        NetworkHandler.Instance.EventServerRpc(_eventIdentifier);
     }
 
     /// <summary>
@@ -45,7 +50,11 @@ public class LethalClientEvent
     /// <remarks><paramref name="waitForServerResponse"/> will only be considered if <paramref name="includeLocalClient"/> is set to true.</remarks>
     public void InvokeAllClients(bool includeLocalClient = true, bool waitForServerResponse = false)
     {
-        if (NetworkHandler.Instance == null) return;
+        if (NetworkHandler.Instance == null)
+        {
+            Plugin.Logger.LogError(string.Format(TextDefinitions.NotInLobbyEvent, _eventIdentifier));
+            return;
+        }
         
         NetworkHandler.Instance.EventServerRpc(_eventIdentifier, toOtherClients: true, 
             sendToOriginator: (includeLocalClient && waitForServerResponse));
@@ -65,9 +74,13 @@ public class LethalClientEvent
     /// </summary>
     public void InvokeAllClientsSynced()
     {
+        if (NetworkHandler.Instance == null)
+        {
+            Plugin.Logger.LogError(string.Format(TextDefinitions.NotInLobbyEvent, _eventIdentifier));
+            return;
+        }
+        
         var time = NetworkManager.Singleton.LocalTime.Time;
-
-        if (NetworkHandler.Instance == null) return;
         
         NetworkHandler.Instance.SyncedEventServerRpc(_eventIdentifier, time);
         NetworkHandler.Instance.StartCoroutine(WaitAndInvokeEvent(0, NetworkManager.Singleton.LocalClientId));

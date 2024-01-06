@@ -8,7 +8,7 @@ namespace LethalNetworkAPI;
 
 public class LethalServerEvent
 {
-        #region Public Constructors
+    #region Public Constructors
     /// <summary>
     /// Create a new network event for the server.
     /// </summary>

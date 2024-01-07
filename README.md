@@ -1,13 +1,14 @@
 # LethalNetworkAPI
 
-
 [![Latest Version](https://img.shields.io/thunderstore/v/xilophor/LethalNetworkAPI?logo=thunderstore&logoColor=white)](https://thunderstore.io/c/lethal-company/p/xilophor/LethalNetworkAPI)
 
-[Unity Netcode Patcher](https://github.com/EvaisaDev/UnityNetcodePatcher/) is **not** required to use this API for your mod.
+This mod is an API meant for mod developers.
 
 ## Usage
 
+See the [GitHub Wiki]() for information on how to use this API in your mod.
 
+[Unity Netcode Patcher](https://github.com/EvaisaDev/UnityNetcodePatcher/) is **not** required to use this API for your mod.
 
 ## Acknowledgements
 

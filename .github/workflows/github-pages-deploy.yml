@@ -25,7 +25,7 @@ concurrency:
 
 defaults:
   run:
-    working-directory: ./app
+    working-directory: ./docs
   
 jobs:
   # Build job
@@ -44,6 +44,7 @@ jobs:
         with:
           node-version: 18
           cache: npm # or pnpm / yarn
+          cache-dependency-path: docs/package-json.lock
       - name: Setup Pages
         uses: actions/configure-pages@v3
       - name: Install dependencies

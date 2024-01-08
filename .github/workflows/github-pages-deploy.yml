@@ -6,7 +6,7 @@ on:
   # Runs on pushes targeting the `main` branch. Change this to `master` if you're
   # using the `master` branch as the default branch.
   push:
-    branches: [docs]
+    branches: [main]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -26,7 +26,7 @@ concurrency:
 defaults:
   run:
     working-directory: ./docs
-  
+
 jobs:
   # Build job
   build:
@@ -35,7 +35,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          ref: docs
           fetch-depth: 0 # Not needed if lastUpdated is not enabled
       # - uses: pnpm/action-setup@v2 # Uncomment this if you're using pnpm
       # - uses: oven-sh/setup-bun@v1 # Uncomment this if you're using Bun
@@ -52,7 +51,6 @@ jobs:
       - name: Build with VitePress
         run: |
           npm run build # or pnpm docs:build / yarn docs:build / bun run docs:build
-          touch docs/.vitepress/dist/.nojekyll -t true
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
         with:

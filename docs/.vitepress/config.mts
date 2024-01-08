@@ -19,14 +19,14 @@ export default defineConfig({
             {
                 text: 'Network Messages',
                 items: [
-                    { text: 'Sever Message', link: '/messages/server' },
+                    { text: 'Server Message', link: '/messages/server' },
                     { text: 'Client Message', link: '/messages/client' }
                 ]
             },
             {
                 text: 'Network Events',
                 items: [
-                    { text: 'Sever Event', link: '/events/server' },
+                    { text: 'Server Event', link: '/events/server' },
                     { text: 'Client Event', link: '/events/client' }
                 ]
             },

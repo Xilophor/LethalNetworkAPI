@@ -7,16 +7,30 @@ namespace LethalNetworkAPI.Networking;
 internal class NetworkObjectManager
 {
     [HarmonyPostfix, HarmonyPatch(typeof(GameNetworkManager), nameof(GameNetworkManager.Start))] 
-    public static void Init()
+    private static void Init()
     {
         if (_networkPrefab != null)
             return;
 
-        var mainAssetBundle = AssetBundle.LoadFromStream(Assembly.GetExecutingAssembly()
-            .GetManifestResourceStream("LethalNetworkAPI.asset"));
-        _networkPrefab = (GameObject)mainAssetBundle.LoadAsset("Assets/LethalNetworkAPI.Handler.prefab");
+        _networkPrefab = MakePrefab<NetworkHandler>("LethalNetworkAPI.Handler");
+    }
+
+    private static GameObject MakePrefab<T>(string name) where T : NetworkBehaviour
+    {
+        var prefab = new GameObject(name);
+        prefab.AddComponent<NetworkObject>();
+        prefab.AddComponent<T>();
+        prefab.hideFlags = HideFlags.HideAndDontSave;
         
-        NetworkManager.Singleton.AddNetworkPrefab(_networkPrefab); 
+        var newId = NetworkManager.Singleton.NetworkConfig.Prefabs.m_Prefabs
+            .First(i => NetworkManager.Singleton.NetworkConfig.Prefabs.m_Prefabs
+                .Any(x => x.SourcePrefabGlobalObjectIdHash != x.SourcePrefabGlobalObjectIdHash + 1))
+            .SourcePrefabGlobalObjectIdHash + 1;
+
+        prefab.GetComponent<NetworkObject>().GlobalObjectIdHash = newId;
+        
+        NetworkManager.Singleton.AddNetworkPrefab(prefab);
+        return prefab;
     }
 
     [HarmonyPostfix, HarmonyPatch(typeof(StartOfRound), nameof(StartOfRound.Awake))]

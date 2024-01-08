@@ -16,6 +16,7 @@ internal class NetworkHandler : NetworkBehaviour
         
         NetworkSpawn?.Invoke();
         NetworkManager.NetworkTickSystem.Tick += NetworkTick;
+        NetworkManager.Singleton.OnClientConnectedCallback += OnPlayerJoin;
     }
 
     public override void OnNetworkDespawn()
@@ -126,7 +127,7 @@ internal class NetworkHandler : NetworkBehaviour
     }
 
     [ClientRpc]
-    private void UpdateVariableClientRpc(string identifier, string data, ClientRpcParams clientRpcParams = default)
+    internal void UpdateVariableClientRpc(string identifier, string data, ClientRpcParams clientRpcParams = default)
     {
         OnVariableUpdate?.Invoke(identifier, data);
         clientRpcParams.Send.TargetClientIdsNativeArray?.Dispose();
@@ -135,8 +136,16 @@ internal class NetworkHandler : NetworkBehaviour
         Plugin.Logger.LogDebug($"Received variable with identifier: {identifier}");
 #endif
     }
+    
+    
 
-
+    [ServerRpc(RequireOwnership = false)]
+    internal void GetVariableValueServerRpc(string identifier, ServerRpcParams serverRpcParams = default)
+    {
+        GetVariableValue?.Invoke(identifier, serverRpcParams.Receive.SenderClientId);
+    }
+    
+    
 
     [ServerRpc(RequireOwnership = false)]
     internal void UpdateOwnershipServerRpc(string identifier, ulong newClientId, ServerRpcParams serverRpcParams = default)
@@ -157,11 +166,13 @@ internal class NetworkHandler : NetworkBehaviour
     internal static event Action? NetworkSpawn;
     internal static event Action? NetworkDespawn;
     internal static event Action? NetworkTick;
+    internal static event Action<ulong>? OnPlayerJoin;
     
     internal static event Action<string, string, ulong>? OnServerMessage; // identifier, data, originatorClientId
     internal static event Action<string, string, ulong>? OnClientMessage; // identifier, data, originatorClientId
     
     internal static event Action<string, string>? OnVariableUpdate; // identifier, data
+    internal static event Action<string, ulong>? GetVariableValue; // identifier, connectedClientId
     internal static event Action<string, ulong[]>? OnOwnershipChange; // identifier, clientIds
     
     internal static event Action<string, ulong>? OnServerEvent; // identifier, originatorClientId

@@ -1,3 +1,5 @@
+using Unity.Collections;
+
 namespace LethalNetworkAPI;
 
 /// <typeparam name="TData">The <a href="https://docs.unity3d.com/2022.3/Documentation/Manual/script-Serialization.html#SerializationRules">serializable data type</a> of the message.</typeparam>
@@ -15,10 +17,49 @@ public class LethalNetworkVariable<TData>
         NetworkHandler.OnVariableUpdate += ReceiveUpdate;
         NetworkHandler.OnOwnershipChange += OwnershipChange;
         NetworkHandler.NetworkTick += OnNetworkTick;
+        NetworkHandler.NetworkSpawn += () =>  {
+            if (NetworkHandler.Instance != null &&
+                (NetworkManager.Singleton.IsServer || NetworkManager.Singleton.IsHost))
+            {
+                // Send variable data when a player joins (if variable is created outside of playtime (in main menu))
+                NetworkHandler.OnPlayerJoin += OnPlayerJoin;
+            }
+        };
+        // Send variable data when a variable is initialized during playtime (in lobby)
+        NetworkHandler.GetVariableValue += (id, clientId) =>
+        {
+            if (id != _variableIdentifier) return;
+            
+            if (NetworkHandler.Instance == null)
+            {
+                Plugin.Logger.LogError(string.Format(TextDefinitions.NetworkHandlerDoesNotExist));
+                return;
+            }
+            
+            if (!(NetworkManager.Singleton.IsServer || NetworkManager.Singleton.IsHost)) return;
+            
+            NetworkHandler.Instance.UpdateVariableClientRpc(_variableIdentifier,
+                Serializer.Serialize<TData>(_value!), new ClientRpcParams
+                {
+                    Send = { TargetClientIdsNativeArray = new NativeArray<ulong>(new[] { clientId }, Allocator.Persistent) }
+                });
+        };
 
         if (typeof(LethalNetworkVariable<TData>).GetCustomAttributes(typeof(LethalNetworkProtectedAttribute), true).Any())
             _protect = true;
-        
+
+        if (NetworkHandler.Instance != null && 
+            !(NetworkManager.Singleton.IsServer || NetworkManager.Singleton.IsHost))
+        {
+            NetworkHandler.Instance.GetVariableValueServerRpc(_variableIdentifier);
+        }
+        else if (NetworkHandler.Instance != null &&
+                 (NetworkManager.Singleton.IsServer || NetworkManager.Singleton.IsHost))
+        {
+            // Send variable data when a player joins (if variable is created during playtime (in lobby))
+            NetworkHandler.OnPlayerJoin += OnPlayerJoin;
+        }
+
 #if DEBUG
         Plugin.Logger.LogDebug($"NetworkVariable with identifier \"{_variableIdentifier}\" has been created.");
 #endif
@@ -88,6 +129,27 @@ public class LethalNetworkVariable<TData>
     #endregion
 
     #region Private Methods
+
+    private void OnPlayerJoin(ulong clientId)
+    {
+        if (NetworkHandler.Instance == null)
+        {
+            Plugin.Logger.LogError(string.Format(TextDefinitions.NetworkHandlerDoesNotExist));
+            return;
+        }
+
+        if (!(NetworkManager.Singleton.IsServer || NetworkManager.Singleton.IsHost)) return;
+
+#if DEBUG
+        Plugin.Logger.LogDebug($"Player Joined! Sending {_variableIdentifier}'s value.");
+#endif
+        
+        NetworkHandler.Instance.UpdateVariableClientRpc(_variableIdentifier,
+            Serializer.Serialize<TData>(_value!), new ClientRpcParams
+            {
+                Send = { TargetClientIdsNativeArray = new NativeArray<ulong>(new[] { clientId }, Allocator.Persistent) }
+            });
+    }
 
     private void SendUpdate()
     {

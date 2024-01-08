@@ -13,7 +13,7 @@ public static class LethalNetworkExtensions
     /// <param name="clientId">(<see cref="UInt64">ulong</see>) The client id. </param>
     /// <returns>(<see cref="PlayerControllerB">PlayerControllerB?</see>) The player controller component.</returns>
     /// <remarks>Will return <c>null</c> if the controller is not found.</remarks>
-    public static PlayerControllerB? GetPlayerFromId(ulong clientId)
+    public static PlayerControllerB? GetPlayerFromId(this ulong clientId)
     {
         return StartOfRound.Instance.allPlayerScripts[StartOfRound.Instance.ClientPlayerList[clientId]];
     }

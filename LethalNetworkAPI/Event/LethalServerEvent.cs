@@ -8,7 +8,7 @@ namespace LethalNetworkAPI;
 
 public class LethalServerEvent
 {
-        #region Public Constructors
+    #region Public Constructors
     /// <summary>
     /// Create a new network event for the server.
     /// </summary>
@@ -147,6 +147,8 @@ public class LethalServerEvent
 
     #endregion
 
+    #region Private Methods and Fields
+
     private void ReceiveServerEvent(string identifier, ulong originClientId)
     {
         if (identifier != _eventIdentifier) return;
@@ -191,4 +193,6 @@ public class LethalServerEvent
     }
     
     private readonly string _eventIdentifier;
+
+    #endregion
 }

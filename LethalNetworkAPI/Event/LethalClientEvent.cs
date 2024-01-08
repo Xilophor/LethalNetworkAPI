@@ -1,6 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
-using Unity.Collections;
 
 // ReSharper disable InvalidXmlDocComment
 
@@ -105,6 +103,8 @@ public class LethalClientEvent
     public event Action<ulong>? OnReceivedFromClient;
 
     #endregion
+
+    #region Private Methods and Fields
     
     private void ReceiveClientEvent(string identifier, ulong originatorClientId)
     {
@@ -149,4 +149,6 @@ public class LethalClientEvent
     }
     
     private readonly string _eventIdentifier;
+
+    #endregion
 }

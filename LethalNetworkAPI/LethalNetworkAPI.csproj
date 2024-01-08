@@ -44,7 +44,7 @@
         <Content Include="LethalNetworkAPI.csproj.user" />
     </ItemGroup>
 
-    <Target Name="CopyFiles" AfterTargets="PostBuildEvent">
+    <Target Name="CopyFiles" AfterTargets="PostBuildEvent" DependsOnTargets="NetcodePatch">
         <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(PluginsDirectory)" />
         <Copy SourceFiles="$(TargetDir)\$(TargetName).pdb" DestinationFolder="$(PluginsDirectory)" />
     </Target>

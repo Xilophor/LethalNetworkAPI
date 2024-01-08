@@ -24,7 +24,7 @@ internal class NetworkObjectManager
         
         var newId = NetworkManager.Singleton.NetworkConfig.Prefabs.m_Prefabs
             .First(i => NetworkManager.Singleton.NetworkConfig.Prefabs.m_Prefabs
-                .Any(x => x.SourcePrefabGlobalObjectIdHash != x.SourcePrefabGlobalObjectIdHash + 1))
+                .Any(x => x.SourcePrefabGlobalObjectIdHash != i.SourcePrefabGlobalObjectIdHash + 1))
             .SourcePrefabGlobalObjectIdHash + 1;
 
         prefab.GetComponent<NetworkObject>().GlobalObjectIdHash = newId;

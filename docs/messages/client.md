@@ -15,7 +15,7 @@ Client Messages can only be used by any clients/host.
 Two things need to be specified for constructing messages, the identifier and the `type` of the data transmitted.
 
 ```csharp
-LethalClientMessage customClientMessage = new LethalClientMessage<TData>(indentifier: "customIdentifier");
+LethalClientMessage customClientMessage = new LethalClientMessage<TData>(identifier: "customIdentifier");
 ```
 
 `TData` is the type of messages, which can be any serializable type. Examples of serializable types are:

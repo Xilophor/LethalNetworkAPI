@@ -21,7 +21,7 @@ Any clients attempting to invoke events from the server events class will result
 The method of constructing an event instance/object is simple; all that needs to be specified for events is the identifier.
 
 ```csharp
-LethalServerEvent customServerEvent = new LethalServerEvent(indentifier: "customIdentifier");
+LethalServerEvent customServerEvent = new LethalServerEvent(identifier: "customIdentifier");
 ```
 
 :::tip NOTE

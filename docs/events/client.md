@@ -15,7 +15,7 @@ Client Events are a sub-class of events that can only be used by any clients/hos
 The method of constructing an event instance/object is simple; all that needs to be specified for events is the identifier.
 
 ```csharp
-LethalClientEvent customClientEvent = new LethalClientEvent(indentifier: "customIdentifier");
+LethalClientEvent customClientEvent = new LethalClientEvent(identifier: "customIdentifier");
 ```
 
 :::tip NOTE

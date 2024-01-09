@@ -21,7 +21,7 @@ Any clients attempting to send messages from the server message class will resul
 Two things need to be specified for constructing messages, the identifier and the `type` of the data transmitted.
 
 ```csharp
-LethalServerMessage customServerMessage = new LethalServerMessage<TData>(indentifier: "customIdentifier");
+LethalServerMessage customServerMessage = new LethalServerMessage<TData>(identifier: "customIdentifier");
 ```
 
 `TData` is the type of messages, which can be any serializable type. Examples of serializable types are:

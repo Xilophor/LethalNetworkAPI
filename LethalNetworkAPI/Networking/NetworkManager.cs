@@ -17,10 +17,14 @@ internal class NetworkObjectManager
 
     private static GameObject MakePrefab<T>(string name) where T : NetworkBehaviour
     {
+        var disabledPrefab = new GameObject("NetworkAPIContainer") { hideFlags = HideFlags.HideAndDontSave };
+        disabledPrefab.SetActive(false);
+        
         var prefab = new GameObject(name);
         prefab.AddComponent<NetworkObject>();
         prefab.AddComponent<T>();
         prefab.hideFlags = HideFlags.HideAndDontSave;
+        prefab.transform.SetParent(disabledPrefab.transform);
         
         var newId = NetworkManager.Singleton.NetworkConfig.Prefabs.m_Prefabs
             .First(i => NetworkManager.Singleton.NetworkConfig.Prefabs.m_Prefabs

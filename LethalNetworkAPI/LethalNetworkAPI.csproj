@@ -4,7 +4,7 @@
         <TargetFrameworks>netstandard2.1;net472</TargetFrameworks>
         <AssemblyName>LethalNetworkAPI</AssemblyName>
         <Description>Easily create networked mods.</Description>
-        <Version>1.0.0</Version>
+        <Version>1.1.0</Version>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>

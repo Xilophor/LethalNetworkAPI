@@ -27,7 +27,7 @@ jobs:
 
       - name: Build Solution
         run: |
-          dotnet publish --configuration Release
+          dotnet publish -f netstandard2.1 --configuration Release
 
       - name: Pack Solution
         run: |

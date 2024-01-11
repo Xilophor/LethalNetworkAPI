@@ -10,11 +10,20 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <DebugType>embedded</DebugType>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+      <DebugSymbols>true</DebugSymbols>
+      <DebugType>embedded</DebugType>
+    </PropertyGroup>
+
     <ItemGroup>
         <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all"/>
-        <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.1" PrivateAssets="all"/>
         <PackageReference Include="BepInEx.Core" Version="5.*" PrivateAssets="all"/>
         <PackageReference Include="BepInEx.PluginInfoProps" Version="2.1.0" PrivateAssets="all"/>
+        <PackageReference Include="LethalCompany.GameLibs.Steam" Version="49.0.0-alpha.1" />
         <PackageReference Include="UnityEngine.Modules" Version="2022.3.9" IncludeAssets="compile" PrivateAssets="all"/>
         <PackageReference Include="Evaisa.NetcodePatcher.MSBuild" Version="3.*" />
     </ItemGroup>
@@ -39,12 +48,7 @@
         <NetcodePatch Include="$(TargetPath)" />
     </ItemGroup>
     
-    <ItemGroup>
+    <ItemGroup Condition=" '$(Configuration)' == 'Debug'">
         <Content Include="LethalNetworkAPI.csproj.user" />
     </ItemGroup>
-
-    <Target Name="CopyFiles" AfterTargets="PostBuildEvent" DependsOnTargets="NetcodePatch">
-        <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(PluginsDirectory)" />
-        <Copy SourceFiles="$(TargetDir)\$(TargetName).pdb" DestinationFolder="$(PluginsDirectory)" />
-    </Target>
 </Project>

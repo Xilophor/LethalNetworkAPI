@@ -1,0 +1,102 @@
+﻿name: Publish
+
+on:
+  release:
+    types:
+      - released
+  workflow_dispatch: 
+    
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch Sources
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name }}
+          fetch-depth: 0
+          filter: tree:0
+      
+      - name: Setup .NET Env
+        uses: action/setup-dotnet@3
+        with:
+          dotnet-version: "8.0.100"
+        
+      - name: Restore Solution
+        run: |
+          dotnet restore
+      
+      - name: Build Solution
+        run: |
+          dotnet publish --configuration Release
+      
+      - name: Pack Solution
+        run: |
+          dotnet pack --configuration Release
+          
+      - name: Upload NuPkg Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: compiler-build
+          path: LethalNetworkAPI/bin/Release/netstandard2.1/LethalCompanyAPI.dll
+          
+      - name: Upload NuPkg Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nupkg-build
+          path: LethalNetworkAPI/bin/Release/*.nupkg
+          
+  upload-release-artifacts:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        
+      - uses: actions/download-artifact@v4
+        with:
+          name: compiler-build
+          path: ./dist
+        
+      - name: Validate Artifact Exists
+        run: test -d ./dist
+        
+      - name: Upload artifacts to Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload ${{ github.event.release.tag_name }} 
+  
+#  deploy-nuget:
+#    needs: build
+#    runs-on: ubuntu-latest
+  
+  deply-thunderstore:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        
+      - uses: actions/download-artifact@v4
+        with:
+          name: compiler-build
+          path: ./dist
+
+      - uses: GreenTF/upload-thunderstore-package@v4.2
+        with:
+          namespace: xilophor
+          description: A library/API to allow developers to easily add networking to their mods.
+          token: ${{ secrets.THUNDERSTORE_TOKEN }}
+          name: LethalNetworkAPI
+          version: ${{ github.ref_name }}
+          community: lethal-company
+          categories: |
+            bepinex
+            libraries
+            serverside
+            clientside
+          deps: |
+            BepInEx-BepInExPack@5.4.2100
+          path:
+            ./dist
+          dev: true

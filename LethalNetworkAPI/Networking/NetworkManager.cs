@@ -17,7 +17,7 @@ internal class NetworkObjectManager
         var disabledPrefab = new GameObject("NetworkAPIContainer") { hideFlags = HideFlags.HideAndDontSave };
         disabledPrefab.SetActive(false);
 
-        _networkPrefab = MakePrefab<NetworkHandler>("LethalNetworkAPI.Handler", disabledPrefab);
+        _networkPrefab = MakePrefab<NetworkHandler>("LethalNetworkAPI.Handler", disabledPrefab, 889887688); // Ensure compatibility with old method
     }
 
     private static GameObject MakePrefab<T>(string name, GameObject parent, uint overrideGuid = 0) where T : NetworkBehaviour

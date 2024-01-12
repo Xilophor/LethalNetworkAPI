@@ -17,4 +17,4 @@ This API uses [@EvaisaDev](https://github.com/EvaisaDev/)'s [Unity Netcode Patch
 
 Thank you @Dreadrith for helping test and reform this API in the preview/release-candidate stage!
 
-Thank you @Lordfirespeed for helping set up the GitHub Actions (so I can be lazy)!
+Thank you [@Lordfirespeed](https://github.com/Lordfirespeed) for helping set up the GitHub Actions (so I can be lazy)!

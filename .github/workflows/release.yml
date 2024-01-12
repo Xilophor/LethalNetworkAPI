@@ -27,6 +27,7 @@ jobs:
       - name: Restore Solution
         run: |
           dotnet restore
+          dotnet tool restore
 
       - name: Pack Solution
         run: |
@@ -36,7 +37,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: compiler-build
-          path: /home/runner/work/LethalNetworkAPI/LethalNetworkAPI/LethalNetworkAPI/bin/Release/netstandard2.1/LethalNetworkAPI.dll
+          path: ${{ github.workspace }}/LethalNetworkAPI/bin/Release/netstandard2.1/LethalNetworkAPI.dll
 
       - name: Upload NuPkg Artifact
         uses: actions/upload-artifact@v4
@@ -71,7 +72,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: compiler-build
-          path: ./dist
+          path: ./
 
       - uses: GreenTF/upload-thunderstore-package@v4.2
         with:
@@ -88,5 +89,3 @@ jobs:
             clientside
           deps: |
             BepInEx-BepInExPack@5.4.2100
-          path:
-            ./dist

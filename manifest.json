@@ -1,9 +1,0 @@
-﻿{
-  "name": "LethalNetworkAPI",
-  "version_number": "1.0.0",
-  "website_url": "https://github.com/Xilophor/LethalNetworkAPI",
-  "description": "A library/API to allow developers to easily add networking to their mods.",
-  "dependencies": [
-    "BepInEx-BepInExPack-5.4.2100"
-  ]
-}

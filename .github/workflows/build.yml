@@ -24,6 +24,7 @@ jobs:
       - name: Restore Solution
         run: |
           dotnet restore
+          dotnet tool restore
 
       - name: Pack Solution
         run: |
@@ -33,7 +34,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: compiler-build
-          path: /home/runner/work/LethalNetworkAPI/LethalNetworkAPI/LethalNetworkAPI/bin/Release/netstandard2.1/LethalNetworkAPI.dll
+          path: ${{ github.workspace }}/LethalNetworkAPI/bin/Release/netstandard2.1/LethalNetworkAPI.dll
 
       - name: Upload NuPkg Artifact
         uses: actions/upload-artifact@v4

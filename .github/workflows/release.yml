@@ -27,16 +27,17 @@ jobs:
       - name: Restore Solution
         run: |
           dotnet restore
+          dotnet tool restore
 
       - name: Pack Solution
         run: |
           dotnet pack --configuration Release
 
-      - name: Upload Compiler Artifact
+      - name: Upload Thunderstore Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: compiler-build
-          path: /home/runner/work/LethalNetworkAPI/LethalNetworkAPI/LethalNetworkAPI/bin/Release/netstandard2.1/LethalNetworkAPI.dll
+          name: thunderstore-build
+          path: dist/*.zip
 
       - name: Upload NuPkg Artifact
         uses: actions/upload-artifact@v4
@@ -56,37 +57,45 @@ jobs:
       - name: Upload artifacts to Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload ${{ github.event.release.tag_name }} compiler-build/*/bin/*.dll nupkg-build/*/bin/*.nupkg
+        run: gh release upload ${{ github.event.release.tag_name }} thunderstore-build/*.zip nupkg-build/*.nupkg
   
-#  deploy-nuget:
-#    needs: build
-#    runs-on: ubuntu-latest
+  deploy-nuget:
+    name: Deploy to NuGet
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch Sources
+        uses: actions/checkout@v4
+
+      - name: Download nupkg artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: nupkg-build
+          path: ./LethalNetworkAPI/bin/Release
+
+      - name: Setup .NET environment
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: "8.0.100"
+
+      - name: Publish to NuGet.org
+        run: |
+          dotnet nuget push ./LethalNetworkAPI/bin/Release/*.nupkg --api-key ${{ secrets.NUGET_TOKEN }} --source https://api.nuget.org/v3/index.json
   
-  deply-thunderstore:
+  deploy-thunderstore:
     needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         
-      - uses: actions/download-artifact@v4
+      - name: Download Thunderstore Artifact
+        uses: actions/download-artifact@v4
         with:
-          name: compiler-build
+          name: thunderstore-build
           path: ./dist
 
-      - uses: GreenTF/upload-thunderstore-package@v4.2
-        with:
-          namespace: xilophor
-          description: A library/API to allow developers to easily add networking to their mods.
-          token: ${{ secrets.THUNDERSTORE_TOKEN }}
-          name: LethalNetworkAPI
-          version: ${{ github.ref_name }}
-          community: lethal-company
-          categories: |
-            bepinex
-            libraries
-            serverside
-            clientside
-          deps: |
-            BepInEx-BepInExPack@5.4.2100
-          path:
-            ./dist
+      - name: Publishing to Thunderstore
+        env:
+          TCLI_AUTH_TOKEN: ${{ secrets.THUNDERSTORE_TOKEN }}
+        run: |
+          dotnet tcli publish --config-path assets/thunderstore.toml --file dist/*.zip

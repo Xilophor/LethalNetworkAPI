@@ -1,40 +1,51 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
     <PropertyGroup>
         <TargetFrameworks>netstandard2.1;net472</TargetFrameworks>
         <AssemblyName>LethalNetworkAPI</AssemblyName>
+        <Product>LethalNetworkAPI</Product>
         <Description>Easily create networked mods.</Description>
-        <Version>1.1.0</Version>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
-        <NoWarn>$(NoWarn);CS0436</NoWarn>  
+        <NoWarn>$(NoWarn);CS0436</NoWarn>
+        <MinVerDefaultPreReleaseIdentifiers>dev</MinVerDefaultPreReleaseIdentifiers>
+        <MinVerTagPrefix>v</MinVerTagPrefix>
+    </PropertyGroup>
+    
+    <PropertyGroup>
+        <Authors>Xilophor</Authors>
+        <PackageId>Xilophor.LethalNetworkAPI</PackageId>
+        <PackageProjectUrl>https://github.com/Xilophor/LethalNetworkAPI</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/Xilophor/LethalNetworkAPI</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
     </PropertyGroup>
 
-    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-      <DebugType>embedded</DebugType>
-    </PropertyGroup>
+    <ItemGroup>
+        <None Include="$(ProjectDir)../README.md" Pack="true" PackagePath="/"/>
+    </ItemGroup>
 
-    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-      <DebugSymbols>true</DebugSymbols>
-      <DebugType>embedded</DebugType>
+    <PropertyGroup>
+        <DebugSymbols>true</DebugSymbols>
+        <DebugType>embedded</DebugType>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all"/>
-        <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.1"/>
+        <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.1" PrivateAssets="all"/>
         <PackageReference Include="BepInEx.Core" Version="5.*" PrivateAssets="all"/>
         <PackageReference Include="BepInEx.PluginInfoProps" Version="2.1.0" PrivateAssets="all"/>
-        <PackageReference Include="LethalCompany.GameLibs.Steam" Version="49.0.0-alpha.1" Publicize="true" PrivateAssets="all"/>
         <PackageReference Include="UnityEngine.Modules" Version="2022.3.9" IncludeAssets="compile" PrivateAssets="all"/>
-        <PackageReference Include="Evaisa.NetcodePatcher.MSBuild" Version="3.*" />
+        <PackageReference Include="Evaisa.NetcodePatcher.MSBuild" Version="3.*" PrivateAssets="all"/>
+        <PackageReference Include="MinVer" Version="4.*" PrivateAssets="all" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
         <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="all"/>
     </ItemGroup>
 
-    <ItemGroup>
+    <ItemGroup Condition="$(CI) != 'true'">
         <Reference Include="Assembly-CSharp" Publicize="true" PrivateAssets="all">
             <HintPath>$(DependenciesDirectory)\Assembly-CSharp.dll</HintPath>
         </Reference>
@@ -46,11 +57,31 @@
         </Reference>
     </ItemGroup>
     
+    <ItemGroup Condition="$(CI) == 'true'">
+        <PackageReference Include="LethalCompany.GameLibs.Steam" Version="49.0.0-alpha.1" Publicize="true" PrivateAssets="all"/>
+    </ItemGroup>
+    
     <ItemGroup>
         <NetcodePatch Include="$(TargetPath)" />
     </ItemGroup>
-    
-    <ItemGroup Condition=" '$(Configuration)' == 'Debug'">
-        <Content Include="LethalNetworkAPI.csproj.user" />
-    </ItemGroup>
+
+    <Target Name="SetPluginVersion" BeforeTargets="AddGeneratedFile" DependsOnTargets="MinVer">
+        <PropertyGroup>
+            <PlainVersion>$(MinVerMajor).$(MinVerMinor).$(MinVerPatch)</PlainVersion>
+            <BepInExPluginVersion>$(PlainVersion)</BepInExPluginVersion>
+        </PropertyGroup>
+    </Target>
+
+    <Target
+            Name="ThunderstorePack"
+            AfterTargets="PostBuildEvent"
+            Condition="$(TargetFramework) == 'netstandard2.1' and $(Configuration) == 'Release'"
+            DependsOnTargets="NetcodePatch;SetPluginVersion"
+    >
+        <Exec Command="dotnet tcli build --config-path $(ProjectDir)../assets/thunderstore.toml --package-version $(PlainVersion)"/>
+        <ItemGroup>
+            <FilesToRename Include="$(ProjectDir)../dist/*-$(PlainVersion).zip"/>
+        </ItemGroup>
+        <Move SourceFiles="@(FilesToRename)" DestinationFiles="@(FilesToRename -&gt; Replace($(PlainVersion), $(MinVerVersion)))"/>
+    </Target>
 </Project>

@@ -16,3 +16,4 @@ See the [GitHub Wiki](https://xilophor.github.io/LethalNetworkAPI/) for informat
 This API uses [@EvaisaDev](https://github.com/EvaisaDev/)'s [Unity Netcode Patcher](https://github.com/EvaisaDev/UnityNetcodePatcher/). Without it, this API would not be possible as it is currently done.
 
 Thank you @Dreadrith for helping test and reform this API in the preview/release-candidate stage!
+Thank you @Lordfirespeed for helping set up the GitHub Actions (so I can be lazy)!

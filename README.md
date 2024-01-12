@@ -1,5 +1,6 @@
 # LethalNetworkAPI
 
+[![Build](https://github.com/Xilophor/LethalNetworkAPI/actions/workflows/build.yml/badge.svg)](https://github.com/Xilophor/LethalNetworkAPI/actions/workflows/build.yml)
 [![Latest Version](https://img.shields.io/thunderstore/v/xilophor/LethalNetworkAPI?logo=thunderstore&logoColor=white)](https://thunderstore.io/c/lethal-company/p/xilophor/LethalNetworkAPI)
 
 This mod is an API meant for mod developers.

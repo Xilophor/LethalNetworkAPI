@@ -3,38 +3,34 @@
     <PropertyGroup>
         <TargetFrameworks>netstandard2.1;net472</TargetFrameworks>
         <AssemblyName>LethalNetworkAPI</AssemblyName>
+        <Product>LethalNetworkAPI</Product>
         <Description>Easily create networked mods.</Description>
         <Version>1.1.0</Version>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
-        <NoWarn>$(NoWarn);CS0436</NoWarn>  
+        <NoWarn>$(NoWarn);CS0436</NoWarn>
     </PropertyGroup>
 
-    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-      <DebugType>embedded</DebugType>
-    </PropertyGroup>
-
-    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-      <DebugSymbols>true</DebugSymbols>
-      <DebugType>embedded</DebugType>
+    <PropertyGroup>
+        <DebugSymbols>true</DebugSymbols>
+        <DebugType>embedded</DebugType>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all"/>
-        <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.1"/>
+        <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.1" PrivateAssets="all"/>
         <PackageReference Include="BepInEx.Core" Version="5.*" PrivateAssets="all"/>
         <PackageReference Include="BepInEx.PluginInfoProps" Version="2.1.0" PrivateAssets="all"/>
-        <PackageReference Include="LethalCompany.GameLibs.Steam" Version="49.0.0-alpha.1" Publicize="true" PrivateAssets="all"/>
         <PackageReference Include="UnityEngine.Modules" Version="2022.3.9" IncludeAssets="compile" PrivateAssets="all"/>
-        <PackageReference Include="Evaisa.NetcodePatcher.MSBuild" Version="3.*" />
+        <PackageReference Include="Evaisa.NetcodePatcher.MSBuild" Version="3.*" PrivateAssets="all"/>
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
         <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="all"/>
     </ItemGroup>
 
-    <ItemGroup>
+    <ItemGroup Condition="$(CI) != 'true'">
         <Reference Include="Assembly-CSharp" Publicize="true" PrivateAssets="all">
             <HintPath>$(DependenciesDirectory)\Assembly-CSharp.dll</HintPath>
         </Reference>
@@ -46,11 +42,11 @@
         </Reference>
     </ItemGroup>
     
-    <ItemGroup>
-        <NetcodePatch Include="$(TargetPath)" />
+    <ItemGroup Condition="$(CI) == 'true'">
+        <PackageReference Include="LethalCompany.GameLibs.Steam" Version="49.0.0-alpha.1" Publicize="true" PrivateAssets="all"/>
     </ItemGroup>
     
-    <ItemGroup Condition=" '$(Configuration)' == 'Debug'">
-        <Content Include="LethalNetworkAPI.csproj.user" />
+    <ItemGroup>
+        <NetcodePatch Include="$(TargetPath)" />
     </ItemGroup>
 </Project>

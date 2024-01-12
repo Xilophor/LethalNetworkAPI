@@ -36,7 +36,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: compiler-build
-          path: LethalNetworkAPI/bin/netstandard2.1/LethalNetworkAPI.dll
+          path: LethalNetworkAPI/**/LethalNetworkAPI/bin/netstandard2.1/LethalNetworkAPI.dll
 
       - name: Upload NuPkg Artifact
         uses: actions/upload-artifact@v4

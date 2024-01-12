@@ -29,11 +29,11 @@ jobs:
         run: |
           dotnet pack --configuration Release
 
-      - name: Upload NuPkg Artifact
+      - name: Upload Compiler Artifact
         uses: actions/upload-artifact@v4
         with:
           name: compiler-build
-          path: ./LethalNetworkAPI/bin/Release/netstandard2.1/LethalCompanyAPI.dll
+          path: LethalNetworkAPI/LethalNetworkAPI/bin/Release/netstandard2.1/LethalCompanyAPI.dll
 
       - name: Upload NuPkg Artifact
         uses: actions/upload-artifact@v4

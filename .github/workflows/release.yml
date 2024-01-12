@@ -36,7 +36,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: compiler-build
-          path: LethalNetworkAPI/**/LethalNetworkAPI/bin/netstandard2.1/LethalNetworkAPI.dll
+          path: /home/runner/work/LethalNetworkAPI/LethalNetworkAPI/LethalNetworkAPI/bin/Release/netstandard2.1/LethalNetworkAPI.dll
 
       - name: Upload NuPkg Artifact
         uses: actions/upload-artifact@v4
@@ -59,7 +59,7 @@ jobs:
       - name: Upload artifacts to Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload ${{ github.event.release.tag_name }} compiler-build/*/netstandard2.1/*.dll nupkg-build/*/bin/*.nupkg
+        run: gh release upload ${{ github.event.release.tag_name }} compiler-build/*/bin/*.dll nupkg-build/*/bin/*.nupkg
   
 #  deploy-nuget:
 #    needs: build

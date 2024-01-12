@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using HarmonyLib;
 using Object = UnityEngine.Object;
 
@@ -7,16 +9,38 @@ namespace LethalNetworkAPI.Networking;
 internal class NetworkObjectManager
 {
     [HarmonyPostfix, HarmonyPatch(typeof(GameNetworkManager), nameof(GameNetworkManager.Start))] 
-    public static void Init()
+    private static void Init()
     {
         if (_networkPrefab != null)
             return;
-
-        var mainAssetBundle = AssetBundle.LoadFromStream(Assembly.GetExecutingAssembly()
-            .GetManifestResourceStream("LethalNetworkAPI.asset"));
-        _networkPrefab = (GameObject)mainAssetBundle.LoadAsset("Assets/LethalNetworkAPI.Handler.prefab");
         
-        NetworkManager.Singleton.AddNetworkPrefab(_networkPrefab); 
+        var disabledPrefab = new GameObject("NetworkAPIContainer") { hideFlags = HideFlags.HideAndDontSave };
+        disabledPrefab.SetActive(false);
+
+        _networkPrefab = MakePrefab<NetworkHandler>("LethalNetworkAPI.Handler", disabledPrefab, 889887688); // Ensure compatibility with old method
+    }
+
+    private static GameObject MakePrefab<T>(string name, GameObject parent, uint overrideGuid = 0) where T : NetworkBehaviour
+    {
+        var prefab = new GameObject(name);
+        prefab.transform.SetParent(parent.transform);
+        
+        prefab.AddComponent<NetworkObject>();
+        prefab.AddComponent<T>();
+        prefab.hideFlags = HideFlags.HideAndDontSave;
+        
+        if (overrideGuid != 0)
+            prefab.GetComponent<NetworkObject>().GlobalObjectIdHash = overrideGuid;
+        else
+        {
+            var newId = BitConverter.ToUInt32(MD5.Create()
+                .ComputeHash(Encoding.UTF8.GetBytes(Assembly.GetExecutingAssembly().GetName().Name + name)), 0);
+
+            prefab.GetComponent<NetworkObject>().GlobalObjectIdHash = newId;
+        }
+
+        NetworkManager.Singleton.AddNetworkPrefab(prefab);
+        return prefab;
     }
 
     [HarmonyPostfix, HarmonyPatch(typeof(StartOfRound), nameof(StartOfRound.Awake))]
@@ -27,6 +51,6 @@ internal class NetworkObjectManager
         var networkHandlerHost = Object.Instantiate(_networkPrefab, Vector3.zero, Quaternion.identity, StartOfRound.Instance.transform);
         networkHandlerHost.GetComponent<NetworkObject>().Spawn();
     }
-    
+
     private static GameObject _networkPrefab = null!;
 }

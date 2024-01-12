@@ -6,3 +6,7 @@ riderModule.iml
 *.DotSettings
 *.user
 /.idea/
+/docs/.vitepress/dist/
+/LethalNetworkAPI.dll
+/LethalNetworkAPI.zip
+/TestMod/

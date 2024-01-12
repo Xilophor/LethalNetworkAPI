@@ -1,0 +1,42 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request: 
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch Sources
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          filter: tree:0
+
+      - name: Setup .NET Env
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: "8.0.100"
+
+      - name: Restore Solution
+        run: |
+          dotnet restore
+
+      - name: Pack Solution
+        run: |
+          dotnet pack --configuration Release
+
+      - name: Upload Compiler Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: compiler-build
+          path: /home/runner/work/LethalNetworkAPI/LethalNetworkAPI/LethalNetworkAPI/bin/Release/netstandard2.1/LethalNetworkAPI.dll
+
+      - name: Upload NuPkg Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nupkg-build
+          path: LethalNetworkAPI/bin/Release/*.nupkg

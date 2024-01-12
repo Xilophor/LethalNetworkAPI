@@ -33,8 +33,8 @@ jobs:
       - name: Upload Compiler Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: compiler-build
-          path: ${{ github.workspace }}/LethalNetworkAPI/bin/Release/netstandard2.1/LethalNetworkAPI.dll
+          name: thunderstore-build
+          path: dist/*.zip
 
       - name: Upload NuPkg Artifact
         uses: actions/upload-artifact@v4

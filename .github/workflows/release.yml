@@ -28,10 +28,6 @@ jobs:
         run: |
           dotnet restore
       
-      - name: Build Solution
-        run: |
-          dotnet publish -f netstandard2.1 --configuration Release
-      
       - name: Pack Solution
         run: |
           dotnet pack --configuration Release
@@ -40,13 +36,13 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: compiler-build
-          path: LethalNetworkAPI/bin/Release/netstandard2.1/LethalCompanyAPI.dll
-          
+          path: ./LethalNetworkAPI/bin/Release/netstandard2.1/LethalCompanyAPI.dll
+
       - name: Upload NuPkg Artifact
         uses: actions/upload-artifact@v4
         with:
           name: nupkg-build
-          path: LethalNetworkAPI/bin/Release/*.nupkg
+          path: ./LethalNetworkAPI/bin/Release/*.nupkg
           
   upload-release-artifacts:
     needs: build

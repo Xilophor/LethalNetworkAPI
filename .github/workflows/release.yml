@@ -93,6 +93,10 @@ jobs:
         with:
           name: thunderstore-build
           path: ./dist
+          
+      - name: Restore Tools
+        run: |
+          dotnet tool restore
 
       - name: Publishing to Thunderstore
         env:

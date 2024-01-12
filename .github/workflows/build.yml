@@ -30,7 +30,7 @@ jobs:
         run: |
           dotnet pack --configuration Release
 
-      - name: Upload Compiler Artifact
+      - name: Upload Thunderstore Artifact
         uses: actions/upload-artifact@v4
         with:
           name: thunderstore-build

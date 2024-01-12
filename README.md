@@ -8,7 +8,7 @@ This mod is an API meant for mod developers.
 
 ## Usage
 
-See the [GitHub Wiki](https://xilophor.github.io/LethalNetworkAPI/) for information on how to use this API in your mod.
+See the [GitHub Wiki](https://xilophor.github.io/lethal-network-api-docs/) for information on how to use this API in your mod.
 
 [Unity Netcode Patcher](https://github.com/EvaisaDev/UnityNetcodePatcher/) is **not** required to use this API for your mod.
 

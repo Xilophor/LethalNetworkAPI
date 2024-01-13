@@ -1,5 +1,6 @@
 // ReSharper disable MemberCanBeMadeStatic.Global
 
+using System.Collections.Generic;
 using Unity.Collections;
 
 namespace LethalNetworkAPI.Networking;
@@ -162,6 +163,10 @@ internal class NetworkHandler : NetworkBehaviour
     #endregion
 
     internal static NetworkHandler? Instance { get; private set; }
+
+    internal readonly List<ILethalNetVar> ObjectNetworkVariableList = [];
+
+    #region Internal Events
     
     internal static event Action? NetworkSpawn;
     internal static event Action? NetworkDespawn;
@@ -179,4 +184,6 @@ internal class NetworkHandler : NetworkBehaviour
     internal static event Action<string, ulong>? OnClientEvent; // identifier, originatorClientId
     internal static event Action<string, double, ulong>? OnSyncedServerEvent; // identifier, time, originatorClientId
     internal static event Action<string, double, ulong>? OnSyncedClientEvent; // identifier, time, originatorClientId
+
+    #endregion
 }

@@ -1,9 +1,12 @@
 using Unity.Collections;
+using Object = UnityEngine.Object;
 
 namespace LethalNetworkAPI;
 
+internal interface ILethalNetVar; // To allow lists of any variable type
+
 /// <typeparam name="TData">The <a href="https://docs.unity3d.com/2022.3/Documentation/Manual/script-Serialization.html#SerializationRules">serializable data type</a> of the message.</typeparam>
-public class LethalNetworkVariable<TData>
+public class LethalNetworkVariable<TData> : ILethalNetVar
 {
     #region Public Constructors
     /// <summary>
@@ -13,7 +16,7 @@ public class LethalNetworkVariable<TData>
     /// <remarks>Identifiers are specific to a per-mod basis.</remarks>
     public LethalNetworkVariable(string identifier)
     {
-        _variableIdentifier = $"{Assembly.GetCallingAssembly().GetName().Name}.var.{identifier}";
+        VariableIdentifier = $"{Assembly.GetCallingAssembly().GetName().Name}.var.{identifier}";
         NetworkHandler.OnVariableUpdate += ReceiveUpdate;
         NetworkHandler.OnOwnershipChange += OwnershipChange;
         NetworkHandler.NetworkTick += OnNetworkTick;
@@ -28,7 +31,7 @@ public class LethalNetworkVariable<TData>
         // Send variable data when a variable is initialized during playtime (in lobby)
         NetworkHandler.GetVariableValue += (id, clientId) =>
         {
-            if (id != _variableIdentifier) return;
+            if (id != VariableIdentifier) return;
             
             if (NetworkHandler.Instance == null)
             {
@@ -38,7 +41,7 @@ public class LethalNetworkVariable<TData>
             
             if (!(NetworkManager.Singleton.IsServer || NetworkManager.Singleton.IsHost)) return;
             
-            NetworkHandler.Instance.UpdateVariableClientRpc(_variableIdentifier,
+            NetworkHandler.Instance.UpdateVariableClientRpc(VariableIdentifier,
                 Serializer.Serialize<TData>(_value!), new ClientRpcParams
                 {
                     Send = { TargetClientIdsNativeArray = new NativeArray<ulong>(new[] { clientId }, Allocator.Persistent) }
@@ -51,7 +54,7 @@ public class LethalNetworkVariable<TData>
         if (NetworkHandler.Instance != null && 
             !(NetworkManager.Singleton.IsServer || NetworkManager.Singleton.IsHost))
         {
-            NetworkHandler.Instance.GetVariableValueServerRpc(_variableIdentifier);
+            NetworkHandler.Instance.GetVariableValueServerRpc(VariableIdentifier);
         }
         else if (NetworkHandler.Instance != null &&
                  (NetworkManager.Singleton.IsServer || NetworkManager.Singleton.IsHost))
@@ -84,9 +87,9 @@ public class LethalNetworkVariable<TData>
         if (!NetworkManager.Singleton.ConnectedClientsIds.Contains(clientId)) return false;
         
         if (NetworkManager.Singleton.IsServer)
-            NetworkHandler.Instance.UpdateOwnershipClientRpc(_variableIdentifier, [_ownerClientId, clientId]);
+            NetworkHandler.Instance.UpdateOwnershipClientRpc(VariableIdentifier, [_ownerClientId, clientId]);
         else
-            NetworkHandler.Instance.UpdateOwnershipServerRpc(_variableIdentifier, clientId);
+            NetworkHandler.Instance.UpdateOwnershipServerRpc(VariableIdentifier, clientId);
         
         _ownerClientId = clientId;
         
@@ -144,7 +147,7 @@ public class LethalNetworkVariable<TData>
         Plugin.Logger.LogDebug($"Player Joined! Sending {_variableIdentifier}'s value.");
 #endif
         
-        NetworkHandler.Instance.UpdateVariableClientRpc(_variableIdentifier,
+        NetworkHandler.Instance.UpdateVariableClientRpc(VariableIdentifier,
             Serializer.Serialize<TData>(_value!), new ClientRpcParams
             {
                 Send = { TargetClientIdsNativeArray = new NativeArray<ulong>(new[] { clientId }, Allocator.Persistent) }
@@ -163,13 +166,13 @@ public class LethalNetworkVariable<TData>
         Plugin.Logger.LogDebug($"New Value: ({typeof(TData).FullName}) {_value}; {Serializer.Serialize(new ValueWrapper<TData>(_value))}");
 #endif
         
-        NetworkHandler.Instance.UpdateVariableServerRpc(_variableIdentifier,
+        NetworkHandler.Instance.UpdateVariableServerRpc(VariableIdentifier,
             Serializer.Serialize<TData>(_value!));
     }
     
     private void ReceiveUpdate(string identifier, string data)
     {
-        if (identifier != _variableIdentifier) return;
+        if (identifier != VariableIdentifier) return;
 
         var newValue = Serializer.Deserialize<TData>(data);
 
@@ -188,7 +191,7 @@ public class LethalNetworkVariable<TData>
 
     private void OwnershipChange(string identifier, ulong[] clientIds)
     {
-        if (identifier != _variableIdentifier) return;
+        if (identifier != VariableIdentifier) return;
 
         if (_ownerClientId != clientIds[0] && _ownerClientId != DefaultId) return;
 
@@ -206,9 +209,9 @@ public class LethalNetworkVariable<TData>
 
     #endregion
 
-    #region Private Variables
+    internal readonly string VariableIdentifier;
 
-    private readonly string _variableIdentifier;
+    #region Private Variables
     private readonly bool _protect;
     
     private TData? _previousValue;

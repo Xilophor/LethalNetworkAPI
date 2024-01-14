@@ -62,6 +62,12 @@
     </ItemGroup>
     
     <ItemGroup>
+        <Reference Include="OdinSerializer" PrivateAssets="all">
+            <HintPath>$(ProjectDir)../libs/OdinSerializer.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+    
+    <ItemGroup>
         <NetcodePatch Include="$(TargetPath)" />
     </ItemGroup>
 

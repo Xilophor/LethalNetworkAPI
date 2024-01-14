@@ -4,7 +4,7 @@ using Unity.Collections;
 
 // ReSharper disable InvalidXmlDocComment
 
-namespace LethalNetworkAPI;
+namespace LethalNetworkAPI.Event;
 
 public class LethalServerEvent
 {

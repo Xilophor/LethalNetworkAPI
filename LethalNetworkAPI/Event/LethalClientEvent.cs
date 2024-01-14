@@ -2,7 +2,7 @@ using System.Collections;
 
 // ReSharper disable InvalidXmlDocComment
 
-namespace LethalNetworkAPI;
+namespace LethalNetworkAPI.Event;
 
 public class LethalClientEvent
 {

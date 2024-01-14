@@ -1,6 +1,7 @@
+using OdinSerializer;
 using Unity.Collections;
 
-namespace LethalNetworkAPI;
+namespace LethalNetworkAPI.Variable;
 
 internal interface ILethalNetVar; // To allow lists of any variable type
 
@@ -46,7 +47,7 @@ public class LethalNetworkVariable<TData> : ILethalNetVar
             if (!(NetworkManager.Singleton.IsServer || NetworkManager.Singleton.IsHost)) return;
             
             NetworkHandler.Instance.UpdateVariableClientRpc(VariableIdentifier,
-                Serializer.Serialize<TData>(_value!), new ClientRpcParams
+                SerializationUtility.SerializeValue(_value, DataFormat.Binary), new ClientRpcParams
                 {
                     Send = { TargetClientIdsNativeArray = new NativeArray<ulong>(new[] { clientId }, Allocator.Persistent) }
                 });
@@ -130,7 +131,7 @@ public class LethalNetworkVariable<TData> : ILethalNetVar
 #endif
         
         NetworkHandler.Instance.UpdateVariableClientRpc(VariableIdentifier,
-            Serializer.Serialize<TData>(_value!), new ClientRpcParams
+            SerializationUtility.SerializeValue(_value, DataFormat.Binary), new ClientRpcParams
             {
                 Send = { TargetClientIdsNativeArray = new NativeArray<ulong>(new[] { clientId }, Allocator.Persistent) }
             });
@@ -145,18 +146,18 @@ public class LethalNetworkVariable<TData> : ILethalNetVar
         }
 
 #if DEBUG
-        Plugin.Logger.LogDebug($"New Value: ({typeof(TData).FullName}) {_value}; {Serializer.Serialize(new ValueWrapper<TData>(_value))}");
+        Plugin.Logger.LogDebug($"New Value: ({typeof(TData).FullName}) {_value}; {SerializationUtility.SerializeValue(_value, DataFormat.Binary)}");
 #endif
         
         NetworkHandler.Instance.UpdateVariableServerRpc(VariableIdentifier,
-            Serializer.Serialize<TData>(_value!));
+            SerializationUtility.SerializeValue(_value, DataFormat.Binary));
     }
     
-    private void ReceiveUpdate(string identifier, string data)
+    private void ReceiveUpdate(string identifier, byte[] data)
     {
         if (identifier != VariableIdentifier) return;
 
-        var newValue = Serializer.Deserialize<TData>(data);
+        var newValue = SerializationUtility.DeserializeValue<TData>(data, DataFormat.Binary);
 
         if (newValue == null) return;
         if (newValue.Equals(_previousValue)) return;

@@ -1,6 +1,8 @@
 // ReSharper disable InvalidXmlDocComment
 
-namespace LethalNetworkAPI;
+using OdinSerializer;
+
+namespace LethalNetworkAPI.Message;
 
 /// <typeparam name="TData">The <a href="https://docs.unity3d.com/2022.3/Documentation/Manual/script-Serialization.html#SerializationRules">serializable data type</a> of the message.</typeparam>
 public class LethalClientMessage<TData>
@@ -38,7 +40,7 @@ public class LethalClientMessage<TData>
             return;
         }
         
-        NetworkHandler.Instance.MessageServerRpc(_messageIdentifier, Serializer.Serialize(data));
+        NetworkHandler.Instance.MessageServerRpc(_messageIdentifier, SerializationUtility.SerializeValue(data, DataFormat.Binary));
     }
     
     /// <summary>
@@ -57,12 +59,12 @@ public class LethalClientMessage<TData>
             return;
         }
         
-        NetworkHandler.Instance.MessageServerRpc(_messageIdentifier, Serializer.Serialize(data),
+        NetworkHandler.Instance.MessageServerRpc(_messageIdentifier, SerializationUtility.SerializeValue(data, DataFormat.Binary),
             toOtherClients: true, sendToOriginator: (includeLocalClient && waitForServerResponse));
         
         if(includeLocalClient && !waitForServerResponse)
             OnReceivedFromClient?.Invoke(data, NetworkManager.Singleton.LocalClientId);
-        NetworkHandler.Instance.MessageServerRpc(_messageIdentifier, Serializer.Serialize(data));
+        NetworkHandler.Instance.MessageServerRpc(_messageIdentifier, SerializationUtility.SerializeValue(data, DataFormat.Binary));
 
 #if DEBUG
         Plugin.Logger.LogDebug($"Attempted to Send Message to Server with data: {data}");
@@ -84,14 +86,14 @@ public class LethalClientMessage<TData>
 
     #endregion
     
-    private void ReceiveMessage(string identifier, string data, ulong originatorClient)
+    private void ReceiveMessage(string identifier, byte[] data, ulong originatorClient)
     {
         if (identifier != _messageIdentifier) return;
 
         if (originatorClient == 99999)
-            OnReceived?.Invoke(Serializer.Deserialize<TData>(data));
+            OnReceived?.Invoke(SerializationUtility.DeserializeValue<TData>(data, DataFormat.Binary));
         else
-            OnReceivedFromClient?.Invoke(Serializer.Deserialize<TData>(data), originatorClient);
+            OnReceivedFromClient?.Invoke(SerializationUtility.DeserializeValue<TData>(data, DataFormat.Binary), originatorClient);
         
 #if DEBUG
         Plugin.Logger.LogDebug($"Received data: {data}");

@@ -63,7 +63,7 @@
     
     <ItemGroup>
         <Reference Include="OdinSerializer" PrivateAssets="all">
-            <HintPath>$(ProjectDir)../libs/OdinSerializer.dll</HintPath>
+            <HintPath>$(ProjectDir)../libs/odin-serializer/OdinSerializer.dll</HintPath>
         </Reference>
     </ItemGroup>
     

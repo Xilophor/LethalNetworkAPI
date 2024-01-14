@@ -21,5 +21,5 @@ internal static class TextDefinitions
         "None of the specified clients {0} are connected. Identifier: \"{1}\"";
     
     internal const string UnableToLocateNetworkObjectComponent = 
-        "Unable to find the network object component. This shouldn't occur!";
+        "Unable to find the network object component. Are you adding variable to a network object?";
 }

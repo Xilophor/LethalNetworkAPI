@@ -145,20 +145,6 @@ internal class NetworkHandler : NetworkBehaviour
     {
         GetVariableValue?.Invoke(identifier, serverRpcParams.Receive.SenderClientId);
     }
-    
-    
-
-    [ServerRpc(RequireOwnership = false)]
-    internal void UpdateOwnershipServerRpc(string identifier, ulong newClientId, ServerRpcParams serverRpcParams = default)
-    {
-        UpdateOwnershipClientRpc(identifier, [serverRpcParams.Receive.SenderClientId, newClientId]);
-    }
-    
-    [ClientRpc]
-    internal void UpdateOwnershipClientRpc(string identifier, ulong[] clientIds)
-    {
-        OnOwnershipChange?.Invoke(identifier, clientIds);
-    }
 
     #endregion
 
@@ -178,7 +164,6 @@ internal class NetworkHandler : NetworkBehaviour
     
     internal static event Action<string, string>? OnVariableUpdate; // identifier, data
     internal static event Action<string, ulong>? GetVariableValue; // identifier, connectedClientId
-    internal static event Action<string, ulong[]>? OnOwnershipChange; // identifier, clientIds
     
     internal static event Action<string, ulong>? OnServerEvent; // identifier, originatorClientId
     internal static event Action<string, ulong>? OnClientEvent; // identifier, originatorClientId

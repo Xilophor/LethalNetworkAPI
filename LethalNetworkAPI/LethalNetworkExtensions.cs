@@ -5,7 +5,7 @@ namespace LethalNetworkAPI;
 /// <summary>
 /// Additional tools to help with networking.
 /// </summary>
-public static class LethalNetworkExtensions
+internal static class LethalNetworkExtensions
 {
     /// <summary>
     /// Gets the <see cref="PlayerControllerB"/> from a given clientId.
@@ -21,13 +21,27 @@ public static class LethalNetworkExtensions
     /// <summary>
     /// Get a NetworkVariable with the identifier specific to the NetworkObject. If one doesn't exist, it creates a new one on all clients.
     /// </summary>
-    /// <param name="identifier">(<see cref="string"/>) An identifier for the variable.</param>
+    /// <param name="identifier">(<see cref="string"/>) An identifier for the variable. Specific to the network object.</param>
     /// <typeparam name="TData">The <a href="https://docs.unity3d.com/2022.3/Documentation/Manual/script-Serialization.html#SerializationRules">serializable data type</a> of the message.</typeparam>
     /// <returns>(<see cref="LethalNetworkVariable{TData}"/>) The network variable.</returns>
+    /// <remarks>The variable is set to only allow writing by the object's owner client.</remarks>
     // ReSharper disable once InvalidXmlDocComment
     public static LethalNetworkVariable<TData>? NetworkVariable<TData>(this NetworkBehaviour originalComponent, string identifier)
     {
-        if (originalComponent.TryGetComponent(out NetworkObject networkObjectComp) == false)
+        return originalComponent.gameObject.NetworkVariable<TData>(identifier);
+    }
+    
+    /// <summary>
+    /// Get a NetworkVariable with the identifier specific to the NetworkObject. If one doesn't exist, it creates a new one on all clients.
+    /// </summary>
+    /// <param name="identifier">(<see cref="string"/>) An identifier for the variable. Specific to the network object.</param>
+    /// <typeparam name="TData">The <a href="https://docs.unity3d.com/2022.3/Documentation/Manual/script-Serialization.html#SerializationRules">serializable data type</a> of the message.</typeparam>
+    /// <returns>(<see cref="LethalNetworkVariable{TData}"/>) The network variable.</returns>
+    /// <remarks>The variable is set to only allow writing by the object's owner client.</remarks>
+    // ReSharper disable once InvalidXmlDocComment
+    public static LethalNetworkVariable<TData>? NetworkVariable<TData>(this GameObject gameObject, string identifier)
+    {
+        if (gameObject.TryGetComponent(out NetworkObject networkObjectComp) == false)
         {
             Plugin.Logger.LogError(TextDefinitions.UnableToLocateNetworkObjectComponent);
             return null;
@@ -35,12 +49,12 @@ public static class LethalNetworkExtensions
 
         var networkVariable = (LethalNetworkVariable<TData>)
             NetworkHandler.Instance!.ObjectNetworkVariableList.First(i =>
-            ((LethalNetworkVariable<TData>)i).VariableIdentifier == $"{identifier}.{networkObjectComp.GlobalObjectIdHash}");
+                ((LethalNetworkVariable<TData>)i).VariableIdentifier == $"{identifier}.{networkObjectComp.GlobalObjectIdHash}");
 
         if (networkVariable != null)
             return networkVariable;
-        
-        networkVariable = new LethalNetworkVariable<TData>($"{identifier}.{networkObjectComp.GlobalObjectIdHash}");
+
+        networkVariable = new LethalNetworkVariable<TData>($"{identifier}.{networkObjectComp.GlobalObjectIdHash}", networkObjectComp);
         NetworkHandler.Instance!.ObjectNetworkVariableList.Add(networkVariable);
         
         return networkVariable;

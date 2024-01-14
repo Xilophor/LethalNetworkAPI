@@ -1,6 +1,6 @@
-// ReSharper disable InvalidXmlDocComment
+using LethalNetworkAPI.Serializable;
 
-namespace LethalNetworkAPI;
+namespace LethalNetworkAPI.Message;
 
 /// <typeparam name="TData">The <a href="https://docs.unity3d.com/2022.3/Documentation/Manual/script-Serialization.html#SerializationRules">serializable data type</a> of the message.</typeparam>
 public class LethalClientMessage<TData>
@@ -38,7 +38,7 @@ public class LethalClientMessage<TData>
             return;
         }
         
-        NetworkHandler.Instance.MessageServerRpc(_messageIdentifier, Serializer.Serialize(data));
+        NetworkHandler.Instance.MessageServerRpc(_messageIdentifier, LethalNetworkSerializer.Serialize(data));
     }
     
     /// <summary>
@@ -57,41 +57,43 @@ public class LethalClientMessage<TData>
             return;
         }
         
-        NetworkHandler.Instance.MessageServerRpc(_messageIdentifier, Serializer.Serialize(data),
+        NetworkHandler.Instance.MessageServerRpc(_messageIdentifier, LethalNetworkSerializer.Serialize(data),
             toOtherClients: true, sendToOriginator: (includeLocalClient && waitForServerResponse));
         
         if(includeLocalClient && !waitForServerResponse)
             OnReceivedFromClient?.Invoke(data, NetworkManager.Singleton.LocalClientId);
-        NetworkHandler.Instance.MessageServerRpc(_messageIdentifier, Serializer.Serialize(data));
+        NetworkHandler.Instance.MessageServerRpc(_messageIdentifier, LethalNetworkSerializer.Serialize(data));
 
 #if DEBUG
         Plugin.Logger.LogDebug($"Attempted to Send Message to Server with data: {data}");
 #endif
     }
     
+    // ReSharper disable once InvalidXmlDocComment
     /// <summary>
     /// The callback to invoke when a message is received from the server.
     /// </summary>
-    /// <typeparam name="data">(<typeparamref name="TData"/>) The received data.</typeparam>
+    /// <typeparam name="TData">The received data.</typeparam>
     public event Action<TData>? OnReceived;
 
+    // ReSharper disable once InvalidXmlDocComment
     /// <summary>
     /// The callback to invoke when a message is received from another client.
     /// </summary>
-    /// <typeparam name="data">(<typeparamref name="TData"/>) The received data.</typeparam>
-    /// <typeparam name="clientId">(<see cref="UInt64">ulong</see>) The origin client.</typeparam>
+    /// <typeparam name="TData">The received data.</typeparam>
+    /// <typeparam name="ulong">The origin client ID.</typeparam>
     public event Action<TData, ulong>? OnReceivedFromClient;
 
     #endregion
     
-    private void ReceiveMessage(string identifier, string data, ulong originatorClient)
+    private void ReceiveMessage(string identifier, byte[] data, ulong originatorClient)
     {
         if (identifier != _messageIdentifier) return;
 
         if (originatorClient == 99999)
-            OnReceived?.Invoke(Serializer.Deserialize<TData>(data));
+            OnReceived?.Invoke(LethalNetworkSerializer.Deserialize<TData>(data));
         else
-            OnReceivedFromClient?.Invoke(Serializer.Deserialize<TData>(data), originatorClient);
+            OnReceivedFromClient?.Invoke(LethalNetworkSerializer.Deserialize<TData>(data), originatorClient);
         
 #if DEBUG
         Plugin.Logger.LogDebug($"Received data: {data}");

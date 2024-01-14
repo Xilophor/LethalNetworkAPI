@@ -1,4 +1,5 @@
 using GameNetcodeStuff;
+using LethalNetworkAPI.Variable;
 
 namespace LethalNetworkAPI;
 
@@ -21,24 +22,24 @@ internal static class LethalNetworkExtensions
     /// <summary>
     /// Get a NetworkVariable with the identifier specific to the NetworkObject. If one doesn't exist, it creates a new one on all clients.
     /// </summary>
+    /// <param name="originalComponent">The <see cref="NetworkBehaviour"/> to attach the variable to.</param>
     /// <param name="identifier">(<see cref="string"/>) An identifier for the variable. Specific to the network object.</param>
     /// <typeparam name="TData">The <a href="https://docs.unity3d.com/2022.3/Documentation/Manual/script-Serialization.html#SerializationRules">serializable data type</a> of the message.</typeparam>
     /// <returns>(<see cref="LethalNetworkVariable{TData}"/>) The network variable.</returns>
     /// <remarks>The variable is set to only allow writing by the object's owner client.</remarks>
-    // ReSharper disable once InvalidXmlDocComment
     public static LethalNetworkVariable<TData>? NetworkVariable<TData>(this NetworkBehaviour originalComponent, string identifier)
     {
         return originalComponent.gameObject.NetworkVariable<TData>(identifier);
     }
-    
+  
     /// <summary>
     /// Get a NetworkVariable with the identifier specific to the NetworkObject. If one doesn't exist, it creates a new one on all clients.
     /// </summary>
+    /// <param name="gameObject">The <see cref="GameObject"/> to attach the variable to. Only networked objects are permitted.</param>
     /// <param name="identifier">(<see cref="string"/>) An identifier for the variable. Specific to the network object.</param>
     /// <typeparam name="TData">The <a href="https://docs.unity3d.com/2022.3/Documentation/Manual/script-Serialization.html#SerializationRules">serializable data type</a> of the message.</typeparam>
     /// <returns>(<see cref="LethalNetworkVariable{TData}"/>) The network variable.</returns>
     /// <remarks>The variable is set to only allow writing by the object's owner client.</remarks>
-    // ReSharper disable once InvalidXmlDocComment
     public static LethalNetworkVariable<TData>? NetworkVariable<TData>(this GameObject gameObject, string identifier)
     {
         if (gameObject.TryGetComponent(out NetworkObject networkObjectComp) == false)

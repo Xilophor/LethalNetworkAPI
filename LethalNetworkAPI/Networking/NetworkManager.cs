@@ -10,7 +10,7 @@ namespace LethalNetworkAPI.Networking;
 [HarmonyWrapSafe]
 internal class NetworkObjectManager
 {
-    [HarmonyPostfix, HarmonyPatch(typeof(GameNetworkManager), nameof(GameNetworkManager.Start))] 
+    [HarmonyPrefix, HarmonyPatch(typeof(GameNetworkManager), nameof(GameNetworkManager.Start))] 
     private static void Init()
     {
         if (_networkPrefab != null)

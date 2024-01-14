@@ -42,9 +42,3 @@ internal class Plugin : BaseUnityPlugin
     
     private static Harmony _harmony = null!;
 }
-
-[Serializable]
-internal class ValueWrapper<T>(T? value)
-{
-    public T? var = value;
-}

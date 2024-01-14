@@ -1,6 +1,7 @@
 // ReSharper disable MemberCanBeMadeStatic.Global
 
 using System.Collections.Generic;
+using LethalNetworkAPI.Variable;
 using Unity.Collections;
 
 namespace LethalNetworkAPI.Networking;
@@ -28,7 +29,7 @@ internal class NetworkHandler : NetworkBehaviour
     #region Messages
     
     [ServerRpc(RequireOwnership = false)]
-    internal void MessageServerRpc(string identifier, string data, bool toOtherClients = false, bool sendToOriginator = false, ServerRpcParams serverRpcParams = default)
+    internal void MessageServerRpc(string identifier, byte[] data, bool toOtherClients = false, bool sendToOriginator = false, ServerRpcParams serverRpcParams = default)
     {
         if (!toOtherClients)
             OnServerMessage?.Invoke(identifier, data, serverRpcParams.Receive.SenderClientId);
@@ -46,7 +47,7 @@ internal class NetworkHandler : NetworkBehaviour
     }
 
     [ClientRpc]
-    internal void MessageClientRpc(string identifier, string data, ulong originatorClient = 99999, ClientRpcParams clientRpcParams = default)
+    internal void MessageClientRpc(string identifier, byte[] data, ulong originatorClient = 99999, ClientRpcParams clientRpcParams = default)
     {
         OnClientMessage?.Invoke(identifier, data, originatorClient);
         clientRpcParams.Send.TargetClientIdsNativeArray?.Dispose();
@@ -114,7 +115,7 @@ internal class NetworkHandler : NetworkBehaviour
     #region Variables
     
     [ServerRpc(RequireOwnership = false)]
-    internal void UpdateVariableServerRpc(string identifier, string data, ServerRpcParams serverRpcParams = default)
+    internal void UpdateVariableServerRpc(string identifier, byte[] data, ServerRpcParams serverRpcParams = default)
     {
         if (serverRpcParams.Receive.SenderClientId != NetworkManager.ServerClientId) OnVariableUpdate?.Invoke(identifier, data);
         
@@ -128,7 +129,7 @@ internal class NetworkHandler : NetworkBehaviour
     }
 
     [ClientRpc]
-    internal void UpdateVariableClientRpc(string identifier, string data, ClientRpcParams clientRpcParams = default)
+    internal void UpdateVariableClientRpc(string identifier, byte[] data, ClientRpcParams clientRpcParams = default)
     {
         OnVariableUpdate?.Invoke(identifier, data);
         clientRpcParams.Send.TargetClientIdsNativeArray?.Dispose();
@@ -159,10 +160,10 @@ internal class NetworkHandler : NetworkBehaviour
     internal static event Action? NetworkTick;
     internal static event Action<ulong>? OnPlayerJoin;
     
-    internal static event Action<string, string, ulong>? OnServerMessage; // identifier, data, originatorClientId
-    internal static event Action<string, string, ulong>? OnClientMessage; // identifier, data, originatorClientId
+    internal static event Action<string, byte[], ulong>? OnServerMessage; // identifier, data, originatorClientId
+    internal static event Action<string, byte[], ulong>? OnClientMessage; // identifier, data, originatorClientId
     
-    internal static event Action<string, string>? OnVariableUpdate; // identifier, data
+    internal static event Action<string, byte[]>? OnVariableUpdate; // identifier, data
     internal static event Action<string, ulong>? GetVariableValue; // identifier, connectedClientId
     
     internal static event Action<string, ulong>? OnServerEvent; // identifier, originatorClientId

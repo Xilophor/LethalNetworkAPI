@@ -1,8 +1,6 @@
 using System.Collections;
 
-// ReSharper disable InvalidXmlDocComment
-
-namespace LethalNetworkAPI;
+namespace LethalNetworkAPI.Event;
 
 public class LethalClientEvent
 {
@@ -96,10 +94,11 @@ public class LethalClientEvent
     /// </summary>
     public event Action? OnReceived;
     
+    // ReSharper disable once InvalidXmlDocComment
     /// <summary>
     /// The callback to invoke when an event is received from another client.
     /// </summary>
-    /// <typeparam name="clientId">(<see cref="UInt64">ulong</see>) The origin client.</typeparam>
+    /// <typeparam name="ulong">The origin client ID.</typeparam>
     public event Action<ulong>? OnReceivedFromClient;
 
     #endregion

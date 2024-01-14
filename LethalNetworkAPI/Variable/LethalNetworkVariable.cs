@@ -1,6 +1,9 @@
+using LethalNetworkAPI.Serializable;
 using Unity.Collections;
 
-namespace LethalNetworkAPI;
+namespace LethalNetworkAPI.Variable;
+
+internal interface ILethalNetVar; // To allow lists of any variable type
 
 internal interface ILethalNetVar; // To allow lists of any variable type
 
@@ -46,7 +49,7 @@ public class LethalNetworkVariable<TData> : ILethalNetVar
             if (!(NetworkManager.Singleton.IsServer || NetworkManager.Singleton.IsHost)) return;
             
             NetworkHandler.Instance.UpdateVariableClientRpc(VariableIdentifier,
-                Serializer.Serialize<TData>(_value!), new ClientRpcParams
+                LethalNetworkSerializer.Serialize<TData>(_value!), new ClientRpcParams
                 {
                     Send = { TargetClientIdsNativeArray = new NativeArray<ulong>(new[] { clientId }, Allocator.Persistent) }
                 });
@@ -105,9 +108,11 @@ public class LethalNetworkVariable<TData> : ILethalNetVar
         }
     }
 
+    // ReSharper disable once InvalidXmlDocComment
     /// <summary>
     /// The callback to invoke when the variable's value changes.
     /// </summary>
+    /// <typeparam name="TData"> The received data.</typeparam>
     /// <remarks>Invoked when changed locally and on the network.</remarks>
     public event Action<TData>? OnValueChanged;
 
@@ -130,7 +135,7 @@ public class LethalNetworkVariable<TData> : ILethalNetVar
 #endif
         
         NetworkHandler.Instance.UpdateVariableClientRpc(VariableIdentifier,
-            Serializer.Serialize<TData>(_value!), new ClientRpcParams
+            LethalNetworkSerializer.Serialize(_value), new ClientRpcParams
             {
                 Send = { TargetClientIdsNativeArray = new NativeArray<ulong>(new[] { clientId }, Allocator.Persistent) }
             });
@@ -145,18 +150,18 @@ public class LethalNetworkVariable<TData> : ILethalNetVar
         }
 
 #if DEBUG
-        Plugin.Logger.LogDebug($"New Value: ({typeof(TData).FullName}) {_value}; {Serializer.Serialize(new ValueWrapper<TData>(_value))}");
+        Plugin.Logger.LogDebug($"New Value: ({typeof(TData).FullName}) {_value}; {LethalNetworkSerializer.Serialize(_value)}");
 #endif
         
         NetworkHandler.Instance.UpdateVariableServerRpc(VariableIdentifier,
-            Serializer.Serialize<TData>(_value!));
+            LethalNetworkSerializer.Serialize(_value));
     }
     
-    private void ReceiveUpdate(string identifier, string data)
+    private void ReceiveUpdate(string identifier, byte[] data)
     {
         if (identifier != VariableIdentifier) return;
 
-        var newValue = Serializer.Deserialize<TData>(data);
+        var newValue = LethalNetworkSerializer.Deserialize<TData>(data);
 
         if (newValue == null) return;
         if (newValue.Equals(_previousValue)) return;
@@ -185,11 +190,12 @@ public class LethalNetworkVariable<TData> : ILethalNetVar
     internal readonly string VariableIdentifier;
 
     #region Private Variables
+    
     private readonly bool _public;
     private readonly NetworkObject? _ownerObject;
     
-    private TData? _previousValue;
-    private TData? _value;
+    private TData _previousValue = default!;
+    private TData _value = default!;
     
     #endregion
 }

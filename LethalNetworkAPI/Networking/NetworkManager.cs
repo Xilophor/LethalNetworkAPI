@@ -6,6 +6,8 @@ using Object = UnityEngine.Object;
 namespace LethalNetworkAPI.Networking;
 
 [HarmonyPatch]
+[HarmonyPriority(Priority.Normal)]
+[HarmonyWrapSafe]
 internal class NetworkObjectManager
 {
     [HarmonyPostfix, HarmonyPatch(typeof(GameNetworkManager), nameof(GameNetworkManager.Start))] 

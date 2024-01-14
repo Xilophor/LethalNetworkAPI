@@ -1,5 +1,6 @@
 // ReSharper disable MemberCanBeMadeStatic.Global
 
+using System.Collections.Generic;
 using Unity.Collections;
 
 namespace LethalNetworkAPI.Networking;
@@ -144,24 +145,14 @@ internal class NetworkHandler : NetworkBehaviour
     {
         GetVariableValue?.Invoke(identifier, serverRpcParams.Receive.SenderClientId);
     }
-    
-    
-
-    [ServerRpc(RequireOwnership = false)]
-    internal void UpdateOwnershipServerRpc(string identifier, ulong newClientId, ServerRpcParams serverRpcParams = default)
-    {
-        UpdateOwnershipClientRpc(identifier, [serverRpcParams.Receive.SenderClientId, newClientId]);
-    }
-    
-    [ClientRpc]
-    internal void UpdateOwnershipClientRpc(string identifier, ulong[] clientIds)
-    {
-        OnOwnershipChange?.Invoke(identifier, clientIds);
-    }
 
     #endregion
 
     internal static NetworkHandler? Instance { get; private set; }
+
+    internal readonly List<ILethalNetVar> ObjectNetworkVariableList = [];
+
+    #region Internal Events
     
     internal static event Action? NetworkSpawn;
     internal static event Action? NetworkDespawn;
@@ -173,10 +164,11 @@ internal class NetworkHandler : NetworkBehaviour
     
     internal static event Action<string, string>? OnVariableUpdate; // identifier, data
     internal static event Action<string, ulong>? GetVariableValue; // identifier, connectedClientId
-    internal static event Action<string, ulong[]>? OnOwnershipChange; // identifier, clientIds
     
     internal static event Action<string, ulong>? OnServerEvent; // identifier, originatorClientId
     internal static event Action<string, ulong>? OnClientEvent; // identifier, originatorClientId
     internal static event Action<string, double, ulong>? OnSyncedServerEvent; // identifier, time, originatorClientId
     internal static event Action<string, double, ulong>? OnSyncedClientEvent; // identifier, time, originatorClientId
+
+    #endregion
 }

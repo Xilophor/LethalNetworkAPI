@@ -1,8 +1,6 @@
 using System.Collections.Generic;
-using OdinSerializer;
+using LethalNetworkAPI.Serializable;
 using Unity.Collections;
-
-// ReSharper disable InvalidXmlDocComment
 
 namespace LethalNetworkAPI.Message;
 
@@ -59,7 +57,7 @@ public class LethalServerMessage<TData>
         }
         
 
-        NetworkHandler.Instance.MessageClientRpc(_messageIdentifier, SerializationUtility.SerializeValue(data, DataFormat.Binary),
+        NetworkHandler.Instance.MessageClientRpc(_messageIdentifier, LethalNetworkSerializer.Serialize(data),
             clientRpcParams: new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIdsNativeArray = new NativeArray<ulong>(new [] {clientId}, Allocator.Persistent) } } );
     }
     
@@ -95,7 +93,7 @@ public class LethalServerMessage<TData>
         }
 
         
-        NetworkHandler.Instance.MessageClientRpc(_messageIdentifier, SerializationUtility.SerializeValue(data, DataFormat.Binary), 
+        NetworkHandler.Instance.MessageClientRpc(_messageIdentifier, LethalNetworkSerializer.Serialize(data), 
             clientRpcParams: new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIdsNativeArray = allowedClientIds } } );
     }
     
@@ -119,18 +117,19 @@ public class LethalServerMessage<TData>
             return;
         }
         
-        NetworkHandler.Instance.MessageClientRpc(_messageIdentifier, SerializationUtility.SerializeValue(data, DataFormat.Binary));
+        NetworkHandler.Instance.MessageClientRpc(_messageIdentifier, LethalNetworkSerializer.Serialize(data));
         
 #if DEBUG
         Plugin.Logger.LogDebug($"Attempted to Send Message to All Clients with data: {data}");
 #endif
     }
     
+    // ReSharper disable once InvalidXmlDocComment
     /// <summary>
     /// The callback to invoke when a message is received.
     /// </summary>
-    /// <typeparam name="data">(<typeparamref name="T"/>) The received data.</typeparam>
-    /// <typeparam name="clientId">(<see cref="UInt64">ulong</see>) The origin client.</typeparam>
+    /// <typeparam name="TData"> The received data.</typeparam>
+    /// <typeparam name="ulong"> The origin client ID.</typeparam>
     public event Action<TData, ulong>? OnReceived;
 
     #endregion
@@ -139,7 +138,7 @@ public class LethalServerMessage<TData>
     {
         if (identifier != _messageIdentifier) return;
         
-        OnReceived?.Invoke(SerializationUtility.DeserializeValue<TData>(data, DataFormat.Binary), originClientId);
+        OnReceived?.Invoke(LethalNetworkSerializer.Deserialize<TData>(data), originClientId);
         
 #if DEBUG
         Plugin.Logger.LogDebug($"Received data: {data}");

@@ -31,7 +31,7 @@ internal static class LethalNetworkExtensions
     {
         return originalComponent.gameObject.NetworkVariable<TData>(identifier);
     }
-
+  
     /// <summary>
     /// Get a NetworkVariable with the identifier specific to the NetworkObject. If one doesn't exist, it creates a new one on all clients.
     /// </summary>

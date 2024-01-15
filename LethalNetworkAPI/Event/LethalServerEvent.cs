@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
 
-namespace LethalNetworkAPI.Event;
+namespace LethalNetworkAPI;
 
-public class LethalServerEvent
+public class LethalServerEvent : NetworkEvent
 {
     #region Public Constructors
     /// <summary>
@@ -12,15 +12,10 @@ public class LethalServerEvent
     /// </summary>
     /// <param name="identifier">(<see cref="string"/>) An identifier for the event.</param>
     /// <remarks>Identifiers are specific to a per-mod basis.</remarks>
-    public LethalServerEvent(string identifier)
+    public LethalServerEvent(string identifier) : base(identifier)
     {
-        _eventIdentifier = $"{Assembly.GetCallingAssembly().GetName().Name}.evt.{identifier}";
         NetworkHandler.OnServerEvent += ReceiveServerEvent;
         NetworkHandler.OnSyncedServerEvent += ReceiveSyncedServerEvent;
-
-#if DEBUG
-        Plugin.Logger.LogDebug($"NetworkEvent with identifier \"{_eventIdentifier}\" has been created.");
-#endif
     }
     
     #endregion
@@ -36,29 +31,29 @@ public class LethalServerEvent
         if (NetworkHandler.Instance == null)
         {
             Plugin.Logger.LogError(string.Format(
-                TextDefinitions.NotInLobbyEvent, _eventIdentifier));
+                TextDefinitions.NotInLobbyEvent, Identifier));
             return;
         }
         
         if (!(NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer))
         {
             Plugin.Logger.LogError(string.Format(
-                TextDefinitions.NotServerInfo, NetworkManager.Singleton.LocalClientId, _eventIdentifier));
+                TextDefinitions.NotServerInfo, NetworkManager.Singleton.LocalClientId, Identifier));
             return;
         }
         
         if (!NetworkManager.Singleton.ConnectedClientsIds.Contains(clientId))
         {
             Plugin.Logger.LogError(string.Format(
-                TextDefinitions.TargetClientNotConnected, clientId, _eventIdentifier));
+                TextDefinitions.TargetClientNotConnected, clientId, Identifier));
             return;
         }
         
-        NetworkHandler.Instance.EventClientRpc(_eventIdentifier, 
+        NetworkHandler.Instance.EventClientRpc(Identifier, 
             clientRpcParams: new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIdsNativeArray = new NativeArray<ulong>(new []{clientId}, Allocator.Persistent) } } );       
         
 #if DEBUG
-        Plugin.Logger.LogDebug($"Attempted to invoke Event to Client {clientId} with identifier: {_eventIdentifier}");
+        Plugin.Logger.LogDebug($"Attempted to invoke Event to Client {clientId} with identifier: {Identifier}");
 #endif
     }
     
@@ -71,32 +66,34 @@ public class LethalServerEvent
         if (NetworkHandler.Instance == null)
         {
             Plugin.Logger.LogError(string.Format(
-                TextDefinitions.NotInLobbyEvent, _eventIdentifier));
+                TextDefinitions.NotInLobbyEvent, Identifier));
             return;
         }
         
         if (!(NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer))
         {
             Plugin.Logger.LogError(string.Format(
-                TextDefinitions.NotServerInfo, NetworkManager.Singleton.LocalClientId, _eventIdentifier));
+                TextDefinitions.NotServerInfo, NetworkManager.Singleton.LocalClientId, Identifier));
             return;
         }
 
         var allowedClientIds = new NativeArray<ulong>(clientIds
             .Where(i => NetworkManager.Singleton.ConnectedClientsIds.Contains(i)).ToArray(), Allocator.Persistent);
+
+        if (!DoClientsExist(allowedClientIds)) return;
         
         if (!allowedClientIds.Any())
         {
             Plugin.Logger.LogError(string.Format(
-                TextDefinitions.TargetClientsNotConnected, clientIds, _eventIdentifier));
+                TextDefinitions.TargetClientsNotConnected, clientIds, Identifier));
             return;
         }
         
-        NetworkHandler.Instance.EventClientRpc(_eventIdentifier,
+        NetworkHandler.Instance.EventClientRpc(Identifier,
             clientRpcParams: new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIdsNativeArray = allowedClientIds } } );
         
 #if DEBUG
-        Plugin.Logger.LogDebug($"Attempted to invoke Event to Clients {clientIds} with identifier: {_eventIdentifier}");
+        Plugin.Logger.LogDebug($"Attempted to invoke Event to Clients {clientIds} with identifier: {Identifier}");
 #endif
     }
 
@@ -109,31 +106,31 @@ public class LethalServerEvent
         if (NetworkHandler.Instance == null)
         {
             Plugin.Logger.LogError(string.Format(
-                TextDefinitions.NotInLobbyEvent, _eventIdentifier));
+                TextDefinitions.NotInLobbyEvent, Identifier));
             return;
         }
         
         if (!(NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer))
         {
             Plugin.Logger.LogError(string.Format(
-                TextDefinitions.NotServerInfo, NetworkManager.Singleton.LocalClientId, _eventIdentifier));
+                TextDefinitions.NotServerInfo, NetworkManager.Singleton.LocalClientId, Identifier));
             return;
         }
         
         if (receiveOnHost)
-            NetworkHandler.Instance.EventClientRpc(_eventIdentifier);
+            NetworkHandler.Instance.EventClientRpc(Identifier);
         else
         {
             var clientIds = new NativeArray<ulong>(NetworkManager.Singleton.ConnectedClientsIds
                 .Where(i => i != NetworkManager.ServerClientId).ToArray(), Allocator.Persistent);
             if (!clientIds.Any()) return;
             
-            NetworkHandler.Instance.EventClientRpc(_eventIdentifier,
+            NetworkHandler.Instance.EventClientRpc(Identifier,
                 clientRpcParams: new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIdsNativeArray = clientIds } } );
         }
         
 #if DEBUG
-        Plugin.Logger.LogDebug($"Attempted to invoke Event to All Clients {receiveOnHost} with identifier: {_eventIdentifier}");
+        Plugin.Logger.LogDebug($"Attempted to invoke Event to All Clients {receiveOnHost} with identifier: {Identifier}");
 #endif
     }
     
@@ -150,18 +147,18 @@ public class LethalServerEvent
 
     private void ReceiveServerEvent(string identifier, ulong originClientId)
     {
-        if (identifier != _eventIdentifier) return;
+        if (identifier != Identifier) return;
 
         OnReceived?.Invoke(originClientId);
         
 #if DEBUG
-        Plugin.Logger.LogDebug($"Received event with identifier: {_eventIdentifier}");
+        Plugin.Logger.LogDebug($"Received event with identifier: {Identifier}");
 #endif
     }
     
     private void ReceiveSyncedServerEvent(string identifier, double time, ulong originatorClientId)
     {
-        if (identifier != _eventIdentifier || NetworkHandler.Instance == null) return;
+        if (identifier != Identifier || NetworkHandler.Instance == null) return;
         
         var timeToWait = time - NetworkManager.Singleton.ServerTime.Time;
         
@@ -175,7 +172,7 @@ public class LethalServerEvent
         NetworkHandler.Instance.StartCoroutine(WaitAndInvokeEvent((float)timeToWait, originatorClientId));
         
 #if DEBUG
-        Plugin.Logger.LogDebug($"Received synced event with identifier: {_eventIdentifier}");
+        Plugin.Logger.LogDebug($"Received synced event with identifier: {Identifier}");
 #endif
     }
     
@@ -187,11 +184,9 @@ public class LethalServerEvent
         OnReceived?.Invoke(clientId);
         
 #if DEBUG
-        Plugin.Logger.LogDebug($"Invoked event with identifier: {_eventIdentifier}");
+        Plugin.Logger.LogDebug($"Invoked event with identifier: {Identifier}");
 #endif
     }
-    
-    private readonly string _eventIdentifier;
 
     #endregion
 }

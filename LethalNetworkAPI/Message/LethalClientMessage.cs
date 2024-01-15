@@ -1,6 +1,6 @@
 using LethalNetworkAPI.Serializable;
 
-namespace LethalNetworkAPI.Message;
+namespace LethalNetworkAPI;
 
 /// <typeparam name="TData">The <a href="https://docs.unity3d.com/2022.3/Documentation/Manual/script-Serialization.html#SerializationRules">serializable data type</a> of the message.</typeparam>
 public class LethalClientMessage<TData>

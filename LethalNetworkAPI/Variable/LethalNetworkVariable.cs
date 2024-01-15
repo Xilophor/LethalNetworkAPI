@@ -1,7 +1,7 @@
 using LethalNetworkAPI.Serializable;
 using Unity.Collections;
 
-namespace LethalNetworkAPI.Variable;
+namespace LethalNetworkAPI;
 
 internal interface ILethalNetVar; // To allow lists of any variable type
 
@@ -10,6 +10,7 @@ internal interface ILethalNetVar; // To allow lists of any variable type
 /// <typeparam name="TData">The <a href="https://docs.unity3d.com/2022.3/Documentation/Manual/script-Serialization.html#SerializationRules">serializable data type</a> of the message.</typeparam>
 public class LethalNetworkVariable<TData> : ILethalNetVar
 {
+    // TODO: FIX THE DANG NETWORK VARIABLE SYNCING
     #region Constructors
 
     /// <summary>

@@ -1,5 +1,5 @@
 using GameNetcodeStuff;
-using LethalNetworkAPI.Variable;
+using LethalNetworkAPI;
 
 namespace LethalNetworkAPI;
 
@@ -22,16 +22,23 @@ internal static class LethalNetworkExtensions
     /// <summary>
     /// Get a NetworkVariable with the identifier specific to the NetworkObject. If one doesn't exist, it creates a new one on all clients.
     /// </summary>
-    /// <param name="originalComponent">The <see cref="NetworkBehaviour"/> to attach the variable to.</param>
+    /// <param name="networkBehaviour">The <see cref="NetworkBehaviour"/> to attach the variable to.</param>
     /// <param name="identifier">(<see cref="string"/>) An identifier for the variable. Specific to the network object.</param>
     /// <typeparam name="TData">The <a href="https://docs.unity3d.com/2022.3/Documentation/Manual/script-Serialization.html#SerializationRules">serializable data type</a> of the message.</typeparam>
     /// <returns>(<see cref="LethalNetworkVariable{TData}"/>) The network variable.</returns>
     /// <remarks>The variable is set to only allow writing by the object's owner client.</remarks>
-    public static LethalNetworkVariable<TData>? NetworkVariable<TData>(this NetworkBehaviour originalComponent, string identifier)
-    {
-        return originalComponent.gameObject.NetworkVariable<TData>(identifier);
-    }
-  
+    public static LethalNetworkVariable<TData>? NetworkVariable<TData>(this NetworkBehaviour networkBehaviour, string identifier) => networkBehaviour.gameObject.NetworkVariable<TData>(identifier);
+
+    /// <summary>
+    /// Get a NetworkVariable with the identifier specific to the NetworkObject. If one doesn't exist, it creates a new one on all clients.
+    /// </summary>
+    /// <param name="networkObject">The <see cref="NetworkObject"/> to attach the variable to.</param>
+    /// <param name="identifier">(<see cref="string"/>) An identifier for the variable. Specific to the network object.</param>
+    /// <typeparam name="TData">The <a href="https://docs.unity3d.com/2022.3/Documentation/Manual/script-Serialization.html#SerializationRules">serializable data type</a> of the message.</typeparam>
+    /// <returns>(<see cref="LethalNetworkVariable{TData}"/>) The network variable.</returns>
+    /// <remarks>The variable is set to only allow writing by the object's owner client.</remarks>
+    public static LethalNetworkVariable<TData>? NetworkVariable<TData>(this NetworkObject networkObject, string identifier) => networkObject.gameObject.NetworkVariable<TData>(identifier);
+
     /// <summary>
     /// Get a NetworkVariable with the identifier specific to the NetworkObject. If one doesn't exist, it creates a new one on all clients.
     /// </summary>

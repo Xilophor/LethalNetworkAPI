@@ -1,7 +1,7 @@
 // ReSharper disable MemberCanBeMadeStatic.Global
 
 using System.Collections.Generic;
-using LethalNetworkAPI.Variable;
+using LethalNetworkAPI;
 using Unity.Collections;
 
 namespace LethalNetworkAPI.Networking;

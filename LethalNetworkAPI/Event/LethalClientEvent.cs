@@ -1,6 +1,6 @@
 using System.Collections;
 
-namespace LethalNetworkAPI.Event;
+namespace LethalNetworkAPI;
 
 public class LethalClientEvent
 {

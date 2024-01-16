@@ -28,29 +28,10 @@ public class LethalServerEvent : NetworkEvent
     /// <param name="clientId">(<see cref="UInt64">ulong</see>) The client to invoke the event to.</param>
     public void InvokeClient(ulong clientId)
     {
-        if (NetworkHandler.Instance == null)
-        {
-            Plugin.Logger.LogError(string.Format(
-                TextDefinitions.NotInLobbyEvent, Identifier));
-            return;
-        }
+        if (IsNetworkHandlerNull() || !IsHostOrServer()) return;
         
-        if (!(NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer))
-        {
-            Plugin.Logger.LogError(string.Format(
-                TextDefinitions.NotServerInfo, NetworkManager.Singleton.LocalClientId, Identifier));
-            return;
-        }
-        
-        if (!NetworkManager.Singleton.ConnectedClientsIds.Contains(clientId))
-        {
-            Plugin.Logger.LogError(string.Format(
-                TextDefinitions.TargetClientNotConnected, clientId, Identifier));
-            return;
-        }
-        
-        NetworkHandler.Instance.EventClientRpc(Identifier, 
-            clientRpcParams: new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIdsNativeArray = new NativeArray<ulong>(new []{clientId}, Allocator.Persistent) } } );       
+        NetworkHandler.Instance!.EventClientRpc(Identifier, 
+            clientRpcParams: GenerateClientParams(clientId));       
         
 #if DEBUG
         Plugin.Logger.LogDebug($"Attempted to invoke Event to Client {clientId} with identifier: {Identifier}");
@@ -63,34 +44,10 @@ public class LethalServerEvent : NetworkEvent
     /// <param name="clientIds">(<see cref="IEnumerable{UInt64}">IEnumerable&lt;ulong&gt;</see>) The clients to invoke the event to.</param>
     public void InvokeClients(IEnumerable<ulong> clientIds)
     {
-        if (NetworkHandler.Instance == null)
-        {
-            Plugin.Logger.LogError(string.Format(
-                TextDefinitions.NotInLobbyEvent, Identifier));
-            return;
-        }
+        if (IsNetworkHandlerNull() || !IsHostOrServer()) return;
         
-        if (!(NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer))
-        {
-            Plugin.Logger.LogError(string.Format(
-                TextDefinitions.NotServerInfo, NetworkManager.Singleton.LocalClientId, Identifier));
-            return;
-        }
-
-        var allowedClientIds = new NativeArray<ulong>(clientIds
-            .Where(i => NetworkManager.Singleton.ConnectedClientsIds.Contains(i)).ToArray(), Allocator.Persistent);
-
-        if (!DoClientsExist(allowedClientIds)) return;
-        
-        if (!allowedClientIds.Any())
-        {
-            Plugin.Logger.LogError(string.Format(
-                TextDefinitions.TargetClientsNotConnected, clientIds, Identifier));
-            return;
-        }
-        
-        NetworkHandler.Instance.EventClientRpc(Identifier,
-            clientRpcParams: new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIdsNativeArray = allowedClientIds } } );
+        NetworkHandler.Instance!.EventClientRpc(Identifier,
+            clientRpcParams: GenerateClientParams(clientIds));
         
 #if DEBUG
         Plugin.Logger.LogDebug($"Attempted to invoke Event to Clients {clientIds} with identifier: {Identifier}");
@@ -103,31 +60,13 @@ public class LethalServerEvent : NetworkEvent
     /// <param name="receiveOnHost">(<see cref="bool"/>) Whether the host client should receive as well.</param>
     public void InvokeAllClients(bool receiveOnHost = true)
     {
-        if (NetworkHandler.Instance == null)
-        {
-            Plugin.Logger.LogError(string.Format(
-                TextDefinitions.NotInLobbyEvent, Identifier));
-            return;
-        }
-        
-        if (!(NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer))
-        {
-            Plugin.Logger.LogError(string.Format(
-                TextDefinitions.NotServerInfo, NetworkManager.Singleton.LocalClientId, Identifier));
-            return;
-        }
+        if (IsNetworkHandlerNull() || !IsHostOrServer()) return;
         
         if (receiveOnHost)
-            NetworkHandler.Instance.EventClientRpc(Identifier);
+            NetworkHandler.Instance!.EventClientRpc(Identifier);
         else
-        {
-            var clientIds = new NativeArray<ulong>(NetworkManager.Singleton.ConnectedClientsIds
-                .Where(i => i != NetworkManager.ServerClientId).ToArray(), Allocator.Persistent);
-            if (!clientIds.Any()) return;
-            
-            NetworkHandler.Instance.EventClientRpc(Identifier,
-                clientRpcParams: new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIdsNativeArray = clientIds } } );
-        }
+            NetworkHandler.Instance!.EventClientRpc(Identifier,
+                clientRpcParams: GenerateClientParamsExceptHost());
         
 #if DEBUG
         Plugin.Logger.LogDebug($"Attempted to invoke Event to All Clients {receiveOnHost} with identifier: {Identifier}");
@@ -158,16 +97,12 @@ public class LethalServerEvent : NetworkEvent
     
     private void ReceiveSyncedServerEvent(string identifier, double time, ulong originatorClientId)
     {
-        if (identifier != Identifier || NetworkHandler.Instance == null) return;
+        if (identifier != Identifier || IsNetworkHandlerNull()) return;
         
         var timeToWait = time - NetworkManager.Singleton.ServerTime.Time;
         
-        var clientIds = new NativeArray<ulong>(NetworkManager.Singleton.ConnectedClientsIds
-            .Where(i => i != originatorClientId).ToArray(), Allocator.Persistent);
-        if (!clientIds.Any()) return;
-        
-        NetworkHandler.Instance.SyncedEventClientRpc(identifier, time, originatorClientId,
-            clientRpcParams: new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIdsNativeArray = clientIds } } );
+        NetworkHandler.Instance!.SyncedEventClientRpc(identifier, time, originatorClientId,
+            clientRpcParams: GenerateClientParamsExcept(originatorClientId));
         
         NetworkHandler.Instance.StartCoroutine(WaitAndInvokeEvent((float)timeToWait, originatorClientId));
         

@@ -14,9 +14,22 @@ internal static class LethalNetworkExtensions
     /// <param name="clientId">(<see cref="UInt64">ulong</see>) The client id. </param>
     /// <returns>(<see cref="PlayerControllerB">PlayerControllerB?</see>) The player controller component.</returns>
     /// <remarks>Will return <c>null</c> if the controller is not found.</remarks>
-    public static PlayerControllerB? GetPlayerFromId(this ulong clientId)
+    public static PlayerControllerB? GetPlayerController(this ulong clientId)
     {
         return StartOfRound.Instance.allPlayerScripts[StartOfRound.Instance.ClientPlayerList[clientId]];
+    }
+
+    [Obsolete("GetPlayerFromId is deprecated, please use GetPlayerController instead.")]
+    public static PlayerControllerB? GetPlayerFromId(this ulong clientId) => clientId.GetPlayerController();
+    
+    /// <summary>
+    /// Gets the <see cref="UInt64">ulong</see> from a given <see cref="PlayerControllerB"/>.
+    /// </summary>
+    /// <param name="player">(<see cref="PlayerControllerB"/>) The player controller. </param>
+    /// <returns>(<see cref="UInt64">ulong</see>) The player's client id.</returns>
+    public static ulong GetClientId(this PlayerControllerB player)
+    {
+        return player.actualClientId;
     }
 
     /// <summary>

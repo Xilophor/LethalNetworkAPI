@@ -1,4 +1,6 @@
 ﻿using LethalNetworkAPI.Serializable;
+
+#if NETSTANDARD2_1
 using OdinSerializer;
 
 [assembly: RegisterFormatter(typeof(NetworkBehaviourReferenceFormatter))]
@@ -26,3 +28,5 @@ public class NetworkBehaviourReferenceFormatter : MinimalBaseFormatter<NetworkBe
         UInt16Serializer.WriteValue(value.m_NetworkBehaviourId, writer);
     }
 }
+
+#endif

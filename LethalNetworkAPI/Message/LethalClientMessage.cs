@@ -1,9 +1,9 @@
 using LethalNetworkAPI.Serializable;
 
-namespace LethalNetworkAPI.Message;
+namespace LethalNetworkAPI;
 
 /// <typeparam name="TData">The <a href="https://docs.unity3d.com/2022.3/Documentation/Manual/script-Serialization.html#SerializationRules">serializable data type</a> of the message.</typeparam>
-public class LethalClientMessage<TData>
+public class LethalClientMessage<TData> : NetworkMessage
 {
     #region Constructor
     
@@ -12,13 +12,12 @@ public class LethalClientMessage<TData>
     /// </summary>
     /// <param name="identifier">(<see cref="string"/>) An identifier for the variable.</param>
     /// <remarks>Identifiers are specific to a per-mod basis.</remarks>
-    public LethalClientMessage(string identifier)
+    public LethalClientMessage(string identifier) : base(identifier)
     {
-        _messageIdentifier = $"{Assembly.GetCallingAssembly().GetName().Name}.msg.{identifier}";
         NetworkHandler.OnClientMessage += ReceiveMessage;
 
 #if DEBUG
-        Plugin.Logger.LogDebug($"NetworkMessage with identifier \"{_messageIdentifier}\" has been created.");
+        Plugin.Logger.LogDebug($"NetworkMessage with identifier \"{Identifier}\" has been created.");
 #endif
     }
     
@@ -31,14 +30,9 @@ public class LethalClientMessage<TData>
     /// </summary>
     public void SendServer(TData data)
     {
-        if (NetworkHandler.Instance == null)
-        {
-            Plugin.Logger.LogError(string.Format(
-                TextDefinitions.NotInLobbyMessage, _messageIdentifier, data));
-            return;
-        }
+        if (IsNetworkHandlerNull()) return;
         
-        NetworkHandler.Instance.MessageServerRpc(_messageIdentifier, LethalNetworkSerializer.Serialize(data));
+        NetworkHandler.Instance!.MessageServerRpc(Identifier, LethalNetworkSerializer.Serialize(data));
     }
     
     /// <summary>
@@ -50,19 +44,13 @@ public class LethalClientMessage<TData>
     /// <remarks><paramref name="waitForServerResponse"/> will only be considered if <paramref name="includeLocalClient"/> is set to true.</remarks>
     public void SendAllClients(TData data, bool includeLocalClient = true, bool waitForServerResponse = false)
     {
-        if (NetworkHandler.Instance == null)
-        {
-            Plugin.Logger.LogError(string.Format(
-                TextDefinitions.NotInLobbyMessage, _messageIdentifier, data));
-            return;
-        }
+        if (IsNetworkHandlerNull()) return;
         
-        NetworkHandler.Instance.MessageServerRpc(_messageIdentifier, LethalNetworkSerializer.Serialize(data),
-            toOtherClients: true, sendToOriginator: (includeLocalClient && waitForServerResponse));
+        NetworkHandler.Instance!.MessageServerRpc(Identifier, LethalNetworkSerializer.Serialize(data),
+            toOtherClients: true, sendToOriginator: includeLocalClient && waitForServerResponse);
         
         if(includeLocalClient && !waitForServerResponse)
             OnReceivedFromClient?.Invoke(data, NetworkManager.Singleton.LocalClientId);
-        NetworkHandler.Instance.MessageServerRpc(_messageIdentifier, LethalNetworkSerializer.Serialize(data));
 
 #if DEBUG
         Plugin.Logger.LogDebug($"Attempted to Send Message to Server with data: {data}");
@@ -88,7 +76,7 @@ public class LethalClientMessage<TData>
     
     private void ReceiveMessage(string identifier, byte[] data, ulong originatorClient)
     {
-        if (identifier != _messageIdentifier) return;
+        if (identifier != Identifier) return;
 
         if (originatorClient == 99999)
             OnReceived?.Invoke(LethalNetworkSerializer.Deserialize<TData>(data));
@@ -99,6 +87,4 @@ public class LethalClientMessage<TData>
         Plugin.Logger.LogDebug($"Received data: {data}");
 #endif
     }
-
-    private readonly string _messageIdentifier;
 }

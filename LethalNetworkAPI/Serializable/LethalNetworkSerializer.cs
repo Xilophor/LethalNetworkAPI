@@ -1,4 +1,7 @@
-﻿using OdinSerializer;
+﻿
+#if NETSTANDARD2_1
+using OdinSerializer;
+#endif
 
 namespace LethalNetworkAPI.Serializable;
 
@@ -6,6 +9,7 @@ internal static class LethalNetworkSerializer
 {
     internal static byte[] Serialize<T>(T value)
     {
+#if NETSTANDARD2_1
         return value switch
         {
             GameObject gameObject => SerializationUtility.SerializeValue((NetworkObjectReference)gameObject, DataFormat.Binary),
@@ -13,10 +17,14 @@ internal static class LethalNetworkSerializer
             NetworkBehaviour gameObject => SerializationUtility.SerializeValue((NetworkBehaviourReference)gameObject, DataFormat.Binary),
             _ => SerializationUtility.SerializeValue(value, DataFormat.Binary)
         };
+#else
+        return [];        
+#endif
     }
     
     internal static T Deserialize<T>(byte[] data)
     {
+#if NETSTANDARD2_1
         T type = default!;
         return type switch
         {
@@ -25,5 +33,9 @@ internal static class LethalNetworkSerializer
             NetworkBehaviour => (T)(object)(NetworkBehaviour)SerializationUtility.DeserializeValue<NetworkBehaviourReference>(data, DataFormat.Binary),
             _ => SerializationUtility.DeserializeValue<T>(data, DataFormat.Binary)
         };
+#else
+        T test = default!;
+        return test;        
+#endif
     }
 }

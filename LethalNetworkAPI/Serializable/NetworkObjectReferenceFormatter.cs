@@ -1,4 +1,6 @@
 ﻿using LethalNetworkAPI.Serializable;
+
+#if NETSTANDARD2_1
 using OdinSerializer;
 
 [assembly: RegisterFormatter(typeof(NetworkObjectReferenceFormatter))]
@@ -22,3 +24,5 @@ internal class NetworkObjectReferenceFormatter : MinimalBaseFormatter<NetworkObj
         UInt64Serializer.WriteValue(value.NetworkObjectId, writer);
     }
 }
+
+#endif

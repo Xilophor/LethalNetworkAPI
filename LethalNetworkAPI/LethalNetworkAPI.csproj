@@ -61,7 +61,7 @@
         <PackageReference Include="LethalCompany.GameLibs.Steam" Version="49.0.0-alpha.1" Publicize="true" PrivateAssets="all"/>
     </ItemGroup>
     
-    <ItemGroup>
+    <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
         <Reference Include="OdinSerializer" PrivateAssets="all">
             <HintPath>$(ProjectDir)../libs/odin-serializer/OdinSerializer.dll</HintPath>
         </Reference>

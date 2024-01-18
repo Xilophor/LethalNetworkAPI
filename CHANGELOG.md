@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v2.0.0]
+
 ### Added
 - Ability to create Network Variables specific to a Network Object
 - `[PublicNetworkVariable]` Attribute
@@ -18,9 +20,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Using the `[PublicNetworkVariable]` Attribute, you can allow any client to modify the variable.
     - Client-owned variables can only be made by creating one specific to a Network Object.
       - A great choice is `PlayerControllerB`
+- Internal Refactoring
 
 ### Removed
 - LethalNetworkVariable.SetOwnership()
+  - Removed in favor of the newly reworked Network Variable ownership system.
+- `[LethalNetworkProtected]` Attribute
   - Removed in favor of the newly reworked Network Variable ownership system.
 
 ## [v1.1.3]

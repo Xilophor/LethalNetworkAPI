@@ -2,8 +2,7 @@
 
 on:
   release:
-    types:
-      - released
+    types: [released, prereleased]
   workflow_dispatch: 
     
 
@@ -83,6 +82,7 @@ jobs:
           dotnet nuget push ./LethalNetworkAPI/bin/Release/*.nupkg --api-key ${{ secrets.NUGET_TOKEN }} --source https://api.nuget.org/v3/index.json
   
   deploy-thunderstore:
+    if: ${{ github.event.release.prerelease == false }}
     needs: build
     runs-on: ubuntu-latest
     steps:

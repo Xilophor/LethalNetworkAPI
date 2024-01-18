@@ -44,7 +44,7 @@ public class LethalClientEvent : NetworkEvent
         if (IsNetworkHandlerNull()) return;
         
         NetworkHandler.Instance!.EventServerRpc(Identifier, toOtherClients: true, 
-            sendToOriginator: (includeLocalClient && waitForServerResponse));
+            sendToOriginator: includeLocalClient && waitForServerResponse);
         
         if(includeLocalClient && !waitForServerResponse)
             OnReceivedFromClient?.Invoke(NetworkManager.Singleton.LocalClientId);
@@ -66,7 +66,7 @@ public class LethalClientEvent : NetworkEvent
         var time = NetworkManager.Singleton.LocalTime.Time;
         
         NetworkHandler.Instance!.SyncedEventServerRpc(Identifier, time);
-        NetworkHandler.Instance.StartCoroutine(WaitAndInvokeEvent(0, NetworkManager.Singleton.LocalClientId));
+        ReceiveClientEvent(Identifier, NetworkManager.Singleton.LocalClientId);
 
 #if DEBUG
         Plugin.Logger.LogDebug($"Attempted to invoke Synced Event to Other Clients with identifier: {Identifier}");

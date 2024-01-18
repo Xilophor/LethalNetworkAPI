@@ -57,7 +57,7 @@ public class LethalServerEvent : NetworkEvent
     /// <summary>
     /// Invoke event to all clients.
     /// </summary>
-    /// <param name="receiveOnHost">(<see cref="bool"/>) Whether the host client should receive as well.</param>
+    /// <param name="receiveOnHost">Opt. (<see cref="bool"/>) Whether the host client should receive as well.</param>
     public void InvokeAllClients(bool receiveOnHost = true)
     {
         if (IsNetworkHandlerNull() || !IsHostOrServer()) return;

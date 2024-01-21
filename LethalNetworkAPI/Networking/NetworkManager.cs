@@ -10,7 +10,7 @@ namespace LethalNetworkAPI.Networking;
 [HarmonyWrapSafe]
 internal class NetworkObjectManager
 {
-    [HarmonyPrefix, HarmonyPatch(typeof(GameNetworkManager), nameof(GameNetworkManager.Start))] 
+    [HarmonyPostfix, HarmonyPatch(typeof(GameNetworkManager), nameof(GameNetworkManager.Start))] 
     private static void Init()
     {
         if (_networkPrefab != null)
@@ -45,7 +45,7 @@ internal class NetworkObjectManager
         return prefab;
     }
 
-    [HarmonyPostfix, HarmonyPatch(typeof(StartOfRound), nameof(StartOfRound.Awake))]
+    [HarmonyPostfix, HarmonyPatch(typeof(StartOfRound), nameof(StartOfRound.Start))]
     private static void SpawnNetworkHandler()
     {
         if (!NetworkManager.Singleton.IsHost && !NetworkManager.Singleton.IsServer) return;

@@ -11,7 +11,7 @@ public abstract class LethalNetwork
         Identifier = $"{Assembly.GetCallingAssembly().GetName().Name}.{identifier}";
         
 #if DEBUG
-        Plugin.Logger.LogDebug($"NetworkEvent with identifier \"{Identifier}\" has been created.");
+        Plugin.Logger.LogDebug($"LethalNetwork with identifier \"{Identifier}\" has been created.");
 #endif
     }
 
@@ -28,6 +28,8 @@ public abstract class LethalNetwork
 
     protected bool IsHostOrServer()
     {
+        if (NetworkManager.Singleton == null) return false;
+        
         if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer) return true;
         
         Plugin.Logger.LogError(string.Format(

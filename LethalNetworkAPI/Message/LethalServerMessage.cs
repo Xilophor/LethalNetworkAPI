@@ -5,7 +5,7 @@ using Unity.Collections;
 namespace LethalNetworkAPI;
 
 /// <typeparam name="TData">The <a href="https://docs.unity3d.com/2022.3/Documentation/Manual/script-Serialization.html#SerializationRules">serializable data type</a> of the message.</typeparam>
-public class LethalServerMessage<TData> : NetworkMessage
+public class LethalServerMessage<TData> : LNetworkMessage
 {
     #region Constructor
     
@@ -17,10 +17,6 @@ public class LethalServerMessage<TData> : NetworkMessage
     public LethalServerMessage(string identifier) : base(identifier)
     {
         NetworkHandler.OnServerMessage += ReceiveServerMessage;
-
-#if DEBUG
-        Plugin.Logger.LogDebug($"NetworkMessage with identifier \"{Identifier}\" has been created.");
-#endif
     }
     
     #endregion

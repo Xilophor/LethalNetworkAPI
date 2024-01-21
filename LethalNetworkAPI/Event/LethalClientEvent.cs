@@ -2,7 +2,7 @@ using System.Collections;
 
 namespace LethalNetworkAPI;
 
-public class LethalClientEvent : NetworkEvent
+public class LethalClientEvent : LNetworkEvent
 {
     #region Public Constructors
     /// <summary>

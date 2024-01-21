@@ -4,7 +4,7 @@ using Unity.Collections;
 
 namespace LethalNetworkAPI;
 
-public class LethalServerEvent : NetworkEvent
+public class LethalServerEvent : LNetworkEvent
 {
     #region Public Constructors
     /// <summary>

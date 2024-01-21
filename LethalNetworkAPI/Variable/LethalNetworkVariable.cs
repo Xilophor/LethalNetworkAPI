@@ -15,12 +15,12 @@ public class LethalNetworkVariable<TData> : ILethalNetVar
     /// </summary>
     /// <param name="identifier">(<see cref="string"/>) An identifier for the variable.</param>
     /// <remarks>Identifiers are specific to a per-mod basis.</remarks>
-    public LethalNetworkVariable(string identifier) : this(identifier, null) { }
+    public LethalNetworkVariable(string identifier) : this(identifier, null, true) { }
 
-    internal LethalNetworkVariable(string identifier, NetworkObject? owner)
+    internal LethalNetworkVariable(string identifier, NetworkObject? owner, bool serverOwned)
     {
         VariableIdentifier = $"{Assembly.GetCallingAssembly().GetName().Name}.var.{identifier}";
-        _ownerObject = owner;
+        _ownerObject = (!serverOwned) ? owner : null;
         
         NetworkHandler.OnVariableUpdate += ReceiveUpdate;
         NetworkHandler.NetworkTick += OnNetworkTick;

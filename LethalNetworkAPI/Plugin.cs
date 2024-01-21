@@ -1,4 +1,5 @@
 using BepInEx;
+using BepInEx.Logging;
 using HarmonyLib;
 
 namespace LethalNetworkAPI;
@@ -17,7 +18,7 @@ internal class Plugin : BaseUnityPlugin
         
         _harmony.PatchAll(typeof(NetworkObjectManager));
 
-        Logger.LogDebug("LethalNetworkAPI Patches Applied");
+        Logger.LogInfo($"LethalNetworkAPI v{MyPluginInfo.PLUGIN_VERSION} has Loaded.");
     }
 
     private static void NetcodePatcher()
@@ -38,7 +39,7 @@ internal class Plugin : BaseUnityPlugin
     }
 
     internal static Plugin Instance = null!;
-    internal new static BepInEx.Logging.ManualLogSource Logger { get; private set; } = null!;
+    internal new static ManualLogSource Logger { get; private set; } = null!;
     
     private static Harmony _harmony = null!;
 }

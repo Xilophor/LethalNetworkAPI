@@ -6,7 +6,7 @@ namespace LethalNetworkAPI;
 /// <summary>
 /// Additional tools to help with networking.
 /// </summary>
-internal static class LethalNetworkExtensions
+public static class LethalNetworkExtensions
 {
     /// <summary>
     /// Gets the <see cref="PlayerControllerB"/> from a given clientId.
@@ -41,7 +41,7 @@ internal static class LethalNetworkExtensions
     /// <typeparam name="TData">The <a href="https://docs.unity3d.com/2022.3/Documentation/Manual/script-Serialization.html#SerializationRules">serializable data type</a> of the message.</typeparam>
     /// <returns>(<see cref="LethalNetworkVariable{TData}"/>) The network variable.</returns>
     /// <remarks>The variable is set to only allow writing by the object's owner client. In order to sync on all clients, the host must also run this method on the same GameObject with the same identifier.</remarks>
-    public static LethalNetworkVariable<TData>? NetworkVariable<TData>(this NetworkBehaviour networkBehaviour, string identifier, bool serverOwned = false) => networkBehaviour.gameObject.NetworkVariable<TData>(identifier);
+    public static LethalNetworkVariable<TData>? GetNetworkVariable<TData>(this NetworkBehaviour networkBehaviour, string identifier, bool serverOwned = false) => networkBehaviour.gameObject.NetworkVariable<TData>(identifier, serverOwned);
 
     /// <summary>
     /// Get a NetworkVariable with the identifier specific to the NetworkObject. If one doesn't exist, it creates a new one on all clients.
@@ -52,7 +52,7 @@ internal static class LethalNetworkExtensions
     /// <typeparam name="TData">The <a href="https://docs.unity3d.com/2022.3/Documentation/Manual/script-Serialization.html#SerializationRules">serializable data type</a> of the message.</typeparam>
     /// <returns>(<see cref="LethalNetworkVariable{TData}"/>) The network variable.</returns>
     /// <remarks>The variable is set to only allow writing by the object's owner client. In order to sync on all clients, the host must also run this method on the same GameObject with the same identifier.</remarks>
-    public static LethalNetworkVariable<TData>? NetworkVariable<TData>(this NetworkObject networkObject, string identifier, bool serverOwned = false) => networkObject.gameObject.NetworkVariable<TData>(identifier);
+    public static LethalNetworkVariable<TData>? GetNetworkVariable<TData>(this NetworkObject networkObject, string identifier, bool serverOwned = false) => networkObject.gameObject.NetworkVariable<TData>(identifier, serverOwned);
 
     /// <summary>
     /// Get a NetworkVariable with the identifier specific to the NetworkObject. If one doesn't exist, it creates a new one on all clients.
@@ -63,7 +63,9 @@ internal static class LethalNetworkExtensions
     /// <typeparam name="TData">The <a href="https://docs.unity3d.com/2022.3/Documentation/Manual/script-Serialization.html#SerializationRules">serializable data type</a> of the message.</typeparam>
     /// <returns>(<see cref="LethalNetworkVariable{TData}"/>) The network variable.</returns>
     /// <remarks>The variable is set to only allow writing by the object's owner client. In order to sync on all clients, the host must also run this method on the same GameObject with the same identifier.</remarks>
-    public static LethalNetworkVariable<TData>? NetworkVariable<TData>(this GameObject gameObject, string identifier, bool serverOwned = false)
+    public static LethalNetworkVariable<TData>? GetNetworkVariable<TData>(this GameObject gameObject, string identifier, bool serverOwned = false) => gameObject.NetworkVariable<TData>(identifier, serverOwned);
+    
+    internal static LethalNetworkVariable<TData>? NetworkVariable<TData>(this GameObject gameObject, string identifier, bool serverOwned)
     {
         if (gameObject.TryGetComponent(out NetworkObject networkObjectComp) == false)
         {
@@ -72,13 +74,13 @@ internal static class LethalNetworkExtensions
         }
 
         var networkVariable = (LethalNetworkVariable<TData>)
-            NetworkHandler.Instance!.ObjectNetworkVariableList.First(i =>
-                ((LethalNetworkVariable<TData>)i).VariableIdentifier == $"{identifier}.{networkObjectComp.GlobalObjectIdHash}");
+            NetworkHandler.Instance!.ObjectNetworkVariableList.FirstOrDefault(i =>
+                ((LethalNetworkVariable<TData>)i).VariableIdentifier == $"{identifier}.{networkObjectComp.GlobalObjectIdHash}")!;
 
-        if (networkVariable != null)
+        if (networkVariable != null!)
             return networkVariable;
 
-        networkVariable = new LethalNetworkVariable<TData>($"{identifier}.{networkObjectComp.GlobalObjectIdHash}", networkObjectComp, serverOwned);
+        networkVariable = new LethalNetworkVariable<TData>($"{identifier}.{networkObjectComp.GlobalObjectIdHash}", networkObjectComp, serverOwned, 3);
         NetworkHandler.Instance!.ObjectNetworkVariableList.Add(networkVariable);
         
         return networkVariable;

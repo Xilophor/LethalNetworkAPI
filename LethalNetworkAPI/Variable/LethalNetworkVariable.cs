@@ -1,6 +1,3 @@
-using System.Diagnostics;
-using BepInEx;
-using HarmonyLib;
 using LethalNetworkAPI.Serializable;
 using Unity.Collections;
 
@@ -17,26 +14,12 @@ public class LethalNetworkVariable<TData> : ILethalNetVar
     /// Create a new server-owned network variable, unless otherwise specified with <c>[PublicNetworkVariable]</c>.
     /// </summary>
     /// <param name="identifier">(<see cref="string"/>) An identifier for the variable.</param>
-    /// <remarks>Identifiers are specific to a per-mod basis. MUST be used outside of patches.</remarks>
-    public LethalNetworkVariable(string identifier) : this(identifier, null, true, 2) { }
+    /// <remarks>Identifiers are specific to a per-mod basis.</remarks>
+    public LethalNetworkVariable(string identifier) : this(identifier, null, true) { }
 
-    internal LethalNetworkVariable(string identifier, NetworkObject? owner, bool serverOwned, int frameIndex)
+    internal LethalNetworkVariable(string identifier, NetworkObject? owner, bool serverOwned)
     {
-        try
-        {
-            var m = new StackTrace().GetFrame(frameIndex).GetMethod();
-            var assembly = m.ReflectedType!.Assembly;
-            var pluginType = AccessTools.GetTypesFromAssembly(assembly)
-                .First(type => type.GetCustomAttributes(typeof(BepInPlugin), false).Any());
-
-            VariableIdentifier = $"{MetadataHelper.GetMetadata(pluginType).GUID}.var.{identifier}";
-        }
-        catch (Exception e)
-        {
-            Plugin.Logger.LogError($"Unable to find plugin info for calling mod with identifier {identifier}. Are you using BepInEx?");
-            return;
-        }
-        //VariableIdentifier = $"var.{identifier}"; // Due to patching limitations, I cannot get the guid of the mod assembly.
+        VariableIdentifier = $"{Assembly.GetCallingAssembly().GetName().Name}.var.{identifier}";
         _ownerObject = (!serverOwned) ? owner : null;
         
         NetworkHandler.OnVariableUpdate += ReceiveUpdate;

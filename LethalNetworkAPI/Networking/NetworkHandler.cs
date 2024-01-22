@@ -10,6 +10,12 @@ internal class NetworkHandler : NetworkBehaviour
 {
     public override void OnNetworkSpawn()
     {
+        if (Instance != null)
+        {
+            Destroy(this);
+            return;
+        }
+        
         Instance = this;
         
         NetworkSpawn?.Invoke();

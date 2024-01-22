@@ -28,6 +28,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `[LethalNetworkProtected]` Attribute
   - Removed in favor of the newly reworked Network Variable ownership system.
 
+### Fixed
+- Errors when re-hosting a server
+
 ## [v1.1.3]
 
 ### Changed
@@ -49,7 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Backend NetworkHandler Rework
   - May not be compatible with v1.0.0
 
-## [v1.0.0] - ***Initial Release!***
+## [v1.0.0]
 
 ### Added
 - Network Messages

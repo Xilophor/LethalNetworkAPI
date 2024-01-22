@@ -1,7 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
-using BepInEx;
-using HarmonyLib;
 using Unity.Collections;
 using ClientRpcSendParams = Unity.Netcode.ClientRpcSendParams;
 
@@ -11,22 +8,11 @@ public abstract class LethalNetwork
 {
     protected LethalNetwork(string identifier)
     {
-        try
-        {
-            var m = new StackTrace().GetFrame(3).GetMethod();
-            var assembly = m.ReflectedType!.Assembly;
-            var pluginType = AccessTools.GetTypesFromAssembly(assembly).First(type => type.GetCustomAttributes(typeof(BepInPlugin), false).Any());
-            
-            Identifier = $"{MetadataHelper.GetMetadata(pluginType).GUID}.{identifier}";
+        Identifier = $"{Assembly.GetCallingAssembly().GetName().Name}.{identifier}";
         
 #if DEBUG
-            Plugin.Logger.LogDebug($"LethalNetwork with identifier \"{Identifier}\" has been created.");
+        Plugin.Logger.LogDebug($"LethalNetwork with identifier \"{Identifier}\" has been created.");
 #endif
-        }
-        catch (Exception e)
-        {
-            Plugin.Logger.LogError($"Unable to find plugin info for calling mod with identifier {identifier}. Are you using BepInEx?");
-        }
     }
 
     #region Error Checks

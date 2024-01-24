@@ -77,7 +77,7 @@ internal class NetworkHandler : NetworkBehaviour
         else
             EventClientRpc(identifier, serverRpcParams.Receive.SenderClientId);
 #if DEBUG
-        Plugin.Logger.LogDebug($"Received server data: {identifier}");
+        LethalNetworkAPIPlugin.Logger.LogDebug($"Received server data: {identifier}");
 #endif
     }
 
@@ -88,7 +88,7 @@ internal class NetworkHandler : NetworkBehaviour
         clientRpcParams.Send.TargetClientIdsNativeArray?.Dispose();
         
 #if DEBUG
-        Plugin.Logger.LogDebug($"Received event with identifier: {identifier}");
+        LethalNetworkAPIPlugin.Logger.LogDebug($"Received event with identifier: {identifier}");
 #endif
     }
     
@@ -98,7 +98,7 @@ internal class NetworkHandler : NetworkBehaviour
         OnSyncedServerEvent?.Invoke(identifier, time, serverRpcParams.Receive.SenderClientId);
         
 #if DEBUG
-        Plugin.Logger.LogDebug($"Received server data: {identifier}");
+        LethalNetworkAPIPlugin.Logger.LogDebug($"Received server data: {identifier}");
 #endif
     }
 
@@ -109,7 +109,7 @@ internal class NetworkHandler : NetworkBehaviour
         clientRpcParams.Send.TargetClientIdsNativeArray?.Dispose();
         
 #if DEBUG
-        Plugin.Logger.LogDebug($"Received event with identifier: {identifier}");
+        LethalNetworkAPIPlugin.Logger.LogDebug($"Received event with identifier: {identifier}");
 #endif
     }
 
@@ -127,7 +127,7 @@ internal class NetworkHandler : NetworkBehaviour
         
         UpdateVariableClientRpc(identifier, data, new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIdsNativeArray = clientIds } });
 #if DEBUG
-        Plugin.Logger.LogDebug($"Received variable with identifier: {identifier}; data: {data}");
+        LethalNetworkAPIPlugin.Logger.LogDebug($"Received variable with identifier: {identifier}; data: {data}");
 #endif
     }
 
@@ -138,7 +138,7 @@ internal class NetworkHandler : NetworkBehaviour
         clientRpcParams.Send.TargetClientIdsNativeArray?.Dispose();
         
 #if DEBUG
-        Plugin.Logger.LogDebug($"Received variable with identifier: {identifier}");
+        LethalNetworkAPIPlugin.Logger.LogDebug($"Received variable with identifier: {identifier}");
 #endif
     }
     

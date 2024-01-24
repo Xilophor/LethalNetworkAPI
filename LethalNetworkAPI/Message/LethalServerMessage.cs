@@ -8,15 +8,18 @@ namespace LethalNetworkAPI;
 public class LethalServerMessage<TData> : LNetworkMessage
 {
     #region Constructor
-    
+
     /// <summary>
     /// Create a new network message for the server.
     /// </summary>
     /// <param name="identifier">(<see cref="string"/>) An identifier for the variable.</param>
+    /// <param name="onReceived">Opt. (<see cref="Action{T}">Action&lt;TData&gt;</see>) The method to run when a message is received from a client.</param>
     /// <remarks>Identifiers are specific to a per-mod basis.</remarks>
-    public LethalServerMessage(string identifier) : base(identifier)
+    public LethalServerMessage(string identifier, Action<TData, ulong>? onReceived = null) : base(identifier)
     {
         NetworkHandler.OnServerMessage += ReceiveServerMessage;
+
+        OnReceived += onReceived;
     }
     
     #endregion
@@ -65,7 +68,7 @@ public class LethalServerMessage<TData> : LNetworkMessage
                 clientRpcParams: GenerateClientParamsExceptHost());
         
 #if DEBUG
-        Plugin.Logger.LogDebug($"Attempted to Send Message to All Clients with data: {data}");
+        LethalNetworkAPIPlugin.Logger.LogDebug($"Attempted to Send Message to All Clients with data: {data}");
 #endif
     }
     
@@ -86,7 +89,7 @@ public class LethalServerMessage<TData> : LNetworkMessage
         OnReceived?.Invoke(LethalNetworkSerializer.Deserialize<TData>(data), originClientId);
         
 #if DEBUG
-        Plugin.Logger.LogDebug($"Received data: {data}");
+        LethalNetworkAPIPlugin.Logger.LogDebug($"Received data: {data}");
 #endif
     }
 }

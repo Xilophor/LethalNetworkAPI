@@ -5,18 +5,27 @@ namespace LethalNetworkAPI;
 public class LethalClientEvent : LNetworkEvent
 {
     #region Public Constructors
+
     /// <summary>
     /// Create a new network event for clients.
     /// </summary>
     /// <param name="identifier">(<see cref="string"/>) An identifier for the event.</param>
+    /// <param name="onReceived">Opt. (<see cref="Action">Action</see>) The method to run when an event is received from the server.</param>
+    /// <param name="onReceivedFromClient">Opt. (<see cref="Action{T}">Action&lt;ulong&gt;</see>) The method to run when an event is received from another client.</param>
     /// <remarks>Identifiers are specific to a per-mod basis.</remarks>
-    public LethalClientEvent(string identifier) : base(identifier)
+    public LethalClientEvent(string identifier,
+        Action? onReceived = null,
+        Action<ulong>? onReceivedFromClient = null)
+        : base(identifier)
     {
         NetworkHandler.OnClientEvent += ReceiveClientEvent;
         NetworkHandler.OnSyncedClientEvent += ReceiveSyncedClientEvent;
+        
+        OnReceived += onReceived;
+        OnReceivedFromClient += onReceivedFromClient;
 
 #if DEBUG
-        Plugin.Logger.LogDebug($"NetworkEvent with identifier \"{Identifier}\" has been created.");
+        LethalNetworkAPIPlugin.Logger.LogDebug($"NetworkEvent with identifier \"{Identifier}\" has been created.");
 #endif
     }
     
@@ -50,7 +59,7 @@ public class LethalClientEvent : LNetworkEvent
             OnReceivedFromClient?.Invoke(NetworkManager.Singleton.LocalClientId);
         
 #if DEBUG
-        Plugin.Logger.LogDebug($"Attempted to invoke Event to All Clients {includeLocalClient} with identifier: {Identifier}");
+        LethalNetworkAPIPlugin.Logger.LogDebug($"Attempted to invoke Event to All Clients {includeLocalClient} with identifier: {Identifier}");
 #endif
     }
     
@@ -69,7 +78,7 @@ public class LethalClientEvent : LNetworkEvent
         ReceiveClientEvent(Identifier, NetworkManager.Singleton.LocalClientId);
 
 #if DEBUG
-        Plugin.Logger.LogDebug($"Attempted to invoke Synced Event to Other Clients with identifier: {Identifier}");
+        LethalNetworkAPIPlugin.Logger.LogDebug($"Attempted to invoke Synced Event to Other Clients with identifier: {Identifier}");
 #endif
     }
     
@@ -99,7 +108,7 @@ public class LethalClientEvent : LNetworkEvent
             OnReceivedFromClient?.Invoke(originatorClientId);
         
 #if DEBUG
-        Plugin.Logger.LogDebug($"Received event with identifier: {Identifier}");
+        LethalNetworkAPIPlugin.Logger.LogDebug($"Received event with identifier: {Identifier}");
 #endif
     }
     
@@ -112,7 +121,7 @@ public class LethalClientEvent : LNetworkEvent
         NetworkHandler.Instance.StartCoroutine(WaitAndInvokeEvent((float)timeToWait, originatorClientId));
         
 #if DEBUG
-        Plugin.Logger.LogDebug($"Received synced event with identifier: {Identifier}");
+        LethalNetworkAPIPlugin.Logger.LogDebug($"Received synced event with identifier: {Identifier}");
 #endif
     }
     
@@ -124,7 +133,7 @@ public class LethalClientEvent : LNetworkEvent
         ReceiveClientEvent(Identifier, originatorClientId);
         
 #if DEBUG
-        Plugin.Logger.LogDebug($"Invoked event with identifier: {Identifier}");
+        LethalNetworkAPIPlugin.Logger.LogDebug($"Invoked event with identifier: {Identifier}");
 #endif
     }
 

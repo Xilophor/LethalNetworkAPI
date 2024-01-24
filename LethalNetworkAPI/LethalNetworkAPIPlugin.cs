@@ -6,13 +6,14 @@ namespace LethalNetworkAPI;
 
 
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
-internal class Plugin : BaseUnityPlugin
+public class LethalNetworkAPIPlugin : BaseUnityPlugin
 {
     private void Awake()
     {
         Instance = this;
-        _harmony = new Harmony(MyPluginInfo.PLUGIN_GUID);
         Logger = base.Logger;
+        
+        _harmony = new Harmony(MyPluginInfo.PLUGIN_GUID);
         
         NetcodePatcher();
         
@@ -37,8 +38,9 @@ internal class Plugin : BaseUnityPlugin
             }
         }
     }
-
-    internal static Plugin Instance = null!;
+    
+    public static LethalNetworkAPIPlugin Instance = null!;
+    
     internal new static ManualLogSource Logger { get; private set; } = null!;
     
     private static Harmony _harmony = null!;

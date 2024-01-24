@@ -25,7 +25,7 @@ public abstract class LethalNetwork
         }
         catch (Exception e)
         {
-            Plugin.Logger.LogError($"Unable to find plugin info for calling mod with identifier {identifier}. Are you using BepInEx?");
+            Plugin.Logger.LogError($"Unable to find plugin info for calling mod with identifier {identifier}. Are you using BepInEx? \n Stacktrace: {e}");
         }
     }
 

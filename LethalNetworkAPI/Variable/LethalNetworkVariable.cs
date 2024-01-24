@@ -33,7 +33,7 @@ public class LethalNetworkVariable<TData> : ILethalNetVar
         }
         catch (Exception e)
         {
-            Plugin.Logger.LogError($"Unable to find plugin info for calling mod with identifier {identifier}. Are you using BepInEx?");
+            Plugin.Logger.LogError($"Unable to find plugin info for calling mod with identifier {identifier}. Are you using BepInEx? \n Stacktrace: {e}");
             return;
         }
         //VariableIdentifier = $"var.{identifier}"; // Due to patching limitations, I cannot get the guid of the mod assembly.

@@ -25,7 +25,7 @@ public abstract class LethalNetwork
         }
         catch (Exception e)
         {
-            Plugin.Logger.LogError($"Unable to find plugin info for calling mod with identifier {identifier}. Are you using BepInEx? \n Stacktrace: {e}");
+            LethalNetworkAPIPlugin.Logger.LogError($"Unable to find plugin info for calling mod with identifier {identifier}. Are you using BepInEx? \n Stacktrace: {e}");
         }
     }
 
@@ -101,5 +101,5 @@ public abstract class LethalNetwork
 
     #endregion
 
-    internal readonly string Identifier;
+    internal readonly string Identifier = null!;
 }

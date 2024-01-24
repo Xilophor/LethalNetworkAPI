@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v2.1.0]
+
+### Added
+- Ability to create network messages and events with a method to run instead of having to subscribe separately.
+
+### Changed
+- Minor internal refactoring.
+
+### Fixed
+- Issue with networking Network Variables
+
 ## [v2.0.2]
 
 ### Added

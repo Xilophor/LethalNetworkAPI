@@ -69,13 +69,13 @@ public static class LethalNetworkExtensions
     {
         if (gameObject.TryGetComponent(out NetworkObject networkObjectComp) == false)
         {
-            Plugin.Logger.LogError(TextDefinitions.UnableToLocateNetworkObjectComponent);
+            LethalNetworkAPIPlugin.Logger.LogError(TextDefinitions.UnableToLocateNetworkObjectComponent);
             return null;
         }
 
         var networkVariable = (LethalNetworkVariable<TData>)
             NetworkHandler.Instance!.ObjectNetworkVariableList.FirstOrDefault(i =>
-                ((LethalNetworkVariable<TData>)i).VariableIdentifier == $"{identifier}.{networkObjectComp.GlobalObjectIdHash}")!;
+                ((LethalNetworkVariable<TData>)i).Identifier == $"{identifier}.{networkObjectComp.GlobalObjectIdHash}")!;
 
         if (networkVariable != null!)
             return networkVariable;

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Diagnostics;
 using BepInEx;
 using HarmonyLib;
@@ -9,18 +9,18 @@ namespace LethalNetworkAPI;
 
 public abstract class LethalNetwork
 {
-    protected LethalNetwork(string identifier)
+    protected LethalNetwork(string identifier, int frameIndex = 3)
     {
         try
         {
-            var m = new StackTrace().GetFrame(3).GetMethod();
+            var m = new StackTrace().GetFrame(frameIndex).GetMethod();
             var assembly = m.ReflectedType!.Assembly;
             var pluginType = AccessTools.GetTypesFromAssembly(assembly).First(type => type.GetCustomAttributes(typeof(BepInPlugin), false).Any());
             
             Identifier = $"{MetadataHelper.GetMetadata(pluginType).GUID}.{identifier}";
         
 #if DEBUG
-            Plugin.Logger.LogDebug($"LethalNetwork with identifier \"{Identifier}\" has been created.");
+            LethalNetworkAPIPlugin.Logger.LogDebug($"LethalNetwork with identifier \"{Identifier}\" has been created.");
 #endif
         }
         catch (Exception e)
@@ -35,7 +35,7 @@ public abstract class LethalNetwork
     {
         if (NetworkHandler.Instance != null) return false;
         
-        Plugin.Logger.LogError(string.Format(
+        LethalNetworkAPIPlugin.Logger.LogError(string.Format(
             TextDefinitions.NotInLobbyEvent, Identifier));
         return true;
     }
@@ -46,7 +46,7 @@ public abstract class LethalNetwork
         
         if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer) return true;
         
-        Plugin.Logger.LogError(string.Format(
+        LethalNetworkAPIPlugin.Logger.LogError(string.Format(
             TextDefinitions.NotServerInfo, NetworkManager.Singleton.LocalClientId, Identifier));
         return false;
     }
@@ -55,7 +55,7 @@ public abstract class LethalNetwork
     {
         if (clientIds.Any()) return true;
         
-        Plugin.Logger.LogError(string.Format(
+        LethalNetworkAPIPlugin.Logger.LogError(string.Format(
             TextDefinitions.TargetClientsNotConnected, clientIds, Identifier));
         return false;
     }

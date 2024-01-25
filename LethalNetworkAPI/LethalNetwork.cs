@@ -31,31 +31,34 @@ public abstract class LethalNetwork
 
     #region Error Checks
     
-    protected bool IsNetworkHandlerNull()
+    /// <returns>true if it is null</returns>
+    protected bool IsNetworkHandlerNull(bool log = true)
     {
         if (NetworkHandler.Instance != null) return false;
         
-        LethalNetworkAPIPlugin.Logger.LogError(string.Format(
+        if (log) LethalNetworkAPIPlugin.Logger.LogError(string.Format(
             TextDefinitions.NotInLobbyEvent, Identifier));
         return true;
     }
 
-    protected bool IsHostOrServer()
+    /// <returns>true if it is host</returns>
+    protected bool IsHostOrServer(bool log = true)
     {
         if (NetworkManager.Singleton == null) return false;
         
         if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer) return true;
         
-        LethalNetworkAPIPlugin.Logger.LogError(string.Format(
+        if (log) LethalNetworkAPIPlugin.Logger.LogError(string.Format(
             TextDefinitions.NotServerInfo, NetworkManager.Singleton.LocalClientId, Identifier));
         return false;
     }
 
-    private bool DoClientsExist(IEnumerable<ulong> clientIds)
+    /// <returns>true if it exists</returns>
+    private bool DoClientsExist(IEnumerable<ulong> clientIds, bool log = true)
     {
         if (clientIds.Any()) return true;
         
-        LethalNetworkAPIPlugin.Logger.LogError(string.Format(
+        if (log) LethalNetworkAPIPlugin.Logger.LogError(string.Format(
             TextDefinitions.TargetClientsNotConnected, clientIds, Identifier));
         return false;
     }

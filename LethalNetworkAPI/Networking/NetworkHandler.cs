@@ -1,6 +1,7 @@
 // ReSharper disable MemberCanBeMadeStatic.Global
 
 using System.Collections.Generic;
+using HarmonyLib;
 using LethalNetworkAPI;
 using Unity.Collections;
 
@@ -20,15 +21,30 @@ internal class NetworkHandler : NetworkBehaviour
         
         NetworkSpawn?.Invoke();
         NetworkManager.NetworkTickSystem.Tick += NetworkTick;
-        NetworkManager.Singleton.OnClientConnectedCallback += OnPlayerJoin;
-    }
-
-    public override void OnNetworkDespawn()
-    {
-        Instance = null;
-        NetworkDespawn?.Invoke();
+        NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnectedCallback;
     }
     
+    public override void OnNetworkDespawn()
+    {
+        base.OnNetworkDespawn();
+        Instance = null;
+        OnPlayerJoin = null;
+        NetworkDespawn?.Invoke();
+    }
+
+    public override void OnDestroy()
+    {
+        base.OnDestroy();
+        Instance = null;
+        OnPlayerJoin = null;
+        NetworkDespawn?.Invoke();
+    }
+
+    private void OnClientConnectedCallback(ulong client)
+    {
+        OnPlayerJoin?.Invoke(client);
+    }
+
     #region Messages
     
     [ServerRpc(RequireOwnership = false)]

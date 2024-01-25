@@ -27,12 +27,15 @@ public class LethalNetworkVariable<TData> : LethalNetwork, ILethalNetVar
         NetworkHandler.OnVariableUpdate += ReceiveUpdate;
         NetworkHandler.NetworkTick += OnNetworkTick;
         NetworkHandler.NetworkSpawn += () =>  {
-            if (NetworkHandler.Instance != null &&
-                (NetworkManager.Singleton.IsServer || NetworkManager.Singleton.IsHost))
-            {
-                // Send variable data when a player joins (if variable is created outside of playtime (in main menu))
-                NetworkHandler.OnPlayerJoin += OnPlayerJoin;
-            }
+            if (IsNetworkHandlerNull() || !IsHostOrServer(false)) return;
+            
+            // Send variable data when a player joins (if variable is created outside of playtime (in main menu))
+            NetworkHandler.OnPlayerJoin += OnPlayerJoin;
+            NetworkManager.Singleton.OnServerStopped += ClearSubscriptions;
+            
+#if DEBUG
+            LethalNetworkAPIPlugin.Logger.LogDebug($"Adding PlayerJoin Listener on NetworkSpawn");
+#endif
         };
         
         // Send variable data when a variable is initialized during playtime (in lobby)
@@ -40,15 +43,9 @@ public class LethalNetworkVariable<TData> : LethalNetwork, ILethalNetVar
         {
             if (id != Identifier) return;
             
-            if (NetworkHandler.Instance == null)
-            {
-                LethalNetworkAPIPlugin.Logger.LogError(string.Format(TextDefinitions.NetworkHandlerDoesNotExist));
-                return;
-            }
+            if (IsNetworkHandlerNull() || !IsHostOrServer()) return;
             
-            if (!(NetworkManager.Singleton.IsServer || NetworkManager.Singleton.IsHost)) return;
-            
-            NetworkHandler.Instance.UpdateVariableClientRpc(Identifier,
+            NetworkHandler.Instance!.UpdateVariableClientRpc(Identifier,
                 LethalNetworkSerializer.Serialize(_value), 
                 clientRpcParams: GenerateClientParams(clientId));
         };
@@ -56,23 +53,20 @@ public class LethalNetworkVariable<TData> : LethalNetwork, ILethalNetVar
         if (typeof(LethalNetworkVariable<TData>).GetCustomAttributes(typeof(PublicNetworkVariableAttribute), true).Any())
             _public = true;
 
-        if (NetworkHandler.Instance != null && 
-            !(NetworkManager.Singleton.IsServer || NetworkManager.Singleton.IsHost))
-        {
-            NetworkHandler.Instance.GetVariableValueServerRpc(Identifier);
-        }
-        else if (NetworkHandler.Instance != null &&
-                 (NetworkManager.Singleton.IsServer || NetworkManager.Singleton.IsHost))
+        if (IsNetworkHandlerNull(false)) return;
+
+        if (IsHostOrServer())
         {
             // Send variable data when a player joins (if variable is created during playtime (in lobby))
             NetworkHandler.OnPlayerJoin += OnPlayerJoin;
-        }
-
 #if DEBUG
-        LethalNetworkAPIPlugin.Logger.LogDebug($"NetworkVariable with identifier \"{Identifier}\" has been created.");
+            LethalNetworkAPIPlugin.Logger.LogDebug($"Adding PlayerJoin Listener on Variable Creation");
 #endif
+        }
+        else
+            NetworkHandler.Instance!.GetVariableValueServerRpc(Identifier);
     }
-    
+
     #endregion
 
     #region Public Properties & Events
@@ -130,6 +124,16 @@ public class LethalNetworkVariable<TData> : LethalNetwork, ILethalNetVar
         NetworkHandler.Instance!.UpdateVariableClientRpc(Identifier,
             LethalNetworkSerializer.Serialize(_value), 
             clientRpcParams: GenerateClientParams(clientId));
+    }
+
+    private void ClearSubscriptions(bool something)
+    {
+        NetworkHandler.OnPlayerJoin -= OnPlayerJoin;
+        NetworkManager.Singleton.OnServerStopped -= ClearSubscriptions;
+        
+#if DEBUG
+        LethalNetworkAPIPlugin.Logger.LogDebug($"Cleared Subscriptions!");
+#endif
     }
 
     private void SendUpdate()

@@ -6,7 +6,7 @@ using Object = UnityEngine.Object;
 namespace LethalNetworkAPI.Networking;
 
 [HarmonyPatch]
-[HarmonyPriority(Priority.Normal)]
+[HarmonyPriority(Priority.First)]
 [HarmonyWrapSafe]
 internal class NetworkObjectManager
 {

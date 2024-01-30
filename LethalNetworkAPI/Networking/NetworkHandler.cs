@@ -1,9 +1,7 @@
-// ReSharper disable MemberCanBeMadeStatic.Global
-
 using System.Collections.Generic;
-using HarmonyLib;
-using LethalNetworkAPI;
 using Unity.Collections;
+// ReSharper disable MemberCanBeMadeStatic.Global
+// ReSharper disable MemberCanBeMadeStatic.Local
 
 namespace LethalNetworkAPI.Networking;
 
@@ -40,22 +38,25 @@ internal class NetworkHandler : NetworkBehaviour
         NetworkDespawn?.Invoke();
     }
 
-    private void OnClientConnectedCallback(ulong client)
-    {
+    private void OnClientConnectedCallback(ulong client) =>
         OnPlayerJoin?.Invoke(client);
-    }
 
     #region Messages
     
     [ServerRpc(RequireOwnership = false)]
-    internal void MessageServerRpc(string identifier, byte[] data, bool toOtherClients = false, bool sendToOriginator = false, ServerRpcParams serverRpcParams = default)
+    internal void MessageServerRpc(string identifier,
+        byte[] data,
+        bool toOtherClients = false,
+        bool sendToOriginator = false,
+        ServerRpcParams serverRpcParams = default)
     {
         if (!toOtherClients)
             OnServerMessage?.Invoke(identifier, data, serverRpcParams.Receive.SenderClientId);
         else if (!sendToOriginator)
         {
             var clientIds = new NativeArray<ulong>(NetworkManager.Singleton.ConnectedClientsIds
-                .Where(i => i != serverRpcParams.Receive.SenderClientId).ToArray(), Allocator.Persistent);
+                    .Where(i => i != serverRpcParams.Receive.SenderClientId).ToArray(), 
+                Allocator.Persistent);
             if (!clientIds.Any()) return;
             
             MessageClientRpc(identifier, data, serverRpcParams.Receive.SenderClientId, 
@@ -63,13 +64,27 @@ internal class NetworkHandler : NetworkBehaviour
         }
         else
             MessageClientRpc(identifier, data, serverRpcParams.Receive.SenderClientId);
+        
+#if DEBUG
+        LethalNetworkAPIPlugin.Logger.LogDebug(
+            $"Received event \"{identifier}\" from a client.");
+#endif
     }
 
     [ClientRpc]
-    internal void MessageClientRpc(string identifier, byte[] data, ulong originatorClient = 99999, ClientRpcParams clientRpcParams = default)
+    internal void MessageClientRpc(string identifier,
+        byte[] data,
+        ulong originatorClient = 99999,
+        ClientRpcParams clientRpcParams = default)
     {
         OnClientMessage?.Invoke(identifier, data, originatorClient);
         clientRpcParams.Send.TargetClientIdsNativeArray?.Dispose();
+        
+#if DEBUG
+        LethalNetworkAPIPlugin.Logger.LogDebug(
+            $"Received message \"{identifier}\" from server with originator: " +
+            $"{(originatorClient == 99999 ? "server" : originatorClient)}");
+#endif
     }
 
     #endregion Messages
@@ -77,14 +92,18 @@ internal class NetworkHandler : NetworkBehaviour
     #region Events
 
     [ServerRpc(RequireOwnership = false)]
-    internal void EventServerRpc(string identifier, bool toOtherClients = false, bool sendToOriginator = false, ServerRpcParams serverRpcParams = default)
+    internal void EventServerRpc(string identifier,
+        bool toOtherClients = false,
+        bool sendToOriginator = false,
+        ServerRpcParams serverRpcParams = default)
     {
         if (!toOtherClients)
             OnServerEvent?.Invoke(identifier, serverRpcParams.Receive.SenderClientId);
         else if (!sendToOriginator)
         {
             var clientIds = new NativeArray<ulong>(NetworkManager.Singleton.ConnectedClientsIds
-                .Where(i => i != serverRpcParams.Receive.SenderClientId).ToArray(), Allocator.Persistent);
+                    .Where(i => i != serverRpcParams.Receive.SenderClientId).ToArray(), 
+                Allocator.Persistent);
             if (!clientIds.Any()) return;
             
             EventClientRpc(identifier, serverRpcParams.Receive.SenderClientId, 
@@ -92,40 +111,54 @@ internal class NetworkHandler : NetworkBehaviour
         }
         else
             EventClientRpc(identifier, serverRpcParams.Receive.SenderClientId);
+        
 #if DEBUG
-        LethalNetworkAPIPlugin.Logger.LogDebug($"Received server data: {identifier}");
+        LethalNetworkAPIPlugin.Logger.LogDebug(
+            $"Received event \"{identifier}\" from a client.");
 #endif
     }
 
     [ClientRpc]
-    internal void EventClientRpc(string identifier, ulong originatorId = 99999, ClientRpcParams clientRpcParams = default)
+    internal void EventClientRpc(string identifier,
+        ulong originatorClient = 99999,
+        ClientRpcParams clientRpcParams = default)
     {
-        OnClientEvent?.Invoke(identifier, originatorId);
+        OnClientEvent?.Invoke(identifier, originatorClient);
         clientRpcParams.Send.TargetClientIdsNativeArray?.Dispose();
         
 #if DEBUG
-        LethalNetworkAPIPlugin.Logger.LogDebug($"Received event with identifier: {identifier}");
+        LethalNetworkAPIPlugin.Logger.LogDebug(
+            $"Received event \"{identifier}\" from server with originator: " +
+            $"{(originatorClient == 99999 ? "server" : originatorClient)}");
 #endif
     }
     
     [ServerRpc(RequireOwnership = false)]
-    internal void SyncedEventServerRpc(string identifier, double time, ServerRpcParams serverRpcParams = default)
+    internal void SyncedEventServerRpc(string identifier,
+        double time,
+        ServerRpcParams serverRpcParams = default)
     {
         OnSyncedServerEvent?.Invoke(identifier, time, serverRpcParams.Receive.SenderClientId);
         
 #if DEBUG
-        LethalNetworkAPIPlugin.Logger.LogDebug($"Received server data: {identifier}");
+        LethalNetworkAPIPlugin.Logger.LogDebug(
+            $"Received synced event \"{identifier}\" from a client.");
 #endif
     }
 
     [ClientRpc]
-    internal void SyncedEventClientRpc(string identifier, double time, ulong originatorClient, ClientRpcParams clientRpcParams = default)
+    internal void SyncedEventClientRpc(string identifier,
+        double time,
+        ulong originatorClient,
+        ClientRpcParams clientRpcParams = default)
     {
         OnSyncedClientEvent?.Invoke(identifier, time, originatorClient);
         clientRpcParams.Send.TargetClientIdsNativeArray?.Dispose();
         
 #if DEBUG
-        LethalNetworkAPIPlugin.Logger.LogDebug($"Received event with identifier: {identifier}");
+        LethalNetworkAPIPlugin.Logger.LogDebug(
+            $"Received synced event \"{identifier}\" from server with originator: " +
+            $"{(originatorClient == 99999 ? "server" : originatorClient)}");
 #endif
     }
 
@@ -134,36 +167,53 @@ internal class NetworkHandler : NetworkBehaviour
     #region Variables
     
     [ServerRpc(RequireOwnership = false)]
-    internal void UpdateVariableServerRpc(string identifier, byte[] data, ServerRpcParams serverRpcParams = default)
+    internal void UpdateVariableServerRpc(string identifier, 
+        byte[] data,
+        ServerRpcParams serverRpcParams = default)
     {
-        if (serverRpcParams.Receive.SenderClientId != NetworkManager.ServerClientId) OnVariableUpdate?.Invoke(identifier, data);
+        if (serverRpcParams.Receive.SenderClientId != NetworkManager.ServerClientId)
+            OnVariableUpdate?.Invoke(identifier, data);
         
-        var clientIds = new NativeArray<ulong>(NetworkManager.Singleton.ConnectedClientsIds.Where(i => i != serverRpcParams.Receive.SenderClientId).ToArray(), Allocator.Persistent);
+        var clientIds = new NativeArray<ulong>(NetworkManager.Singleton.ConnectedClientsIds
+                .Where(i => i != serverRpcParams.Receive.SenderClientId).ToArray(),
+            Allocator.Persistent);
         if (!clientIds.Any()) return;
         
-        UpdateVariableClientRpc(identifier, data, new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIdsNativeArray = clientIds } });
+        UpdateVariableClientRpc(identifier, data, 
+            new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIdsNativeArray = clientIds } });
+        
 #if DEBUG
-        LethalNetworkAPIPlugin.Logger.LogDebug($"Received variable with identifier: {identifier}; data: {data}");
+        LethalNetworkAPIPlugin.Logger.LogDebug(
+            $"Received variable with identifier \"{identifier}\" from a client.");
 #endif
     }
 
     [ClientRpc]
-    internal void UpdateVariableClientRpc(string identifier, byte[] data, ClientRpcParams clientRpcParams = default)
+    internal void UpdateVariableClientRpc(string identifier, 
+        byte[] data, 
+        ClientRpcParams clientRpcParams = default)
     {
         OnVariableUpdate?.Invoke(identifier, data);
         clientRpcParams.Send.TargetClientIdsNativeArray?.Dispose();
         
 #if DEBUG
-        LethalNetworkAPIPlugin.Logger.LogDebug($"Received variable with identifier: {identifier}");
+        LethalNetworkAPIPlugin.Logger.LogDebug(
+            $"Received variable with identifier \"{identifier}\" from the server.");
 #endif
     }
     
     
 
     [ServerRpc(RequireOwnership = false)]
-    internal void GetVariableValueServerRpc(string identifier, ServerRpcParams serverRpcParams = default)
+    internal void GetVariableValueServerRpc(string identifier, 
+        ServerRpcParams serverRpcParams = default)
     {
         GetVariableValue?.Invoke(identifier, serverRpcParams.Receive.SenderClientId);
+        
+#if DEBUG
+        LethalNetworkAPIPlugin.Logger.LogDebug(
+            $"Requesting variable data with identifier \"{identifier}\" from the server.");
+#endif
     }
 
     #endregion

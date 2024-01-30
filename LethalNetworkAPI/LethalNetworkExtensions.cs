@@ -1,5 +1,4 @@
 using GameNetcodeStuff;
-using LethalNetworkAPI;
 
 namespace LethalNetworkAPI;
 
@@ -64,12 +63,12 @@ public static class LethalNetworkExtensions
     /// <returns>(<see cref="LethalNetworkVariable{TData}"/>) The network variable.</returns>
     /// <remarks>The variable is set to only allow writing by the object's owner client. In order to sync on all clients, the host must also run this method on the same GameObject with the same identifier.</remarks>
     public static LethalNetworkVariable<TData>? GetNetworkVariable<TData>(this GameObject gameObject, string identifier, bool serverOwned = false) => gameObject.NetworkVariable<TData>(identifier, serverOwned);
-    
-    internal static LethalNetworkVariable<TData>? NetworkVariable<TData>(this GameObject gameObject, string identifier, bool serverOwned)
+
+    private static LethalNetworkVariable<TData>? NetworkVariable<TData>(this GameObject gameObject, string identifier, bool serverOwned)
     {
         if (gameObject.TryGetComponent(out NetworkObject networkObjectComp) == false)
         {
-            LethalNetworkAPIPlugin.Logger.LogError(TextDefinitions.UnableToLocateNetworkObjectComponent);
+            LethalNetworkAPIPlugin.Logger.LogError(string.Format(TextDefinitions.UnableToLocateNetworkObjectComponent, identifier));
             return null;
         }
 
@@ -81,7 +80,7 @@ public static class LethalNetworkExtensions
             return networkVariable;
 
         networkVariable = new LethalNetworkVariable<TData>($"{identifier}.{networkObjectComp.GlobalObjectIdHash}", networkObjectComp, serverOwned, 3);
-        NetworkHandler.Instance!.ObjectNetworkVariableList.Add(networkVariable);
+        NetworkHandler.Instance.ObjectNetworkVariableList.Add(networkVariable);
         
         return networkVariable;
     }

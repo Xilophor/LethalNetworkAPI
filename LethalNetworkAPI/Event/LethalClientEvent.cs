@@ -2,16 +2,22 @@ using System.Collections;
 
 namespace LethalNetworkAPI;
 
-public class LethalClientEvent : LNetworkEvent
+public sealed class LethalClientEvent : LNetworkEvent
 {
     #region Public Constructors
 
     /// <summary>
     /// Create a new network event for clients.
     /// </summary>
+    /// 
     /// <param name="identifier">(<see cref="string"/>) An identifier for the event.</param>
-    /// <param name="onReceived">Opt. (<see cref="Action">Action</see>) The method to run when an event is received from the server.</param>
-    /// <param name="onReceivedFromClient">Opt. (<see cref="Action{T}">Action&lt;ulong&gt;</see>) The method to run when an event is received from another client.</param>
+    /// 
+    /// <param name="onReceived">Opt. (<see cref="Action">Action</see>)
+    /// The method to run when an event is received from the server.</param>
+    /// 
+    /// <param name="onReceivedFromClient">Opt. (<see cref="Action{T}">Action&lt;ulong&gt;</see>)
+    /// The method to run when an event is received from another client.</param>
+    /// 
     /// <remarks>Identifiers are specific to a per-mod basis.</remarks>
     public LethalClientEvent(string identifier,
         Action? onReceived = null,
@@ -25,7 +31,8 @@ public class LethalClientEvent : LNetworkEvent
         OnReceivedFromClient += onReceivedFromClient;
 
 #if DEBUG
-        LethalNetworkAPIPlugin.Logger.LogDebug($"NetworkEvent with identifier \"{Identifier}\" has been created.");
+        LethalNetworkAPIPlugin.Logger.LogDebug(
+            $"NetworkEvent with identifier \"{Identifier}\" has been created.");
 #endif
     }
     
@@ -45,9 +52,16 @@ public class LethalClientEvent : LNetworkEvent
     /// <summary>
     /// Invoke event to all clients.
     /// </summary>
-    /// <param name="includeLocalClient">Opt. (<see cref="bool"/>) If the local client event should be invoked.</param>
-    /// <param name="waitForServerResponse">Opt. (<see cref="bool"/>) If the local client should wait for a server response before invoking the <see cref="OnReceivedFromClient"/> event.</param>
-    /// <remarks><paramref name="waitForServerResponse"/> will only be considered if <paramref name="includeLocalClient"/> is set to true.</remarks>
+    /// 
+    /// <param name="includeLocalClient">Opt. (<see cref="bool"/>)
+    /// If the local client event should be invoked.</param>
+    /// 
+    /// <param name="waitForServerResponse">Opt. (<see cref="bool"/>)
+    /// If the local client should wait for a server response before
+    /// invoking the <see cref="OnReceivedFromClient"/> event.</param>
+    /// 
+    /// <remarks><paramref name="waitForServerResponse"/> will only be considered
+    /// if <paramref name="includeLocalClient"/> is set to true.</remarks>
     public void InvokeAllClients(bool includeLocalClient = true, bool waitForServerResponse = false)
     {
         if (IsNetworkHandlerNull()) return;
@@ -59,7 +73,9 @@ public class LethalClientEvent : LNetworkEvent
             OnReceivedFromClient?.Invoke(NetworkManager.Singleton.LocalClientId);
         
 #if DEBUG
-        LethalNetworkAPIPlugin.Logger.LogDebug($"Attempted to invoke Event to All Clients {includeLocalClient} with identifier: {Identifier}");
+        LethalNetworkAPIPlugin.Logger.LogDebug(
+            $"Attempted to invoke Event to All Clients {includeLocalClient}" +
+            $" with identifier: {Identifier}");
 #endif
     }
     
@@ -78,7 +94,8 @@ public class LethalClientEvent : LNetworkEvent
         ReceiveClientEvent(Identifier, NetworkManager.Singleton.LocalClientId);
 
 #if DEBUG
-        LethalNetworkAPIPlugin.Logger.LogDebug($"Attempted to invoke Synced Event to Other Clients with identifier: {Identifier}");
+        LethalNetworkAPIPlugin.Logger.LogDebug(
+            $"Attempted to invoke Synced Event to Other Clients with identifier: {Identifier}");
 #endif
     }
     
@@ -91,6 +108,7 @@ public class LethalClientEvent : LNetworkEvent
     /// <summary>
     /// The callback to invoke when an event is received from another client.
     /// </summary>
+    /// 
     /// <typeparam name="ulong">The origin client ID.</typeparam>
     public event Action<ulong>? OnReceivedFromClient;
 
@@ -108,7 +126,8 @@ public class LethalClientEvent : LNetworkEvent
             OnReceivedFromClient?.Invoke(originatorClientId);
         
 #if DEBUG
-        LethalNetworkAPIPlugin.Logger.LogDebug($"Received event with identifier: {Identifier}");
+        LethalNetworkAPIPlugin.Logger.LogDebug(
+            $"Received event with identifier: {Identifier}");
 #endif
     }
     
@@ -118,10 +137,12 @@ public class LethalClientEvent : LNetworkEvent
         
         var timeToWait = time - NetworkManager.Singleton.ServerTime.Time;
         
-        NetworkHandler.Instance.StartCoroutine(WaitAndInvokeEvent((float)timeToWait, originatorClientId));
+        NetworkHandler.Instance.StartCoroutine(
+            WaitAndInvokeEvent((float)timeToWait, originatorClientId));
         
 #if DEBUG
-        LethalNetworkAPIPlugin.Logger.LogDebug($"Received synced event with identifier: {Identifier}");
+        LethalNetworkAPIPlugin.Logger.LogDebug(
+            $"Received synced event with identifier: {Identifier}");
 #endif
     }
     
@@ -133,7 +154,8 @@ public class LethalClientEvent : LNetworkEvent
         ReceiveClientEvent(Identifier, originatorClientId);
         
 #if DEBUG
-        LethalNetworkAPIPlugin.Logger.LogDebug($"Invoked event with identifier: {Identifier}");
+        LethalNetworkAPIPlugin.Logger.LogDebug(
+            $"Invoked event with identifier: {Identifier}");
 #endif
     }
 

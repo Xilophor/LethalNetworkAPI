@@ -1,6 +1,6 @@
 ﻿namespace LethalNetworkAPI;
 
 /// <summary>
-/// Internal Class
+/// Internal class.
 /// </summary>
-public abstract class LNetworkEvent(string identifier) : LethalNetwork($"evt.{identifier}");
+public abstract class LNetworkEvent(string identifier) : LethalNetwork($"evt.{identifier}", "Event");

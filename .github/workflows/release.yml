@@ -2,9 +2,7 @@
 
 on:
   release:
-    types: [released, prereleased]
-  workflow_dispatch: 
-    
+    types: [released, prereleased]    
 
 jobs:
   build:
@@ -19,7 +17,7 @@ jobs:
           filter: tree:0
 
       - name: Setup .NET Env
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "8.0.100"
 
@@ -31,6 +29,10 @@ jobs:
       - name: Pack Solution
         run: |
           dotnet pack --configuration Release
+      
+      - name: Build Debug
+        run: |
+          dotnet build --configuration Debug
 
       - name: Upload Thunderstore Artifact
         uses: actions/upload-artifact@v4
@@ -43,6 +45,12 @@ jobs:
         with:
           name: nupkg-build
           path: LethalNetworkAPI/bin/Release/*.nupkg
+      
+      - name: Upload Debug Dll
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-build
+          path: LethalNetworkAPI/bin/Debug/netstandard2.1/LethalNetworkAPI.dll
           
   upload-release-artifacts:
     needs: build
@@ -56,7 +64,7 @@ jobs:
       - name: Upload artifacts to Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload ${{ github.event.release.tag_name }} thunderstore-build/*.zip nupkg-build/*.nupkg
+        run: gh release upload ${{ github.event.release.tag_name }} thunderstore-build/*.zip nupkg-build/*.nupkg debug-build/*.dll
   
   deploy-nuget:
     name: Deploy to NuGet

@@ -1,6 +1,6 @@
 ﻿namespace LethalNetworkAPI;
 
 /// <summary>
-/// Internal Class
+/// Internal class.
 /// </summary>
-public abstract class LNetworkMessage(string identifier) : LethalNetwork($"msg.{identifier}");
+public abstract class LNetworkMessage(string identifier) : LethalNetwork($"msg.{identifier}", "Message");

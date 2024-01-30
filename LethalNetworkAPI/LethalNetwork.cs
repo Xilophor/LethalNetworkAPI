@@ -7,9 +7,16 @@ using ClientRpcSendParams = Unity.Netcode.ClientRpcSendParams;
 
 namespace LethalNetworkAPI;
 
+/// <summary>
+/// Internal class.
+/// </summary>
 public abstract class LethalNetwork
 {
-    protected LethalNetwork(string identifier, int frameIndex = 3)
+
+    internal readonly string Identifier = null!;
+    private readonly string _networkType = null!;
+    
+    protected LethalNetwork(string identifier, string networkType, int frameIndex = 3)
     {
         try
         {
@@ -18,14 +25,15 @@ public abstract class LethalNetwork
             var pluginType = AccessTools.GetTypesFromAssembly(assembly).First(type => type.GetCustomAttributes(typeof(BepInPlugin), false).Any());
             
             Identifier = $"{MetadataHelper.GetMetadata(pluginType).GUID}.{identifier}";
+            _networkType = networkType;
         
 #if DEBUG
-            LethalNetworkAPIPlugin.Logger.LogDebug($"LethalNetwork with identifier \"{Identifier}\" has been created.");
+            LethalNetworkAPIPlugin.Logger.LogDebug($"LethalNetwork {_networkType} with identifier \"{Identifier}\" has been created.");
 #endif
         }
         catch (Exception e)
         {
-            LethalNetworkAPIPlugin.Logger.LogError($"Unable to find plugin info for calling mod with identifier {identifier}. Are you using BepInEx? \n Stacktrace: {e}");
+            LethalNetworkAPIPlugin.Logger.LogError(string.Format(TextDefinitions.UnableToFindGuid, _networkType.ToLower(), Identifier, e));
         }
     }
 
@@ -37,7 +45,7 @@ public abstract class LethalNetwork
         if (NetworkHandler.Instance != null) return false;
         
         if (log) LethalNetworkAPIPlugin.Logger.LogError(string.Format(
-            TextDefinitions.NotInLobbyEvent, Identifier));
+            TextDefinitions.NotInLobbyEvent, _networkType.ToLower(), Identifier));
         return true;
     }
 
@@ -45,11 +53,11 @@ public abstract class LethalNetwork
     protected bool IsHostOrServer(bool log = true)
     {
         if (NetworkManager.Singleton == null) return false;
-        
         if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer) return true;
         
         if (log) LethalNetworkAPIPlugin.Logger.LogError(string.Format(
-            TextDefinitions.NotServerInfo, NetworkManager.Singleton.LocalClientId, Identifier));
+            TextDefinitions.NotServerInfo, NetworkManager.Singleton.LocalClientId, _networkType, Identifier));
+        
         return false;
     }
 
@@ -59,7 +67,8 @@ public abstract class LethalNetwork
         if (clientIds.Any()) return true;
         
         if (log) LethalNetworkAPIPlugin.Logger.LogError(string.Format(
-            TextDefinitions.TargetClientsNotConnected, clientIds, Identifier));
+            TextDefinitions.TargetClientsNotConnected, clientIds, _networkType, Identifier));
+        
         return false;
     }
 
@@ -103,6 +112,4 @@ public abstract class LethalNetwork
     protected ClientRpcParams GenerateClientParamsExceptHost() => GenerateClientParams([], true);
 
     #endregion
-
-    internal readonly string Identifier = null!;
 }

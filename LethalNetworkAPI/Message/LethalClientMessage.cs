@@ -2,17 +2,23 @@ using LethalNetworkAPI.Serializable;
 
 namespace LethalNetworkAPI;
 
-/// <typeparam name="TData">The <a href="https://docs.unity3d.com/2022.3/Documentation/Manual/script-Serialization.html#SerializationRules">serializable data type</a> of the message.</typeparam>
-public class LethalClientMessage<TData> : LNetworkMessage
+/// <typeparam name="TData">The serializable data type of the message.</typeparam>
+public sealed class LethalClientMessage<TData> : LNetworkMessage
 {
     #region Constructor
     
     /// <summary>
     /// Create a new network message for clients.
     /// </summary>
+    /// 
     /// <param name="identifier">(<see cref="string"/>) An identifier for the variable.</param>
-    /// <param name="onReceived">Opt. (<see cref="Action{T}">Action&lt;TData&gt;</see>) The method to run when a message is received from the server.</param>
-    /// <param name="onReceivedFromClient">Opt. (<see cref="Action{T}">Action&lt;TData, ulong&gt;</see>) The method to run when a message is received from another client.</param>
+    /// 
+    /// <param name="onReceived">Opt. (<see cref="Action{T}">Action&lt;TData&gt;</see>)
+    /// The method to run when a message is received from the server.</param>
+    /// 
+    /// <param name="onReceivedFromClient">Opt. (<see cref="Action{T}">Action&lt;TData, ulong&gt;</see>)
+    /// The method to run when a message is received from another client.</param>
+    /// 
     /// <remarks>Identifiers are specific to a per-mod basis.</remarks>
     public LethalClientMessage(string identifier,
         Action<TData>? onReceived = null,
@@ -42,10 +48,18 @@ public class LethalClientMessage<TData> : LNetworkMessage
     /// <summary>
     /// Send data to the server/host.
     /// </summary>
+    /// 
     /// <param name="data">(<typeparamref name="TData"/>) The data to send.</param>
-    /// <param name="includeLocalClient">Opt. (<see cref="bool"/>) If the local client event should be invoked.</param>
-    /// <param name="waitForServerResponse">Opt. (<see cref="bool"/>) If the local client should wait for a server response before invoking the <see cref="OnReceivedFromClient"/> event.</param>
-    /// <remarks><paramref name="waitForServerResponse"/> will only be considered if <paramref name="includeLocalClient"/> is set to true.</remarks>
+    /// 
+    /// <param name="includeLocalClient">Opt. (<see cref="bool"/>)
+    /// If the local client event should be invoked.</param>
+    /// 
+    /// <param name="waitForServerResponse">Opt. (<see cref="bool"/>)
+    /// If the local client should wait for a server response before
+    /// invoking the <see cref="OnReceivedFromClient"/> event.</param>
+    /// 
+    /// <remarks><paramref name="waitForServerResponse"/> will only be considered
+    /// if <paramref name="includeLocalClient"/> is set to true.</remarks>
     public void SendAllClients(TData data, bool includeLocalClient = true, bool waitForServerResponse = false)
     {
         if (IsNetworkHandlerNull()) return;
@@ -57,7 +71,8 @@ public class LethalClientMessage<TData> : LNetworkMessage
             OnReceivedFromClient?.Invoke(data, NetworkManager.Singleton.LocalClientId);
 
 #if DEBUG
-        LethalNetworkAPIPlugin.Logger.LogDebug($"Attempted to Send Message to Server with data: {data}");
+        LethalNetworkAPIPlugin.Logger.LogDebug(
+            $"Attempted to Send Message to Server with data: {data}");
 #endif
     }
     
@@ -65,6 +80,7 @@ public class LethalClientMessage<TData> : LNetworkMessage
     /// <summary>
     /// The callback to invoke when a message is received from the server.
     /// </summary>
+    /// 
     /// <typeparam name="TData">The received data.</typeparam>
     public event Action<TData>? OnReceived;
 
@@ -72,7 +88,9 @@ public class LethalClientMessage<TData> : LNetworkMessage
     /// <summary>
     /// The callback to invoke when a message is received from another client.
     /// </summary>
+    /// 
     /// <typeparam name="TData">The received data.</typeparam>
+    /// 
     /// <typeparam name="ulong">The origin client ID.</typeparam>
     public event Action<TData, ulong>? OnReceivedFromClient;
 
@@ -88,7 +106,8 @@ public class LethalClientMessage<TData> : LNetworkMessage
             OnReceivedFromClient?.Invoke(LethalNetworkSerializer.Deserialize<TData>(data), originatorClient);
         
 #if DEBUG
-        LethalNetworkAPIPlugin.Logger.LogDebug($"Received data: {data}");
+        LethalNetworkAPIPlugin.Logger.LogDebug(
+            $"Received data: {data}");
 #endif
     }
 }

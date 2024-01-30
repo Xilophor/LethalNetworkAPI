@@ -1,28 +1,33 @@
-using System.Diagnostics;
-using BepInEx;
-using HarmonyLib;
 using LethalNetworkAPI.Serializable;
-using Unity.Collections;
 
 namespace LethalNetworkAPI;
 
 internal interface ILethalNetVar; // To allow lists of any variable type
 
 /// <typeparam name="TData">The serializable data type of the message.</typeparam>
-public class LethalNetworkVariable<TData> : LethalNetwork, ILethalNetVar
+public sealed class LethalNetworkVariable<TData> : LethalNetwork, ILethalNetVar
 {
     #region Constructors
 
+    // ReSharper disable once UnusedMember.Global
     /// <summary>
     /// Create a new server-owned network variable, unless otherwise specified with <c>[PublicNetworkVariable]</c>.
     /// </summary>
+    /// 
     /// <param name="identifier">(<see cref="string"/>) An identifier for the variable.</param>
+    /// 
     /// <remarks>Identifiers are specific to a per-mod basis. MUST be used outside of patches.</remarks>
     public LethalNetworkVariable(string identifier) : this(identifier, null, true, 2) { }
 
-    internal LethalNetworkVariable(string identifier, NetworkObject? owner, bool serverOwned, int frameIndex) : base(identifier, frameIndex + 1)
+    internal LethalNetworkVariable(string identifier,
+        NetworkObject? owner,
+        bool serverOwned,
+        int frameIndex)
+        : base(identifier,
+            "Variable",
+            frameIndex + 1)
     {
-        _ownerObject = (!serverOwned) ? owner : null;
+        _ownerObject = !serverOwned ? owner : null;
         
         NetworkHandler.OnVariableUpdate += ReceiveUpdate;
         NetworkHandler.NetworkTick += OnNetworkTick;
@@ -34,7 +39,8 @@ public class LethalNetworkVariable<TData> : LethalNetwork, ILethalNetVar
             NetworkManager.Singleton.OnServerStopped += ClearSubscriptions;
             
 #if DEBUG
-            LethalNetworkAPIPlugin.Logger.LogDebug($"Adding PlayerJoin Listener on NetworkSpawn");
+            LethalNetworkAPIPlugin.Logger.LogDebug(
+                "Adding PlayerJoin Listener on NetworkSpawn");
 #endif
         };
         
@@ -50,7 +56,9 @@ public class LethalNetworkVariable<TData> : LethalNetwork, ILethalNetVar
                 clientRpcParams: GenerateClientParams(clientId));
         };
 
-        if (typeof(LethalNetworkVariable<TData>).GetCustomAttributes(typeof(PublicNetworkVariableAttribute), true).Any())
+        if (typeof(LethalNetworkVariable<TData>)
+            .GetCustomAttributes(typeof(PublicNetworkVariableAttribute), true)
+            .Any())
             _public = true;
 
         if (IsNetworkHandlerNull(false)) return;
@@ -60,7 +68,8 @@ public class LethalNetworkVariable<TData> : LethalNetwork, ILethalNetVar
             // Send variable data when a player joins (if variable is created during playtime (in lobby))
             NetworkHandler.OnPlayerJoin += OnPlayerJoin;
 #if DEBUG
-            LethalNetworkAPIPlugin.Logger.LogDebug($"Adding PlayerJoin Listener on Variable Creation");
+            LethalNetworkAPIPlugin.Logger.LogDebug(
+                "Adding PlayerJoin Listener on Variable Creation");
 #endif
         }
         else
@@ -94,7 +103,8 @@ public class LethalNetworkVariable<TData> : LethalNetwork, ILethalNetVar
             _isDirty = true;
             
 #if DEBUG
-            LethalNetworkAPIPlugin.Logger.LogDebug($"New Value: ({typeof(TData).FullName}) {_value}");
+            LethalNetworkAPIPlugin.Logger.LogDebug(
+                $"New Value: ({typeof(TData).FullName}) {_value}");
 #endif
             
             OnValueChanged?.Invoke(_value);
@@ -105,7 +115,9 @@ public class LethalNetworkVariable<TData> : LethalNetwork, ILethalNetVar
     /// <summary>
     /// The callback to invoke when the variable's value changes.
     /// </summary>
+    /// 
     /// <typeparam name="TData"> The received data.</typeparam>
+    /// 
     /// <remarks>Invoked when changed locally and on the network.</remarks>
     public event Action<TData>? OnValueChanged;
 
@@ -118,7 +130,8 @@ public class LethalNetworkVariable<TData> : LethalNetwork, ILethalNetVar
         if (IsNetworkHandlerNull() || !IsHostOrServer()) return;
 
 #if DEBUG
-        LethalNetworkAPIPlugin.Logger.LogDebug($"Player Joined! Sending {Identifier}'s value.");
+        LethalNetworkAPIPlugin.Logger.LogDebug(
+            $"Player Joined! Sending {Identifier}'s value.");
 #endif
         
         NetworkHandler.Instance!.UpdateVariableClientRpc(Identifier,
@@ -132,7 +145,8 @@ public class LethalNetworkVariable<TData> : LethalNetwork, ILethalNetVar
         NetworkManager.Singleton.OnServerStopped -= ClearSubscriptions;
         
 #if DEBUG
-        LethalNetworkAPIPlugin.Logger.LogDebug($"Cleared Subscriptions!");
+        LethalNetworkAPIPlugin.Logger.LogDebug(
+            "Cleared Subscriptions!");
 #endif
     }
 
@@ -141,7 +155,8 @@ public class LethalNetworkVariable<TData> : LethalNetwork, ILethalNetVar
         if (IsNetworkHandlerNull()) return;
 
 #if DEBUG
-        LethalNetworkAPIPlugin.Logger.LogDebug($"New Value: ({typeof(TData).FullName}) {_value}; {LethalNetworkSerializer.Serialize(_value)}");
+        LethalNetworkAPIPlugin.Logger.LogDebug(
+            $"New Value: ({typeof(TData).FullName}) {_value}");
 #endif
         
         NetworkHandler.Instance!.UpdateVariableServerRpc(Identifier,
@@ -159,7 +174,8 @@ public class LethalNetworkVariable<TData> : LethalNetwork, ILethalNetVar
         _value = newValue;
         
 #if DEBUG
-        LethalNetworkAPIPlugin.Logger.LogDebug($"New Value: ({typeof(TData).FullName}) {newValue}");
+        LethalNetworkAPIPlugin.Logger.LogDebug(
+            $"New Value: ({typeof(TData).FullName}) {newValue}");
 #endif
         
         OnValueChanged?.Invoke(newValue);

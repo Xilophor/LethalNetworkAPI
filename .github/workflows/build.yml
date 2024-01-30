@@ -30,6 +30,10 @@ jobs:
         run: |
           dotnet pack --configuration Release
 
+      - name: Build Debug
+        run: |
+          dotnet build --configuration Debug
+
       - name: Upload Thunderstore Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -41,3 +45,9 @@ jobs:
         with:
           name: nupkg-build
           path: LethalNetworkAPI/bin/Release/*.nupkg
+
+      - name: Upload Debug Dll
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-build
+          path: LethalNetworkAPI/bin/Debug/netstandard2.1/LethalNetworkAPI.dll

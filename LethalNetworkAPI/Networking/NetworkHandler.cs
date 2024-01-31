@@ -9,8 +9,16 @@ internal class NetworkHandler : NetworkBehaviour
 {
     public override void OnNetworkSpawn()
     {
+#if DEBUG
+        LethalNetworkAPIPlugin.Logger.LogDebug(
+            "Attempting to set Network Handler instance...");
+#endif
         if (Instance != null)
         {
+#if DEBUG
+            LethalNetworkAPIPlugin.Logger.LogDebug(
+                "Instance already exists! Destroying current game object!");
+#endif
             Destroy(this);
             return;
         }
@@ -20,22 +28,22 @@ internal class NetworkHandler : NetworkBehaviour
         NetworkSpawn?.Invoke();
         NetworkManager.NetworkTickSystem.Tick += NetworkTick;
         NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnectedCallback;
-    }
-    
-    public override void OnNetworkDespawn()
-    {
-        base.OnNetworkDespawn();
-        Instance = null;
-        OnPlayerJoin = null;
-        NetworkDespawn?.Invoke();
+#if DEBUG
+        LethalNetworkAPIPlugin.Logger.LogDebug(
+            "Created new Network Handler Instance.");
+#endif
     }
 
-    public override void OnDestroy()
+    internal void Clean()
     {
-        base.OnDestroy();
-        Instance = null;
-        OnPlayerJoin = null;
         NetworkDespawn?.Invoke();
+        OnPlayerJoin = null;
+        NetworkDespawn = null;
+        Instance = null;
+#if DEBUG
+        LethalNetworkAPIPlugin.Logger.LogDebug(
+            $"Cleaned the Network Handler instance. Is Instance Null? {Instance == null}");
+#endif
     }
 
     private void OnClientConnectedCallback(ulong client) =>

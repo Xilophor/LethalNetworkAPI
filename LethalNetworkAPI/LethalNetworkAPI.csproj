@@ -15,6 +15,7 @@
     <PropertyGroup>
         <Authors>Xilophor</Authors>
         <PackageId>Xilophor.LethalNetworkAPI</PackageId>
+        <PackageTags>lethalcompany;lethalcompanyapi</PackageTags>
         <PackageProjectUrl>https://github.com/Xilophor/LethalNetworkAPI</PackageProjectUrl>
         <RepositoryUrl>https://github.com/Xilophor/LethalNetworkAPI</RepositoryUrl>
         <RepositoryType>git</RepositoryType>

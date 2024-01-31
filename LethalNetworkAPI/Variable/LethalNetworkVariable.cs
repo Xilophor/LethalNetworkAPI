@@ -36,7 +36,7 @@ public sealed class LethalNetworkVariable<TData> : LethalNetwork, ILethalNetVar
             
             // Send variable data when a player joins (if variable is created outside of playtime (in main menu))
             NetworkHandler.OnPlayerJoin += OnPlayerJoin;
-            NetworkManager.Singleton.OnServerStopped += ClearSubscriptions;
+            NetworkHandler.NetworkDespawn += ClearSubscriptions;
             
 #if DEBUG
             LethalNetworkAPIPlugin.Logger.LogDebug(
@@ -139,10 +139,10 @@ public sealed class LethalNetworkVariable<TData> : LethalNetwork, ILethalNetVar
             clientRpcParams: GenerateClientParams(clientId));
     }
 
-    private void ClearSubscriptions(bool something)
+    private void ClearSubscriptions()
     {
         NetworkHandler.OnPlayerJoin -= OnPlayerJoin;
-        NetworkManager.Singleton.OnServerStopped -= ClearSubscriptions;
+        NetworkHandler.NetworkDespawn -= ClearSubscriptions;
         
 #if DEBUG
         LethalNetworkAPIPlugin.Logger.LogDebug(

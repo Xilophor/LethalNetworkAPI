@@ -54,5 +54,11 @@ internal class NetworkObjectManager
         networkHandlerHost.GetComponent<NetworkObject>().Spawn();
     }
 
+    [HarmonyPostfix, HarmonyPatch(typeof(StartOfRound), nameof(StartOfRound.OnDisable))]
+    private static void OnDisconnect()
+    {
+        NetworkHandler.Instance!.Clean();
+    }
+
     private static GameObject _networkPrefab = null!;
 }

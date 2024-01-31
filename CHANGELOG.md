@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v2.1.4]
+
+### Added
+- NuGet Package Tags
+
+### Fixed
+- Actually fixed issues with re-hosting.
+
 ## [v2.1.3]
 
 ### Changed

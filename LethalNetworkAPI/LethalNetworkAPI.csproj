@@ -23,13 +23,11 @@
         <PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
     </PropertyGroup>
 
+    <!-- Embedded Debug -->
     <PropertyGroup>
         <DebugSymbols>true</DebugSymbols>
         <DebugType>embedded</DebugType>
-    </PropertyGroup>
-
-    <PropertyGroup Label="Normalise stack trace file locations">
-        <PathMap>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)'))=X:\</PathMap>
+        <PathMap>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)'))=./</PathMap>
     </PropertyGroup>
 
     <ItemGroup>

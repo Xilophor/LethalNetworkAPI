@@ -23,14 +23,16 @@
         <PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
     </PropertyGroup>
 
-    <ItemGroup>
-        <None Include="$(ProjectDir)../README.md" Pack="true" PackagePath="/"/>
-    </ItemGroup>
-
+    <!-- Embedded Debug -->
     <PropertyGroup>
         <DebugSymbols>true</DebugSymbols>
         <DebugType>embedded</DebugType>
+        <PathMap>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)'))=./</PathMap>
     </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="$(ProjectDir)../README.md" Pack="true" PackagePath="/"/>
+    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all"/>

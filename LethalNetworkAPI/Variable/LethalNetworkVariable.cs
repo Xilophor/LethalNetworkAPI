@@ -88,12 +88,11 @@ public sealed class LethalNetworkVariable<TData> : LethalNetwork, ILethalNetVar
         get => _value;
         set
         {
-            if (!(
-                _public || 
-                (_ownerObject is null && NetworkManager.Singleton.IsServer) || 
-                _ownerObject is null || 
-                _ownerObject.OwnerClientId == NetworkManager.Singleton.LocalClientId
-            )) return;
+            if (!(_public || 
+                  NetworkManager.Singleton == null || 
+                  _ownerObject is null && NetworkManager.Singleton.IsServer || 
+                  _ownerObject is not null && _ownerObject.OwnerClientId == NetworkManager.Singleton.LocalClientId)
+            ) return;
             
             if (value is null) return;
             

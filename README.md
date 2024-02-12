@@ -2,6 +2,7 @@
 
 [![Build](https://img.shields.io/github/actions/workflow/status/Xilophor/LethalNetworkAPI/build.yml?style=for-the-badge&logo=github)](https://github.com/Xilophor/LethalNetworkAPI/actions/workflows/build.yml)
 [![Latest Version](https://img.shields.io/thunderstore/v/xilophor/LethalNetworkAPI?style=for-the-badge&logo=thunderstore&logoColor=white)](https://thunderstore.io/c/lethal-company/p/xilophor/LethalNetworkAPI)
+[![Thunderstore Downloads](https://img.shields.io/thunderstore/dt/xilophor/LethalNetworkAPI?style=for-the-badge&logo=thunderstore&logoColor=white)](https://thunderstore.io/c/lethal-company/p/xilophor/LethalNetworkAPI)
 [![NuGet Version](https://img.shields.io/nuget/v/Xilophor.LethalNetworkAPI?style=for-the-badge&logo=nuget)](https://www.nuget.org/packages/Xilophor.LethalNetworkAPI)
 
 This mod is an API meant for mod developers.

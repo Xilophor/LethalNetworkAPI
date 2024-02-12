@@ -88,15 +88,10 @@ public sealed class LethalNetworkVariable<TData> : LethalNetwork, ILethalNetVar
         get => _value;
         set
         {
-            if (!(_public || 
-                  NetworkManager.Singleton == null || 
-                  _ownerObject is null && NetworkManager.Singleton.IsServer || 
-                  _ownerObject is not null && _ownerObject.OwnerClientId == NetworkManager.Singleton.LocalClientId)
-            ) return;
-            
-            if (value is null) return;
-            
-            if (value.Equals(_value)) return;
+            if (!IsOwner) return;
+
+            if (value is null && _value is null) return;
+            if (value is not null && value.Equals(_value)) return;
             
             _value = value;
             _isDirty = true;
@@ -151,7 +146,7 @@ public sealed class LethalNetworkVariable<TData> : LethalNetwork, ILethalNetVar
 
     private void SendUpdate()
     {
-        if (IsNetworkHandlerNull()) return;
+        if (IsNetworkHandlerNull() || !IsOwner) return;
 
 #if DEBUG
         LethalNetworkAPIPlugin.Logger.LogDebug(
@@ -198,7 +193,22 @@ public sealed class LethalNetworkVariable<TData> : LethalNetwork, ILethalNetVar
 
     private bool _isDirty;
     private TData _value = default!;
-    
+
+    private bool IsOwner
+    {
+        get
+        {
+            if (_public) return true;
+
+            if (NetworkManager.Singleton == null) return true;
+
+            if (_ownerObject is null && NetworkManager.Singleton.IsServer) return true;
+
+            return _ownerObject is not null &&
+                   _ownerObject.OwnerClientId == NetworkManager.Singleton.LocalClientId;
+        }
+    }
+
     #endregion
 }
 

@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v2.1.6]
+
+### Fixed
+- Network Variable ownership ignored when joining a lobby
+
 ## [v2.1.5]
 
 ### Changed

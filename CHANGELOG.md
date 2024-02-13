@@ -9,8 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v2.1.6]
 
+### Changed
+- Reverted Serialization Changes from v2.1.5
+
 ### Fixed
 - Network Variable ownership ignored when joining a lobby
+- Null Variables breaking loading into a server
 
 ## [v2.1.5]
 

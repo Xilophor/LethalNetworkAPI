@@ -9,6 +9,8 @@ internal static class LethalNetworkSerializer
     internal static byte[] Serialize<T>(T value)
     {
 #if NETSTANDARD2_1
+        if (value is null) return [];
+        
         return value switch
         {
             GameObject gameObject => SerializationUtility.SerializeValue((NetworkObjectReference)gameObject, DataFormat.Binary),
@@ -24,8 +26,9 @@ internal static class LethalNetworkSerializer
     internal static T Deserialize<T>(byte[] data)
     {
 #if NETSTANDARD2_1
-        T type = default!;
-        return type switch
+        if (data.Length == 0) return default!;
+        
+        return default(T) switch
         {
             GameObject => (T)(object)(GameObject)SerializationUtility.DeserializeValue<NetworkObjectReference>(data, DataFormat.Binary),
             NetworkObject => (T)(object)(NetworkObject)SerializationUtility.DeserializeValue<NetworkObjectReference>(data, DataFormat.Binary),

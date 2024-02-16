@@ -19,7 +19,7 @@ internal static class LethalNetworkSerializer
             _ => SerializationUtility.SerializeValue(value, DataFormat.Binary)
         };
 #else
-        return [];        
+        throw new Exception("The incorrect version of LethalNetworkAPI is installed. Use the netstandard2.1 version provided by the Thunderstore listing or the GitHub release. The currently installed version will *not* work as intended.");  
 #endif
     }
     
@@ -36,8 +36,7 @@ internal static class LethalNetworkSerializer
             _ => SerializationUtility.DeserializeValue<T>(data, DataFormat.Binary)
         };
 #else
-        T test = default!;
-        return test;        
+        throw new Exception("The incorrect version of LethalNetworkAPI is installed. Use the netstandard2.1 version provided by the Thunderstore listing or the GitHub release. The currently installed version will *not* work as intended.");     
 #endif
     }
 }

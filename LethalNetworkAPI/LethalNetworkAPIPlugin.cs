@@ -10,6 +10,9 @@ public class LethalNetworkAPIPlugin : BaseUnityPlugin
 {
     private void Awake()
     {
+#if NET472
+        throw new Exception("The incorrect version of LethalNetworkAPI is installed. Use the netstandard2.1 version provided by the Thunderstore listing or the GitHub release. The currently installed version will *not* work as intended.");
+#endif
         Instance = this;
         Logger = base.Logger;
         

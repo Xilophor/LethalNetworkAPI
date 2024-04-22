@@ -23,6 +23,14 @@
         <PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
     </PropertyGroup>
 
+    <!-- Set NuGet Sources -->
+    <PropertyGroup>
+        <RestoreAdditionalProjectSources>
+            https://api.nuget.org/v3/index.json;
+            https://nuget.bepinex.dev/v3/index.json
+        </RestoreAdditionalProjectSources>
+    </PropertyGroup>
+
     <!-- Embedded Debug -->
     <PropertyGroup>
         <DebugSymbols>true</DebugSymbols>
@@ -50,10 +58,10 @@
 
     <ItemGroup Condition="$(CI) != 'true'">
         <Reference Include="Assembly-CSharp" Publicize="true" PrivateAssets="all">
-            <HintPath>$(DependenciesDirectory)\Assembly-CSharp.dll</HintPath>
+            <HintPath>$(DependenciesDirectory)Assembly-CSharp.dll</HintPath>
         </Reference>
         <Reference Include="Unity.Netcode.Runtime" Publicize="true" PrivateAssets="all">
-            <HintPath>$(DependenciesDirectory)\Unity.Netcode.Runtime.dll</HintPath>
+            <HintPath>$(DependenciesDirectory)Unity.Netcode.Runtime.dll</HintPath>
         </Reference>
     </ItemGroup>
     

@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v2.1.7]
 
+### Added
+- `ClearSubscriptions` method for messages & events
+
+## [v2.1.7]
+
 ### Changed
 - Added warning when using incorrect build - only for devs
 

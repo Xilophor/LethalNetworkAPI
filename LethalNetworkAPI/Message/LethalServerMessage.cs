@@ -83,7 +83,9 @@ public class LethalServerMessage<TData> : LNetworkMessage
             $"Attempted to Send Message to All Clients with data: {data}");
 #endif
     }
-    
+
+    public void ClearSubscriptions() => OnReceived = delegate { };
+
     // ReSharper disable once InvalidXmlDocComment
     /// <summary>
     /// The callback to invoke when a message is received.

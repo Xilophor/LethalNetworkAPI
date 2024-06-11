@@ -98,6 +98,12 @@ public sealed class LethalClientEvent : LNetworkEvent
             $"Attempted to invoke Synced Event to Other Clients with identifier: {Identifier}");
 #endif
     }
+
+    public void ClearSubscriptions()
+    {
+        OnReceived = delegate { };
+        OnReceivedFromClient = delegate { };
+    }
     
     /// <summary>
     /// The callback to invoke when an event is received from the server.

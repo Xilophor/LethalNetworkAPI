@@ -90,7 +90,9 @@ public sealed class LethalServerEvent : LNetworkEvent
             $" with identifier: {Identifier}");
 #endif
     }
-    
+
+    public void ClearSubscriptions() => OnReceived = delegate { };
+
     // ReSharper disable once InvalidXmlDocComment
     /// <summary>
     /// The callback to invoke when an event is received by the server.

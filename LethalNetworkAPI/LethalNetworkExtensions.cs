@@ -1,4 +1,9 @@
+using System;
+using System.Linq;
 using GameNetcodeStuff;
+using LethalNetworkAPI.Old.Networking;
+using Unity.Netcode;
+using UnityEngine;
 
 namespace LethalNetworkAPI;
 
@@ -10,7 +15,7 @@ public static class LethalNetworkExtensions
     /// <summary>
     /// Gets the <see cref="PlayerControllerB"/> from a given clientId.
     /// </summary>
-    /// <param name="clientId">(<see cref="UInt64">ulong</see>) The client id. </param>
+    /// <param name="clientId">(<see cref="ulong">ulong</see>) The client id. </param>
     /// <returns>(<see cref="PlayerControllerB">PlayerControllerB?</see>) The player controller component.</returns>
     /// <remarks>Will return <c>null</c> if the controller is not found.</remarks>
     public static PlayerControllerB? GetPlayerController(this ulong clientId)

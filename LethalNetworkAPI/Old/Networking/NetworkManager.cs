@@ -1,9 +1,13 @@
+using System;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using HarmonyLib;
+using Unity.Netcode;
+using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace LethalNetworkAPI.Networking;
+namespace LethalNetworkAPI.Old.Networking;
 
 [HarmonyPatch]
 [HarmonyPriority(Priority.First)]

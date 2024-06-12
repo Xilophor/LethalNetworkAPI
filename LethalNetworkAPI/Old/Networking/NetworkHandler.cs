@@ -1,9 +1,13 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Collections;
+using Unity.Netcode;
+
 // ReSharper disable MemberCanBeMadeStatic.Global
 // ReSharper disable MemberCanBeMadeStatic.Local
 
-namespace LethalNetworkAPI.Networking;
+namespace LethalNetworkAPI.Old.Networking;
 
 internal class NetworkHandler : NetworkBehaviour
 {

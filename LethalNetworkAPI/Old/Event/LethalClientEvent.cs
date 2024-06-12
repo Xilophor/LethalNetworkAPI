@@ -1,8 +1,12 @@
+using System;
 using System.Collections;
+using LethalNetworkAPI.Old.Networking;
+using Unity.Netcode;
+using UnityEngine;
 
 namespace LethalNetworkAPI;
 
-public sealed class LethalClientEvent : LNetworkEvent
+public sealed class LethalClientEvent : LNetworkEventDepricated
 {
     #region Public Constructors
 

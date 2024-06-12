@@ -1,9 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
+using LethalNetworkAPI.Old.Networking;
+using Unity.Netcode;
+using UnityEngine;
+using System;
 
 namespace LethalNetworkAPI;
 
-public sealed class LethalServerEvent : LNetworkEvent
+public sealed class LethalServerEvent : LNetworkEventDepricated
 {
     #region Public Constructors
 
@@ -33,7 +37,7 @@ public sealed class LethalServerEvent : LNetworkEvent
     /// Invoke event to a specific client.
     /// </summary>
     /// 
-    /// <param name="clientId">(<see cref="UInt64">ulong</see>) The client to invoke the event to.</param>
+    /// <param name="clientId">(<see cref="ulong">ulong</see>) The client to invoke the event to.</param>
     public void InvokeClient(ulong clientId)
     {
         if (IsNetworkHandlerNull() || !IsHostOrServer()) return;

@@ -1,11 +1,13 @@
 using System.Collections.Generic;
+using LethalNetworkAPI.Old.Networking;
 using LethalNetworkAPI.Serializable;
+using System;
 using Unity.Collections;
 
 namespace LethalNetworkAPI;
 
 /// <typeparam name="TData">The serializable data type of the message.</typeparam>
-public class LethalServerMessage<TData> : LNetworkMessage
+public class LethalServerMessage<TData> : LNetworkMessageDepricated
 {
     #region Constructor
 
@@ -36,7 +38,7 @@ public class LethalServerMessage<TData> : LNetworkMessage
     /// 
     /// <param name="data">(<typeparamref name="TData"/>) The data to send.</param>
     /// 
-    /// <param name="clientId">(<see cref="UInt64">ulong</see>) The client to send the data to.</param>
+    /// <param name="clientId">(<see cref="ulong">ulong</see>) The client to send the data to.</param>
     public void SendClient(TData data, ulong clientId)
     {
         if (IsNetworkHandlerNull() || !IsHostOrServer()) return;

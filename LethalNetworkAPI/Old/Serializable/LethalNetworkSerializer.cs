@@ -1,4 +1,7 @@
-﻿#if NETSTANDARD2_1
+﻿using System;
+using Unity.Netcode;
+using UnityEngine;
+#if NETSTANDARD2_1
 using OdinSerializer;
 #endif
 

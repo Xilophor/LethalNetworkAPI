@@ -1,6 +1,10 @@
+using System;
+using System.Reflection;
 using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
+using LethalNetworkAPI.Old.Networking;
+using UnityEngine;
 
 namespace LethalNetworkAPI;
 

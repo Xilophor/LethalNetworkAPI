@@ -1,9 +1,12 @@
+using LethalNetworkAPI.Old.Networking;
 using LethalNetworkAPI.Serializable;
+using Unity.Netcode;
+using System;
 
 namespace LethalNetworkAPI;
 
 /// <typeparam name="TData">The serializable data type of the message.</typeparam>
-public sealed class LethalClientMessage<TData> : LNetworkMessage
+public sealed class LethalClientMessage<TData> : LNetworkMessageDepricated
 {
     #region Constructor
     

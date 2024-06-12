@@ -1,6 +1,23 @@
-﻿namespace LethalNetworkAPI;
+namespace LethalNetworkAPI.Message;
 
-/// <summary>
-/// Internal class.
-/// </summary>
-public abstract class LNetworkMessage(string identifier) : LethalNetwork($"msg.{identifier}", "Message");
+using System;
+using Internal;
+
+public class LNetworkMessage<TData> : IMessage
+{
+    public string Identifier { get; }
+
+    public Action<TData>? OnReceived { get; set; }
+
+    #region Constructor
+
+    public LNetworkMessage(string identifier)
+    {
+        this.Identifier = identifier;
+        NamedMessageHandler.Messages.Add(identifier, this);
+    }
+
+    #endregion
+}
+
+internal interface IMessage;

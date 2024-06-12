@@ -1,4 +1,5 @@
 ﻿using LethalNetworkAPI.Serializable;
+using Unity.Netcode;
 
 #if NETSTANDARD2_1
 using OdinSerializer;

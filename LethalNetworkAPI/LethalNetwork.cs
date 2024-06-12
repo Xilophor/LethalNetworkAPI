@@ -1,8 +1,12 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using BepInEx;
 using HarmonyLib;
+using LethalNetworkAPI.Old.Networking;
 using Unity.Collections;
+using Unity.Netcode;
 using ClientRpcSendParams = Unity.Netcode.ClientRpcSendParams;
 
 namespace LethalNetworkAPI;

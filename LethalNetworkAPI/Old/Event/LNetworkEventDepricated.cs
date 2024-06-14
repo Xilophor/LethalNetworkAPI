@@ -1,6 +1,6 @@
 ﻿namespace LethalNetworkAPI;
 
-/// <summary>
-/// Internal class.
-/// </summary>
+using System;
+
+[Obsolete("Deprecated Internal Class")]
 public abstract class LNetworkEventDepricated(string identifier) : LethalNetwork($"evt.{identifier}", "Event");

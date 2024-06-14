@@ -1,4 +1,4 @@
-namespace LethalNetworkAPI.Event;
+namespace LethalNetworkAPI;
 
 using System;
 using System.Linq;

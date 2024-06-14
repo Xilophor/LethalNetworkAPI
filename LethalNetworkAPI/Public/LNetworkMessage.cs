@@ -1,4 +1,4 @@
-namespace LethalNetworkAPI.Message;
+namespace LethalNetworkAPI;
 
 using System;
 using System.Linq;

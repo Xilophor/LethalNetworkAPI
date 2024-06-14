@@ -1,7 +1,10 @@
 namespace LethalNetworkAPI;
 
 using System;
+using System.Diagnostics;
 using System.Linq;
+using BepInEx;
+using HarmonyLib;
 using Internal;
 using Unity.Netcode;
 using Utils;
@@ -13,13 +16,55 @@ internal interface INetMessage
     internal void InvokeOnClientReceivedFromClient(object? data, ulong clientId);
 }
 
+/// <summary>
+/// Used to send data between clients (and the server/host).
+/// </summary>
+/// <typeparam name="TData">The type of data to send.</typeparam>
+/// <remarks>Will not interact with <see cref="LNetworkEvent"/>, <see cref="LNetworkVariable{TData}"/>,
+/// nor with other mods - even if the identifier is not unique.</remarks>
 public sealed class LNetworkMessage<TData> : INetMessage
 {
     internal string Identifier { get; }
 
-    #region Constructor
+    #region Constructor & Factory
 
-    public LNetworkMessage(
+    /// <summary>
+    /// Create a new <see cref="LNetworkMessage{TData}"/> if it doesn't already exist,
+    /// otherwise return the existing message of the same identifier.
+    /// </summary>
+    /// <param name="identifier">The identifier of the <see cref="LNetworkMessage{TData}"/>.</param>
+    /// <param name="onServerReceived">[Opt.] The method to run when the server receives a message.</param>
+    /// <param name="onClientReceived">[Opt.] The method to run when the client receives a message.</param>
+    /// <param name="onClientReceivedFromClient">[Opt.] The method to run when the client receives a message from another client.</param>
+    /// <returns>The <see cref="LNetworkMessage{TData}"/>.</returns>
+    public static LNetworkMessage<TData> Connect(
+        string identifier,
+        Action<TData, ulong>? onServerReceived = null,
+        Action<TData>? onClientReceived = null,
+        Action<TData, ulong>? onClientReceivedFromClient = null)
+    {
+        var method = new StackTrace().GetFrame(1).GetMethod();
+        var assembly = method.ReflectedType!.Assembly;
+        var pluginType = AccessTools.GetTypesFromAssembly(assembly).First(type =>
+            type.GetCustomAttributes(typeof(BepInPlugin), false).Any());
+
+        var modGuid = MetadataHelper.GetMetadata(pluginType).GUID;
+        var actualIdentifier = $"{modGuid}.{identifier}";
+
+        if (!UnnamedMessageHandler.LNetworkMessages.TryGetValue(actualIdentifier, out var message))
+            return new LNetworkMessage<TData>(actualIdentifier, onServerReceived, onClientReceived,
+                onClientReceivedFromClient);
+
+        var networkMessage = (LNetworkMessage<TData>)message;
+
+        networkMessage.OnServerReceived += onServerReceived;
+        networkMessage.OnClientReceived += onClientReceived;
+        networkMessage.OnClientReceivedFromClient += onClientReceivedFromClient;
+
+        return networkMessage;
+    }
+
+    private LNetworkMessage(
         string identifier,
         Action<TData, ulong>? onServerReceived = null,
         Action<TData>? onClientReceived = null,
@@ -38,9 +83,20 @@ public sealed class LNetworkMessage<TData> : INetMessage
 
     #region Public Varaibles and Events
 
-    public Action<TData, ulong>? OnServerReceived { get; set; } = delegate { };
-    public Action<TData>? OnClientReceived { get; set; } = delegate { };
-    public Action<TData, ulong>? OnClientReceivedFromClient { get; set; } = delegate { };
+    /// <summary>
+    /// A callback that runs when the server receives a message.
+    /// </summary>
+    public Action<TData, ulong>? OnServerReceived { get; private set; } = delegate { };
+
+    /// <summary>
+    /// A callback that runs when the client receives a message.
+    /// </summary>
+    public Action<TData>? OnClientReceived { get; private set; } = delegate { };
+
+    /// <summary>
+    /// A callback that runs when the client receives a message from another client.
+    /// </summary>
+    public Action<TData, ulong>? OnClientReceivedFromClient { get; private set; } = delegate { };
 
     #endregion
 
@@ -59,6 +115,9 @@ public sealed class LNetworkMessage<TData> : INetMessage
 
     #region Public Methods
 
+    /// <summary>
+    /// Clear all subscriptions to all callbacks on this <see cref="LNetworkMessage{TData}"/>.
+    /// </summary>
     public void ClearSubscriptions()
     {
         this.OnServerReceived = delegate { };

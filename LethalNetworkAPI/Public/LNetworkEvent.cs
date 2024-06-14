@@ -1,20 +1,71 @@
 namespace LethalNetworkAPI;
 
 using System;
+using System.Diagnostics;
 using System.Linq;
+using BepInEx;
+using HarmonyLib;
 using Internal;
 using Unity.Netcode;
 using Utils;
 
+/// <summary>
+/// Used to invoke events between clients (and the server/host).
+/// </summary>
+/// <remarks>Will not interact with <see cref="LNetworkMessage{TData}"/>, <see cref="LNetworkVariable{TData}"/>,
+/// nor with other mods - even if the identifier is not unique.</remarks>
 public sealed class LNetworkEvent
 {
     internal string Identifier { get; }
 
-    #region Constructor
+    #region Constructor & Factory
 
-    public LNetworkEvent(string identifier)
+    /// <summary>
+    /// Create a new LNetworkEvent if it doesn't already exist,
+    /// otherwise return the existing message of the same identifier.
+    /// </summary>
+    /// <param name="identifier">The identifier of the NetworkEvent.</param>
+    /// <param name="onServerReceived">[Opt.] The method to run when the server receives an event.</param>
+    /// <param name="onClientReceived">[Opt.] The method to run when the client receives an event.</param>
+    /// <param name="onClientReceivedFromClient">[Opt.] The method to run when the client receives an event from another client.</param>
+    /// <returns>The LNetworkEvent.</returns>
+    public static LNetworkEvent Connect(
+        string identifier,
+        Action<ulong>? onServerReceived = null,
+        Action? onClientReceived = null,
+        Action<ulong>? onClientReceivedFromClient = null)
+    {
+        var method = new StackTrace().GetFrame(1).GetMethod();
+        var assembly = method.ReflectedType!.Assembly;
+        var pluginType = AccessTools.GetTypesFromAssembly(assembly).First(type =>
+            type.GetCustomAttributes(typeof(BepInPlugin), false).Any());
+
+        var modGuid = MetadataHelper.GetMetadata(pluginType).GUID;
+        var actualIdentifier = $"{modGuid}.{identifier}";
+
+        if (!UnnamedMessageHandler.LNetworkEvents.TryGetValue(actualIdentifier, out var networkEvent))
+            return new LNetworkEvent(actualIdentifier, onServerReceived, onClientReceived,
+                onClientReceivedFromClient);
+
+        networkEvent.OnServerReceived += onServerReceived;
+        networkEvent.OnClientReceived += onClientReceived;
+        networkEvent.OnClientReceivedFromClient += onClientReceivedFromClient;
+
+        return networkEvent;
+    }
+
+    private LNetworkEvent(
+        string identifier,
+        Action<ulong>? onServerReceived = null,
+        Action? onClientReceived = null,
+        Action<ulong>? onClientReceivedFromClient = null)
     {
         this.Identifier = identifier;
+
+        this.OnServerReceived += onServerReceived;
+        this.OnClientReceived += onClientReceived;
+        this.OnClientReceivedFromClient += onClientReceivedFromClient;
+
         UnnamedMessageHandler.LNetworkEvents.Add(identifier, this);
     }
 
@@ -22,9 +73,20 @@ public sealed class LNetworkEvent
 
     #region Public Varaibles and Events
 
-    public Action<ulong>? OnServerReceived { get; set; } = delegate { };
-    public Action? OnClientReceived { get; set; } = delegate { };
-    public Action<ulong>? OnClientReceivedFromClient { get; set; } = delegate { };
+    /// <summary>
+    /// A callback that runs when the server receives an event.
+    /// </summary>
+    public Action<ulong>? OnServerReceived { get; private set; } = delegate { };
+
+    /// <summary>
+    /// A callback that runs when the client receives an event.
+    /// </summary>
+    public Action? OnClientReceived { get; private set; } = delegate { };
+
+    /// <summary>
+    /// A callback that runs when the client receives an event from another client.
+    /// </summary>
+    public Action<ulong>? OnClientReceivedFromClient { get; private set; } = delegate { };
 
     #endregion
 
@@ -43,6 +105,9 @@ public sealed class LNetworkEvent
 
     #region Public Methods
 
+    /// <summary>
+    /// Clear all subscriptions to all callbacks on this <see cref="LNetworkEvent"/>.
+    /// </summary>
     public void ClearSubscriptions()
     {
         this.OnServerReceived = delegate { };

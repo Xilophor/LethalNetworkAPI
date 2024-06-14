@@ -14,6 +14,7 @@ namespace LethalNetworkAPI;
 /// <summary>
 /// Internal class.
 /// </summary>
+[Obsolete]
 public abstract class LethalNetwork
 {
 

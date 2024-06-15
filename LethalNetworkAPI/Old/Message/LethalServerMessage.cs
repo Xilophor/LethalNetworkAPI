@@ -11,7 +11,7 @@ using Utils;
 
 /// <typeparam name="TData">The serializable data type of the message.</typeparam>
 [Obsolete("Use LNetworkMessage instead.")]
-public class LethalServerMessage<TData> : LNetworkMessageDepricated
+public class LethalServerMessage<TData> : LNetworkMessageDeprecated
 {
     #region Constructor
 

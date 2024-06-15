@@ -7,7 +7,7 @@ namespace LethalNetworkAPI;
 
 /// <typeparam name="TData">The serializable data type of the message.</typeparam>
 [Obsolete("Use LNetworkMessage instead.")]
-public sealed class LethalClientMessage<TData> : LNetworkMessageDepricated
+public sealed class LethalClientMessage<TData> : LNetworkMessageDeprecated
 {
     #region Constructor
 

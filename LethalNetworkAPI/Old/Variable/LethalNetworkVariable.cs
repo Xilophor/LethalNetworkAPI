@@ -6,11 +6,13 @@ using Unity.Netcode;
 
 namespace LethalNetworkAPI;
 
+using Old;
+
 internal interface ILethalNetVar; // To allow lists of any variable type
 
 /// <typeparam name="TData">The serializable data type of the message.</typeparam>
 [Obsolete("Use LNetworkVariable instead.")]
-public sealed class LethalNetworkVariable<TData> : LethalNetwork, ILethalNetVar
+public sealed class LethalNetworkVariable<TData> : LethalNetworkDeprecated, ILethalNetVar
 {
     #region Constructors
 

@@ -1,27 +1,26 @@
+namespace LethalNetworkAPI.Old;
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using BepInEx;
 using HarmonyLib;
-using LethalNetworkAPI.Old.Networking;
+using Networking;
 using Unity.Collections;
 using Unity.Netcode;
-using ClientRpcSendParams = Unity.Netcode.ClientRpcSendParams;
-
-namespace LethalNetworkAPI;
 
 /// <summary>
 /// Internal class.
 /// </summary>
 [Obsolete]
-public abstract class LethalNetwork
+public abstract class LethalNetworkDeprecated
 {
 
     internal readonly string Identifier = null!;
     private readonly string _networkType = null!;
 
-    protected LethalNetwork(string identifier, string networkType, int frameIndex = 3)
+    protected LethalNetworkDeprecated(string identifier, string networkType, int frameIndex = 3)
     {
         try
         {
@@ -29,16 +28,16 @@ public abstract class LethalNetwork
             var assembly = m.ReflectedType!.Assembly;
             var pluginType = AccessTools.GetTypesFromAssembly(assembly).First(type => type.GetCustomAttributes(typeof(BepInPlugin), false).Any());
 
-            Identifier = $"{MetadataHelper.GetMetadata(pluginType).GUID}.{identifier}";
-            _networkType = networkType;
+            this.Identifier = $"{MetadataHelper.GetMetadata(pluginType).GUID}.{identifier}";
+            this._networkType = networkType;
 
 #if DEBUG
-            LethalNetworkAPIPlugin.Logger.LogDebug($"LethalNetwork {_networkType} with identifier \"{Identifier}\" has been created.");
+            LethalNetworkAPIPlugin.Logger.LogDebug($"LethalNetwork {this._networkType} with identifier \"{this.Identifier}\" has been created.");
 #endif
         }
         catch (Exception e)
         {
-            LethalNetworkAPIPlugin.Logger.LogError(string.Format(TextDefinitions.UnableToFindGuid, (_networkType ?? "").ToLower(), Identifier ?? "", e));
+            LethalNetworkAPIPlugin.Logger.LogError(string.Format(TextDefinitions.UnableToFindGuid, (this._networkType ?? "").ToLower(), this.Identifier ?? "", e));
         }
     }
 
@@ -50,7 +49,7 @@ public abstract class LethalNetwork
         if (NetworkHandler.Instance != null) return false;
 
         if (log) LethalNetworkAPIPlugin.Logger.LogError(string.Format(
-            TextDefinitions.NotInLobbyEvent, _networkType.ToLower(), Identifier));
+            TextDefinitions.NotInLobbyEvent, this._networkType.ToLower(), this.Identifier));
         return true;
     }
 
@@ -61,7 +60,7 @@ public abstract class LethalNetwork
         if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer) return true;
 
         if (log) LethalNetworkAPIPlugin.Logger.LogError(string.Format(
-            TextDefinitions.NotServerInfo, NetworkManager.Singleton.LocalClientId, _networkType, Identifier));
+            TextDefinitions.NotServerInfo, NetworkManager.Singleton.LocalClientId, this._networkType, this.Identifier));
 
         return false;
     }
@@ -72,7 +71,7 @@ public abstract class LethalNetwork
         if (clientIds.Any()) return true;
 
         if (log) LethalNetworkAPIPlugin.Logger.LogError(string.Format(
-            TextDefinitions.TargetClientsNotConnected, clientIds, _networkType, Identifier));
+            TextDefinitions.TargetClientsNotConnected, clientIds, this._networkType, this.Identifier));
 
         return false;
     }
@@ -97,7 +96,7 @@ public abstract class LethalNetwork
             allowedClientIds = new NativeArray<ulong>(enumerable
                 .Where(i => NetworkManager.Singleton.ConnectedClientsIds.Contains(i)).ToArray(), Allocator.Persistent);
 
-        if (!DoClientsExist(allowedClientIds)) return new ClientRpcParams();
+        if (!this.DoClientsExist(allowedClientIds)) return new ClientRpcParams();
 
         return new ClientRpcParams
         {
@@ -108,13 +107,13 @@ public abstract class LethalNetwork
         };
     }
 
-    protected ClientRpcParams GenerateClientParams(IEnumerable<ulong> clientIds) => GenerateClientParams(clientIds, false);
-    protected ClientRpcParams GenerateClientParams(ulong clientId) => GenerateClientParams([clientId], false);
+    protected ClientRpcParams GenerateClientParams(IEnumerable<ulong> clientIds) => this.GenerateClientParams(clientIds, false);
+    protected ClientRpcParams GenerateClientParams(ulong clientId) => this.GenerateClientParams([clientId], false);
 
-    protected ClientRpcParams GenerateClientParamsExcept(IEnumerable<ulong> clientIds) => GenerateClientParams(clientIds, true);
-    protected ClientRpcParams GenerateClientParamsExcept(ulong clientId) => GenerateClientParams([clientId], true);
+    protected ClientRpcParams GenerateClientParamsExcept(IEnumerable<ulong> clientIds) => this.GenerateClientParams(clientIds, true);
+    protected ClientRpcParams GenerateClientParamsExcept(ulong clientId) => this.GenerateClientParams([clientId], true);
 
-    protected ClientRpcParams GenerateClientParamsExceptHost() => GenerateClientParams([], true);
+    protected ClientRpcParams GenerateClientParamsExceptHost() => this.GenerateClientParams([], true);
 
     #endregion
 }

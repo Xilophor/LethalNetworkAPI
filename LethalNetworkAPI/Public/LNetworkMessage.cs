@@ -43,13 +43,18 @@ public sealed class LNetworkMessage<TData> : INetMessage
         Action<TData>? onClientReceived = null,
         Action<TData, ulong>? onClientReceivedFromClient = null)
     {
-        var method = new StackTrace().GetFrame(1).GetMethod();
-        var assembly = method.ReflectedType!.Assembly;
-        var pluginType = AccessTools.GetTypesFromAssembly(assembly).First(type =>
-            type.GetCustomAttributes(typeof(BepInPlugin), false).Any());
+        string actualIdentifier;
 
-        var modGuid = MetadataHelper.GetMetadata(pluginType).GUID;
-        var actualIdentifier = $"{modGuid}.{identifier}";
+        try
+        {
+            actualIdentifier = $"{LNetworkUtils.GetModGuid(2)}.{identifier}";
+        }
+        catch (Exception e)
+        {
+            LethalNetworkAPIPlugin.Logger.LogError($"Unable to find Mod Guid! To still work, this Message will only use the given identifier. " +
+                                                   $"Warning: This may cause collision with another mod's NetworkMessage! Stack Trace: {e}");
+            actualIdentifier = identifier;
+        }
 
         if (!UnnamedMessageHandler.LNetworkMessages.TryGetValue(actualIdentifier, out var message))
             return new LNetworkMessage<TData>(actualIdentifier, onServerReceived, onClientReceived,
@@ -64,12 +69,53 @@ public sealed class LNetworkMessage<TData> : INetMessage
         return networkMessage;
     }
 
+    /// <summary>
+    /// Create a new <see cref="LNetworkMessage{TData}"/>. If it already exists, an exception will be thrown.
+    /// </summary>
+    /// <param name="identifier">The identifier of the <see cref="LNetworkMessage{TData}"/>.</param>
+    /// <param name="onServerReceived">[Opt.] The method to run when the server receives a message.</param>
+    /// <param name="onClientReceived">[Opt.] The method to run when the client receives a message.</param>
+    /// <param name="onClientReceivedFromClient">[Opt.] The method to run when the client receives a message from another client.</param>
+    /// <returns>The <see cref="LNetworkMessage{TData}"/>.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if the <see cref="LNetworkMessage{TData}"/> already exists.</exception>
+    public static LNetworkMessage<TData> Create(
+        string identifier,
+        Action<TData, ulong>? onServerReceived = null,
+        Action<TData>? onClientReceived = null,
+        Action<TData, ulong>? onClientReceivedFromClient = null)
+    {
+        string actualIdentifier;
+
+        try
+        {
+            actualIdentifier = $"{LNetworkUtils.GetModGuid(2)}.{identifier}";
+        }
+        catch (Exception e)
+        {
+            LethalNetworkAPIPlugin.Logger.LogError($"Unable to find Mod Guid! To still work, this Message will only use the given identifier. " +
+                                                   $"Warning: This may cause collision with another mod's NetworkMessage! Stack Trace: {e}");
+            actualIdentifier = identifier;
+        }
+
+        return new LNetworkMessage<TData>(actualIdentifier, onServerReceived, onClientReceived,
+            onClientReceivedFromClient);
+    }
+
     private LNetworkMessage(
         string identifier,
         Action<TData, ulong>? onServerReceived = null,
         Action<TData>? onClientReceived = null,
         Action<TData, ulong>? onClientReceivedFromClient = null)
     {
+        if (UnnamedMessageHandler.LNetworkMessages.TryGetValue(identifier, out _))
+        {
+            throw new InvalidOperationException
+            (
+                $"A message with the identifier {identifier} already exists! " +
+                "Please use a different identifier."
+            );
+        }
+
         this.Identifier = identifier;
 
         this.OnServerReceived += onServerReceived;

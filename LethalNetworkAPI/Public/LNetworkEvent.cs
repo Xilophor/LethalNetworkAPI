@@ -21,8 +21,8 @@ public sealed class LNetworkEvent
     #region Constructor & Factory
 
     /// <summary>
-    /// Create a new LNetworkEvent if it doesn't already exist,
-    /// otherwise return the existing message of the same identifier.
+    /// Creates a new LNetworkEvent if it doesn't already exist,
+    /// otherwise returns the existing message of the same identifier.
     /// </summary>
     /// <param name="identifier">The identifier of the NetworkEvent.</param>
     /// <param name="onServerReceived">[Opt.] The method to run when the server receives an event.</param>
@@ -35,13 +35,18 @@ public sealed class LNetworkEvent
         Action? onClientReceived = null,
         Action<ulong>? onClientReceivedFromClient = null)
     {
-        var method = new StackTrace().GetFrame(1).GetMethod();
-        var assembly = method.ReflectedType!.Assembly;
-        var pluginType = AccessTools.GetTypesFromAssembly(assembly).First(type =>
-            type.GetCustomAttributes(typeof(BepInPlugin), false).Any());
+        string actualIdentifier;
 
-        var modGuid = MetadataHelper.GetMetadata(pluginType).GUID;
-        var actualIdentifier = $"{modGuid}.{identifier}";
+        try
+        {
+            actualIdentifier = $"{LNetworkUtils.GetModGuid(2)}.{identifier}";
+        }
+        catch (Exception e)
+        {
+            LethalNetworkAPIPlugin.Logger.LogError($"Unable to find Mod Guid! To still work, this Event will only use the given identifier. " +
+                                                   $"Warning: This may cause collision with another mod's NetworkEvent! Stack Trace: {e}");
+            actualIdentifier = identifier;
+        }
 
         if (!UnnamedMessageHandler.LNetworkEvents.TryGetValue(actualIdentifier, out var networkEvent))
             return new LNetworkEvent(actualIdentifier, onServerReceived, onClientReceived,
@@ -54,12 +59,53 @@ public sealed class LNetworkEvent
         return networkEvent;
     }
 
+    /// <summary>
+    /// Creates a new LNetworkEvent. If it already exists, an exception will be thrown.
+    /// </summary>
+    /// <param name="identifier">The identifier of the NetworkEvent.</param>
+    /// <param name="onServerReceived">[Opt.] The method to run when the server receives an event.</param>
+    /// <param name="onClientReceived">[Opt.] The method to run when the client receives an event.</param>
+    /// <param name="onClientReceivedFromClient">[Opt.] The method to run when the client receives an event from another client.</param>
+    /// <returns>The LNetworkEvent.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if the event already exists.</exception>
+    public static LNetworkEvent Create(
+        string identifier,
+        Action<ulong>? onServerReceived = null,
+        Action? onClientReceived = null,
+        Action<ulong>? onClientReceivedFromClient = null)
+    {
+        string actualIdentifier;
+
+        try
+        {
+            actualIdentifier = $"{LNetworkUtils.GetModGuid(2)}.{identifier}";
+        }
+        catch (Exception e)
+        {
+            LethalNetworkAPIPlugin.Logger.LogError($"Unable to find Mod Guid! To still work, this Event will only use the given identifier. " +
+                                                   $"Warning: This may cause collision with another mod's NetworkEvent! Stack Trace: {e}");
+            actualIdentifier = identifier;
+        }
+
+        return new LNetworkEvent(actualIdentifier, onServerReceived, onClientReceived,
+            onClientReceivedFromClient);
+    }
+
     private LNetworkEvent(
         string identifier,
         Action<ulong>? onServerReceived = null,
         Action? onClientReceived = null,
         Action<ulong>? onClientReceivedFromClient = null)
     {
+        if (UnnamedMessageHandler.LNetworkEvents.TryGetValue(identifier, out _))
+        {
+            throw new InvalidOperationException
+            (
+                $"An event with the identifier {identifier} already exists! " +
+                "Please use a different identifier."
+            );
+        }
+
         this.Identifier = identifier;
 
         this.OnServerReceived += onServerReceived;

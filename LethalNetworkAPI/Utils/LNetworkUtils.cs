@@ -1,6 +1,9 @@
 namespace LethalNetworkAPI.Utils;
 
+using System.Diagnostics;
 using System.Linq;
+using BepInEx;
+using HarmonyLib;
 using Unity.Netcode;
 
 public static class LNetworkUtils
@@ -43,4 +46,13 @@ public static class LNetworkUtils
     /// <remarks>This will be empty if not connected to a server.</remarks>
     public static ulong[] OtherConnectedClients => NetworkManager.Singleton?.ConnectedClientsIds.Where(i => i != NetworkManager.Singleton.LocalClientId).ToArray() ?? [];
 
+    internal static string GetModGuid(int frameIndex)
+    {
+        var method = new StackTrace().GetFrame(frameIndex).GetMethod();
+        var assembly = method.ReflectedType!.Assembly;
+        var pluginType = AccessTools.GetTypesFromAssembly(assembly).First(type =>
+            type.GetCustomAttributes(typeof(BepInPlugin), false).Any());
+
+        return MetadataHelper.GetMetadata(pluginType).GUID;
+    }
 }

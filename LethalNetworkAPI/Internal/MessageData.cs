@@ -5,3 +5,10 @@ internal record MessageData(
     EMessageType MessageType,
     object? Data = null
 );
+
+internal record DeprecatedMessageData(
+    string Identifier,
+    EMessageType MessageType,
+    byte[] Data = null!
+);
+

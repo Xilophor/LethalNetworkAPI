@@ -40,7 +40,12 @@ internal class UnnamedMessageHandler : IDisposable
     internal void SendMessageToClients(MessageData messageData, ulong[] clientGuidArray, bool deprecatedMessage = false)
     {
 #if NETSTANDARD2_1
-        WriteMessageData(out var writer, messageData, deprecatedMessage);
+        FastBufferWriter writer;
+
+        if (deprecatedMessage)
+            WriteDeprecatedMessageData(out writer, new DeprecatedMessageData(messageData.Identifier, messageData.MessageType, (byte[])messageData.Data!));
+        else
+            WriteMessageData(out writer, messageData);
 
         if (clientGuidArray.Any(client => client == NetworkManager.ServerClientId))
         {
@@ -65,7 +70,12 @@ internal class UnnamedMessageHandler : IDisposable
     internal void SendMessageToServer(MessageData messageData, bool deprecatedMessage = false)
     {
 #if NETSTANDARD2_1
-        WriteMessageData(out var writer, messageData, deprecatedMessage);
+        FastBufferWriter writer;
+
+        if (deprecatedMessage)
+            WriteDeprecatedMessageData(out writer, new DeprecatedMessageData(messageData.Identifier, messageData.MessageType, (byte[])messageData.Data!));
+        else
+            WriteMessageData(out writer, messageData);
 
         this.CustomMessagingManager.SendUnnamedMessage(
             NetworkManager.ServerClientId,
@@ -84,7 +94,16 @@ internal class UnnamedMessageHandler : IDisposable
     private void ReceiveMessage(ulong clientId, FastBufferReader reader)
     {
 #if NETSTANDARD2_1
-        reader.ReadValueSafe(out string identifier);
+        string identifier;
+        try
+        {
+            reader.ReadValueSafe(out identifier);
+        }
+        catch (Exception e)
+        {
+            reader.Dispose();
+            return;
+        }
 
         if (identifier == $"{LibIdentifier}.Old")
             Old.Networking.NetworkHandler.Instance?.ReceiveMessage(clientId, reader);
@@ -162,7 +181,7 @@ internal class UnnamedMessageHandler : IDisposable
     internal static T Deserialize<T>(byte[] serializedData) =>
         SerializationUtility.DeserializeValue<T>(serializedData, DataFormat.Binary, DefaultDeserializationContext);
 
-    private static void WriteMessageData(out FastBufferWriter writer, MessageData messageData, bool deprecatedMessage = false)
+    private static void WriteMessageData(out FastBufferWriter writer, MessageData messageData)
     {
         var (serializedMessage, size) = SerializeDataAndGetSize(messageData);
 
@@ -172,11 +191,44 @@ internal class UnnamedMessageHandler : IDisposable
             $"The buffer is too small ({writer.MaxCapacity}) " +
             $"to write the message data ({size}) @ {writer.Position}. Shit's hella fucked!");
 
-        writer.WriteValue(deprecatedMessage ? $"{LibIdentifier}.Old" : LibIdentifier);
+        writer.WriteValue(LibIdentifier);
         writer.WriteValue(serializedMessage);
     }
 
     private static (byte[], int) SerializeDataAndGetSize(MessageData messageData)
+    {
+        var size = 0;
+        var serializedData = Serialize(messageData);
+
+        size += FastBufferWriter.GetWriteSize(LibIdentifier);
+        size += FastBufferWriter.GetWriteSize(serializedData);
+
+        if (size > 65536)
+        {
+            LethalNetworkAPIPlugin.Logger.LogWarning(
+                $"The serialized message size of '{messageData.Identifier}' is {size} bytes. " +
+                $"This is larger than the recommended max size of 65536 bytes. " +
+                $"The message may be dropped during transit.");
+        }
+
+        return (serializedData, size);
+    }
+
+    private static void WriteDeprecatedMessageData(out FastBufferWriter writer, DeprecatedMessageData messageData)
+    {
+        var (serializedMessage, size) = SerializeDeprecatedDataAndGetSize(messageData);
+
+        writer = new FastBufferWriter(size, Allocator.Temp, size + 8);
+
+        if (!writer.TryBeginWrite(size)) throw new OutOfMemoryException(
+            $"The buffer is too small ({writer.MaxCapacity}) " +
+            $"to write the message data ({size}) @ {writer.Position}. Shit's hella fucked!");
+
+        writer.WriteValue($"{LibIdentifier}.Old");
+        writer.WriteValue(serializedMessage);
+    }
+
+    private static (byte[], int) SerializeDeprecatedDataAndGetSize(DeprecatedMessageData messageData)
     {
         var size = 0;
         var serializedData = Serialize(messageData);

@@ -37,7 +37,7 @@ public abstract class LethalNetworkDeprecated
         }
         catch (Exception e)
         {
-            LethalNetworkAPIPlugin.Logger.LogError(string.Format(TextDefinitions.UnableToFindGuid, (this._networkType ?? "").ToLower(), this.Identifier ?? "", e));
+            LethalNetworkAPIPlugin.Logger.LogError(e);
         }
     }
 

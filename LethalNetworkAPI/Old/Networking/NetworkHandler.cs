@@ -50,9 +50,7 @@ internal class NetworkHandler : IDisposable
         reader.ReadValueSafe(out byte[] serializedMessageData);
         reader.Dispose();
 
-        var (messageID, messageType, originalMessageData) = UnnamedMessageHandler.Deserialize<MessageData>(serializedMessageData);
-
-        var messageData = (byte[])originalMessageData!;
+        var (messageID, messageType, messageData) = UnnamedMessageHandler.Deserialize<DeprecatedMessageData>(serializedMessageData);
 
         switch (messageType)
         {

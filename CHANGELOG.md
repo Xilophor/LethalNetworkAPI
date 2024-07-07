@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.0.0]
+
+### Added
+- `LNetworkMessage`
+  -  Simplifies sending/receiving messages between the server and clients by using a single class instead of multiple classes
+  -  Replaces `LethalServerMessage` and `LethalClientMessage`
+- `LNetworkEvent`
+  -  Simplifies sending/receiving events between the server and clients by using a single class instead of multiple classes
+  -  Replaces `LethalServerEvent` and `LethalClientEvent`
+- Added `LNetworkUtils`
+
+### Changed
+- Reworked the entire API
+  -  Now uses Unity's new `CustomMessagingManager` to send messages
+    -  This allows for vanilla compatibility, though it is not recommended
+  -  Added `LNetworkMessage`
+  -  Added `LNetworkEvent`
+- Updated Serialization
+  -  Serializes more types and fields/properties
+
+### Deprecated
+- The `LethalClientMessage` and `LethalServerMessage` classes
+  -  Use `LNetworkMessage` instead
+- The `LethalClientEvent` and `LethalServerEvent` classes
+  -  Use `LNetworkEvent` instead
+- The `LethalNetworkVariable` class
+  -  Currently, there is no replacement for this class. If you need to use it immediately, this class still will work but will receive no updates
+
 ## [v2.1.7]
 
 ### Added

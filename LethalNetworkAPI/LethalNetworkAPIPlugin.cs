@@ -3,11 +3,8 @@ namespace LethalNetworkAPI;
 using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
-using LobbyCompatibility.Attributes;
-using LobbyCompatibility.Enums;
 
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
-[LobbyCompatibility(CompatibilityLevel.ServerOnly, VersionStrictness.Minor)]
 public class LethalNetworkAPIPlugin : BaseUnityPlugin
 {
     public static LethalNetworkAPIPlugin Instance { get; private set; } = null!;

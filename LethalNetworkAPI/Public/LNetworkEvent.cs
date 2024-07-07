@@ -122,17 +122,17 @@ public sealed class LNetworkEvent
     /// <summary>
     /// A callback that runs when the server receives an event.
     /// </summary>
-    public Action<ulong>? OnServerReceived { get; private set; } = delegate { };
+    public event Action<ulong>? OnServerReceived = delegate { };
 
     /// <summary>
     /// A callback that runs when the client receives an event.
     /// </summary>
-    public Action? OnClientReceived { get; private set; } = delegate { };
+    public event Action? OnClientReceived = delegate { };
 
     /// <summary>
     /// A callback that runs when the client receives an event from another client.
     /// </summary>
-    public Action<ulong>? OnClientReceivedFromClient { get; private set; } = delegate { };
+    public event Action<ulong>? OnClientReceivedFromClient = delegate { };
 
     #endregion
 

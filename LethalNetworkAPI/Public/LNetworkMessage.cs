@@ -132,17 +132,17 @@ public sealed class LNetworkMessage<TData> : INetMessage
     /// <summary>
     /// A callback that runs when the server receives a message.
     /// </summary>
-    public Action<TData, ulong>? OnServerReceived { get; private set; } = delegate { };
+    public event Action<TData, ulong>? OnServerReceived = delegate { };
 
     /// <summary>
     /// A callback that runs when the client receives a message.
     /// </summary>
-    public Action<TData>? OnClientReceived { get; private set; } = delegate { };
+    public event Action<TData>? OnClientReceived = delegate { };
 
     /// <summary>
     /// A callback that runs when the client receives a message from another client.
     /// </summary>
-    public Action<TData, ulong>? OnClientReceivedFromClient { get; private set; } = delegate { };
+    public event Action<TData, ulong>? OnClientReceivedFromClient = delegate { };
 
     #endregion
 

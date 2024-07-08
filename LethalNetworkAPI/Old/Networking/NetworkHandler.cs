@@ -12,6 +12,10 @@ namespace LethalNetworkAPI.Old.Networking;
 using Internal;
 using Utils;
 
+#if NETSTANDARD2_1
+using OdinSerializer;
+#endif
+
 internal class NetworkHandler : IDisposable
 {
     private void SendMessageToServer(MessageData messageData) => UnnamedMessageHandler.Instance!.SendMessageToServer(messageData, true);
@@ -50,7 +54,10 @@ internal class NetworkHandler : IDisposable
         reader.ReadValueSafe(out byte[] serializedMessageData);
         reader.Dispose();
 
-        var (messageID, messageType, messageData) = UnnamedMessageHandler.Deserialize<DeprecatedMessageData>(serializedMessageData);
+        var (messageID, messageType, boxedMessageData) =
+            SerializationUtility.DeserializeValue<MessageData>(serializedMessageData, DataFormat.Binary);
+
+        var messageData = (byte[])boxedMessageData!;
 
         switch (messageType)
         {

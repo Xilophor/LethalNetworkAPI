@@ -205,7 +205,7 @@ public sealed class LNetworkEvent
             new MessageData
             (
                 this.Identifier,
-                EMessageType.Event | EMessageType.ClientMessage
+                EMessageType.Event | EMessageType.ServerMessage
             ),
             clientGuidArray);
     }

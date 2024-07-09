@@ -24,8 +24,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     -  This allows for vanilla compatibility, though it is not recommended
   -  Added `LNetworkMessage`
   -  Added `LNetworkEvent`
-- Updated Serialization
-  -  Serializes more types and fields/properties
 
 ### Deprecated
 - The `LethalClientMessage` and `LethalServerMessage` classes

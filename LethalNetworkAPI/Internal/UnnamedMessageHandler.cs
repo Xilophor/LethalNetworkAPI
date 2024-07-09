@@ -107,7 +107,7 @@ internal class UnnamedMessageHandler : IDisposable
         reader.ReadValueSafe(out byte[] serializedMessageData);
         reader.Dispose();
 
-        var (messageID, messageType, messageData) = DeserializeMessageData(serializedMessageData);
+        var (messageID, messageType, messageData) = Deserialize<MessageData>(serializedMessageData);
 
         switch (messageType)
         {
@@ -149,36 +149,11 @@ internal class UnnamedMessageHandler : IDisposable
 
     #region Helper Methods
 
-    private static readonly SerializationContext DefaultSerializationContext = new()
-        {
-            Config = new SerializationConfig()
-            {
-                SerializationPolicy = SerializationPolicies.Everything
-            }
-        };
-
-    private static readonly DeserializationContext DefaultDeserializationContext = new()
-    {
-        Config = new SerializationConfig()
-        {
-            SerializationPolicy = SerializationPolicies.Everything
-        }
-    };
-
     internal static byte[] Serialize(object? data) =>
-        SerializationUtility.SerializeValue(data, DataFormat.Binary, DefaultSerializationContext);
-
-    internal static byte[] SerializeMessageData(MessageData messageData) =>
-        SerializationUtility.SerializeValue(messageData with { Data = Serialize(messageData.Data) }, DataFormat.Binary);
+        SerializationUtility.SerializeValue(data, DataFormat.Binary);
 
     internal static T Deserialize<T>(byte[] serializedData) =>
-        SerializationUtility.DeserializeValue<T>(serializedData, DataFormat.Binary, DefaultDeserializationContext);
-
-    internal static MessageData DeserializeMessageData(byte[] serializedData)
-    {
-        var messageData = SerializationUtility.DeserializeValue<MessageData>(serializedData, DataFormat.Binary);
-        return messageData with { Data = Deserialize<object[]?>((byte[])messageData.Data!) };
-    }
+        SerializationUtility.DeserializeValue<T>(serializedData, DataFormat.Binary);
 
     private static void WriteMessageData(out FastBufferWriter writer, MessageData messageData, bool deprecatedMessage = false)
     {
@@ -197,7 +172,7 @@ internal class UnnamedMessageHandler : IDisposable
     private static (byte[], int) SerializeDataAndGetSize(MessageData messageData)
     {
         var size = 0;
-        var serializedData = SerializeMessageData(messageData);
+        var serializedData = Serialize(messageData);
 
         size += FastBufferWriter.GetWriteSize(LibIdentifier);
         size += FastBufferWriter.GetWriteSize(serializedData);

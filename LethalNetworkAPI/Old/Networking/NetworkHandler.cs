@@ -55,7 +55,7 @@ internal class NetworkHandler : IDisposable
         reader.Dispose();
 
         var (messageID, messageType, boxedMessageData) =
-            SerializationUtility.DeserializeValue<MessageData>(serializedMessageData, DataFormat.Binary);
+            UnnamedMessageHandler.Deserialize<MessageData>(serializedMessageData);
 
         var messageData = (byte[])boxedMessageData!;
 

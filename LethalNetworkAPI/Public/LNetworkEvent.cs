@@ -167,21 +167,21 @@ public sealed class LNetworkEvent
     /// Server-only method to invoke the event on a specific client.
     /// </summary>
     /// <param name="clientGuid">The NGO guid of the client to invoke the event on.</param>
-    public void SendClient(ulong clientGuid) =>
-        this.SendClients([clientGuid]);
+    public void InvokeClient(ulong clientGuid) =>
+        this.InvokeClients([clientGuid]);
 
     /// <summary>
     /// Server-only method to invoke the event on a specific client.
     /// </summary>
     /// <param name="playerId">The in-game ids of the client to invoke the event on.</param>
-    public void SendClient(int playerId) =>
-        this.SendClients([LNetworkUtils.GetClientGuid(playerId)]);
+    public void InvokeClient(int playerId) =>
+        this.InvokeClients([LNetworkUtils.GetClientGuid(playerId)]);
 
     /// <summary>
     /// Server-only method to invoke the event on the specified clients.
     /// </summary>
     /// <param name="clientGuidArray">[Opt.] The NGO guids of the clients to invoke the event on.</param>
-    public void SendClients(ulong[] clientGuidArray)
+    public void InvokeClients(ulong[] clientGuidArray)
     {
         if (!LNetworkUtils.IsConnected) throw new NetworkConfigurationException
         (
@@ -214,14 +214,14 @@ public sealed class LNetworkEvent
     /// Server-only method to invoke the event on the specified clients.
     /// </summary>
     /// <param name="playerIdArray">[Opt.] The in-game ids of the clients to invoke the event on.</param>
-    public void SendClients(int[] playerIdArray) =>
-        this.SendClients(playerIdArray.Select(LNetworkUtils.GetClientGuid).ToArray());
+    public void InvokeClients(int[] playerIdArray) =>
+        this.InvokeClients(playerIdArray.Select(LNetworkUtils.GetClientGuid).ToArray());
 
     /// <summary>
     /// Server-only method to invoke the event on all clients.
     /// </summary>
-    public void SendClients() =>
-        this.SendClients(LNetworkUtils.AllConnectedClients);
+    public void InvokeClients() =>
+        this.InvokeClients(LNetworkUtils.AllConnectedClients);
 
     #endregion
 
@@ -230,7 +230,7 @@ public sealed class LNetworkEvent
     /// <summary>
     /// Client method to invoke the event on the server/host.
     /// </summary>
-    public void SendServer()
+    public void InvokeServer()
     {
         if (!LNetworkUtils.IsConnected) throw new NetworkConfigurationException
         (
@@ -255,7 +255,7 @@ public sealed class LNetworkEvent
     /// Client method to invoke the event on the specified clients.
     /// </summary>
     /// <param name="clientGuidArray">[Opt.] The NGO guids of the clients to invoke the event on.</param>
-    public void SendOtherClients(ulong[] clientGuidArray)
+    public void InvokeOtherClients(ulong[] clientGuidArray)
     {
         if (!LNetworkUtils.IsConnected) throw new NetworkConfigurationException
         (
@@ -283,14 +283,14 @@ public sealed class LNetworkEvent
     /// Client method to invoke the event on the specified clients.
     /// </summary>
     /// <param name="playerIdArray">[Opt.] The in-game ids of the clients to invoke the event on.</param>
-    public void SendOtherClients(int[] playerIdArray) =>
-        this.SendOtherClients(playerIdArray.Select(LNetworkUtils.GetClientGuid).ToArray());
+    public void InvokeOtherClients(int[] playerIdArray) =>
+        this.InvokeOtherClients(playerIdArray.Select(LNetworkUtils.GetClientGuid).ToArray());
 
     /// <summary>
     /// Client method to invoke the event on all other clients.
     /// </summary>
-    public void SendOtherClients() =>
-        this.SendOtherClients(LNetworkUtils.OtherConnectedClients);
+    public void InvokeOtherClients() =>
+        this.InvokeOtherClients(LNetworkUtils.OtherConnectedClients);
 
     #endregion
 

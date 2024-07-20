@@ -149,13 +149,13 @@ public sealed class LNetworkMessage<TData> : INetMessage
     #region Internal Methods
 
     void INetMessage.InvokeOnServerReceived(object? data, ulong clientId) =>
-        this.OnServerReceived?.Invoke((TData)data!, clientId);
+        this.OnServerReceived?.Invoke((TData?)data!, clientId);
 
     void INetMessage.InvokeOnClientReceived(object? data) =>
-        this.OnClientReceived?.Invoke((TData)data!);
+        this.OnClientReceived?.Invoke((TData?)data!);
 
     void INetMessage.InvokeOnClientReceivedFromClient(object? data, ulong clientId) =>
-        this.OnClientReceivedFromClient?.Invoke((TData)data!, clientId);
+        this.OnClientReceivedFromClient?.Invoke((TData?)data!, clientId);
 
     #endregion
 

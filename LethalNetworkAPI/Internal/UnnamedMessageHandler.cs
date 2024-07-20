@@ -3,10 +3,12 @@ namespace LethalNetworkAPI.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Unity.Collections;
 using Unity.Netcode;
 
 #if NETSTANDARD2_1
+using HarmonyLib;
 using OdinSerializer;
 #endif
 
@@ -104,10 +106,20 @@ internal class UnnamedMessageHandler : IDisposable
             return;
         }
 
+        reader.ReadValueSafe(out string messageID);
+        reader.ReadValueSafe(out EMessageType messageType);
+
         reader.ReadValueSafe(out byte[] serializedMessageData);
+        reader.ReadValueSafe(out byte[] serializedType);
         reader.Dispose();
 
-        var (messageID, messageType, messageData) = Deserialize<MessageData>(serializedMessageData);
+        var messageDataType = Deserialize<Type?>(serializedType);
+        var messageData = messageDataType != null ? DeserializeMethod.MakeGenericMethod(messageDataType).Invoke(null, [serializedMessageData]) : null;
+
+#if DEBUG
+        LethalNetworkAPIPlugin.Logger.LogDebug(
+            $"Received message: ({messageType}) {messageID} from {clientId} on the server.");
+#endif
 
         switch (messageType)
         {
@@ -149,15 +161,18 @@ internal class UnnamedMessageHandler : IDisposable
 
     #region Helper Methods
 
+    internal static readonly MethodInfo DeserializeMethod =
+        typeof(UnnamedMessageHandler).GetMethod(nameof(Deserialize), AccessTools.all)!;
+
     internal static byte[] Serialize(object? data) =>
         SerializationUtility.SerializeValue(data, DataFormat.Binary);
 
     internal static T Deserialize<T>(byte[] serializedData) =>
         SerializationUtility.DeserializeValue<T>(serializedData, DataFormat.Binary);
 
-    private static void WriteMessageData(out FastBufferWriter writer, MessageData messageData, bool deprecatedMessage = false)
+    private static void WriteMessageData(out FastBufferWriter writer, MessageData messageData, bool deprecatedMessage)
     {
-        var (serializedMessage, size) = SerializeDataAndGetSize(messageData);
+        var (serializedData, serializedType, size) = SerializeDataAndGetSize(messageData, deprecatedMessage);
 
         writer = new FastBufferWriter(size, Allocator.Temp, size + 8);
 
@@ -166,16 +181,24 @@ internal class UnnamedMessageHandler : IDisposable
             $"to write the message data ({size}) @ {writer.Position}. Shit's hella fucked!");
 
         writer.WriteValue(deprecatedMessage ? $"{LibIdentifier}.Old" : LibIdentifier);
-        writer.WriteValue(serializedMessage);
+        writer.WriteValue(messageData.Identifier);
+        writer.WriteValue(messageData.MessageType);
+        writer.WriteValue(serializedData);
+        writer.WriteValue(serializedType);
     }
 
-    private static (byte[], int) SerializeDataAndGetSize(MessageData messageData)
+    private static (byte[], byte[], int) SerializeDataAndGetSize(MessageData messageData, bool deprecatedMessage)
     {
-        var size = 0;
-        var serializedData = Serialize(messageData);
+        var serializedData = messageData.Data?.GetType() == typeof(byte[]) ?
+            (byte[])messageData.Data : Serialize(messageData.Data);
+        var serializedType = Serialize(messageData.Data?.GetType());
 
-        size += FastBufferWriter.GetWriteSize(LibIdentifier);
+        var size = 0;
+        size += FastBufferWriter.GetWriteSize(deprecatedMessage ? $"{LibIdentifier}.Old" : LibIdentifier);
+        size += FastBufferWriter.GetWriteSize(messageData.Identifier);
+        size += FastBufferWriter.GetWriteSize(messageData.MessageType);
         size += FastBufferWriter.GetWriteSize(serializedData);
+        size += FastBufferWriter.GetWriteSize(serializedType);
 
         if (size > 65536)
         {
@@ -185,7 +208,7 @@ internal class UnnamedMessageHandler : IDisposable
                 $"The message may be dropped during transit.");
         }
 
-        return (serializedData, size);
+        return (serializedData, serializedType, size);
     }
 
     #endregion

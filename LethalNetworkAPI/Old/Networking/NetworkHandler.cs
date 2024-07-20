@@ -51,13 +51,11 @@ internal class NetworkHandler : IDisposable
     public void ReceiveMessage(ulong clientId, FastBufferReader reader)
     {
 #if NETSTANDARD2_1
-        reader.ReadValueSafe(out byte[] serializedMessageData);
+        reader.ReadValueSafe(out string messageID);
+        reader.ReadValueSafe(out EMessageType messageType);
+
+        reader.ReadValueSafe(out byte[] messageData);
         reader.Dispose();
-
-        var (messageID, messageType, boxedMessageData) =
-            UnnamedMessageHandler.Deserialize<MessageData>(serializedMessageData);
-
-        var messageData = (byte[])boxedMessageData!;
 
         switch (messageType)
         {

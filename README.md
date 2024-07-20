@@ -14,5 +14,7 @@ See the [GitHub Wiki](https://xilophor.github.io/lethal-network-api-docs/) for i
 ## Acknowledgements
 
 Thank you [@Lordfirespeed](https://github.com/Lordfirespeed) for helping set up the GitHub Actions, and continually being my rubber ducky!
+
 Thank you [@giosuel](https://github.com/giosuel) for helping me test the v3 major release of this API!
+
 Thank you @Dreadrith for helping test and reform this API in the preview/release-candidate stage!

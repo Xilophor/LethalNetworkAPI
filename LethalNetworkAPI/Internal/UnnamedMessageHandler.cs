@@ -114,11 +114,11 @@ internal class UnnamedMessageHandler : IDisposable
         reader.Dispose();
 
         var messageDataType = Deserialize<Type?>(serializedType);
-        var messageData = messageDataType != null ? DeserializeMethod.MakeGenericMethod(messageDataType).Invoke(null, [serializedMessageData]) : null;
+        var messageData = messageDataType != null ? Deserialize<object>(serializedMessageData) : null;
 
 #if DEBUG
         LethalNetworkAPIPlugin.Logger.LogDebug(
-            $"Received message: ({messageType}) {messageID} from {clientId} on the server.");
+            $"Received message: ({messageType}) {messageID} of type {messageDataType} with data {messageData} from {clientId} on the server.");
 #endif
 
         switch (messageType)

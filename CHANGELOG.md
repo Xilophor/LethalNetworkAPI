@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.0.2]
+
+### Fixed
+- Some built-in types not serializing properly.
+- NGO `InvalidOperationException` during disconnecting if a `LethalNetworkVariable` is used.
+
 ## [v3.0.1]
 
 ### Fixed

@@ -40,6 +40,7 @@
 
     <ItemGroup>
         <None Include="$(ProjectDir)../README.md" Pack="true" PackagePath="/"/>
+        <None Include="$(ProjectDir)../CHANGELOG.md" Pack="false" PackagePath="/"/>
     </ItemGroup>
 
     <ItemGroup>

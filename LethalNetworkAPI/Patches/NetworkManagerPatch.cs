@@ -18,7 +18,7 @@ internal static class NetworkManagerPatch
         _ = new NetworkHandler();
     }
 
-    [HarmonyPatch(nameof(NetworkManager.Shutdown))]
+    [HarmonyPatch(nameof(NetworkManager.ShutdownInternal))]
     [HarmonyPrefix]
     public static void ShutdownPatch()
     {

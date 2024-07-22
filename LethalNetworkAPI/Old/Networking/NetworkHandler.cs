@@ -9,6 +9,7 @@ using Unity.Netcode;
 
 namespace LethalNetworkAPI.Old.Networking;
 
+using System.Runtime.CompilerServices;
 using Internal;
 using Utils;
 
@@ -26,13 +27,16 @@ internal class NetworkHandler : IDisposable
         Instance = this;
 
         NetworkSpawn?.Invoke();
-        NetworkManager.Singleton.NetworkTickSystem.Tick += NetworkTick;
+        NetworkManager.Singleton.NetworkTickSystem.Tick += this.InvokeNetworkTick;
         NetworkManager.Singleton.OnClientConnectedCallback += this.OnClientConnectedCallback;
 #if DEBUG
         LethalNetworkAPIPlugin.Logger.LogDebug(
             "Created new Network Handler Instance.");
 #endif
     }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private void InvokeNetworkTick() => NetworkTick?.Invoke();
 
     public void Dispose()
     {
@@ -41,7 +45,7 @@ internal class NetworkHandler : IDisposable
         NetworkDespawn = delegate { };
         Instance = null;
 
-        NetworkManager.Singleton.NetworkTickSystem.Tick -= NetworkTick;
+        NetworkManager.Singleton.NetworkTickSystem.Tick -= this.InvokeNetworkTick;
         NetworkManager.Singleton.OnClientConnectedCallback -= this.OnClientConnectedCallback;
     }
 

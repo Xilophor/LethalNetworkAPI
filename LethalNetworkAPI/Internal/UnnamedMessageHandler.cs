@@ -19,12 +19,15 @@ internal class UnnamedMessageHandler : IDisposable
 
     internal static Dictionary<string, INetMessage> LNetworkMessages { get; } = new();
     internal static Dictionary<string, LNetworkEvent> LNetworkEvents { get; } = new();
-    internal static Dictionary<string, INetVariable> LNetworkVariables { get; } = new();
+    internal static Dictionary<string, LNetworkVariableBase> LNetworkVariables { get; } = new();
 
     private NetworkManager NetworkManager { get; }
     private CustomMessagingManager CustomMessagingManager { get; }
 
     private const string LibIdentifier = "LethalNetworkAPI";
+
+    internal HashSet<LNetworkVariableBase> DirtyBois { get; } = [];
+    internal static event Action? VariableCheck;
 
     internal UnnamedMessageHandler()
     {
@@ -33,6 +36,7 @@ internal class UnnamedMessageHandler : IDisposable
         this.NetworkManager = NetworkManager.Singleton;
         this.CustomMessagingManager = this.NetworkManager.CustomMessagingManager;
 
+        this.NetworkManager.NetworkTickSystem.Tick += this.CheckVariablesForChanges;
         this.CustomMessagingManager.OnUnnamedMessage += this.ReceiveMessage;
 
         if (this.NetworkManager.IsServer || this.NetworkManager.IsHost)
@@ -40,6 +44,39 @@ internal class UnnamedMessageHandler : IDisposable
     }
 
     #region Messaging
+
+    #region Variables
+
+    private int _ticksSinceLastCheck;
+    private void CheckVariablesForChanges()
+    {
+        if (this._ticksSinceLastCheck++ > 9)
+        {
+            VariableCheck?.Invoke();
+            this._ticksSinceLastCheck = 0;
+        }
+
+        this.UpdateVariables();
+    }
+
+    private void UpdateVariables()
+    {
+        if (this.DirtyBois.Count == 0) return;
+
+        foreach (var variable in this.DirtyBois)
+        {
+            this.SendMessageToClients(
+                new MessageData(
+                    variable.Identifier,
+                    EMessageType.Variable | EMessageType.DataUpdate,
+                    variable.GetValue()),
+                LNetworkUtils.OtherConnectedClients);
+
+            variable.ResetDirty();
+        }
+
+        this.DirtyBois.Clear();
+    }
 
     private void UpdateNewClientVariables(ulong newClient)
     {
@@ -50,7 +87,18 @@ internal class UnnamedMessageHandler : IDisposable
                 LNetworkUtils.OtherConnectedClients),
             LNetworkUtils.AllConnectedClients);
 
+        foreach (var variable in LNetworkVariables.Values)
+        {
+            this.SendMessageToClients(
+                new MessageData(
+                    variable.Identifier,
+                    EMessageType.Variable | EMessageType.ForceUpdate,
+                    variable.OwnerClients),
+                [newClient]);
+        }
     }
+
+    #endregion
 
     #region Send
 
@@ -136,6 +184,8 @@ internal class UnnamedMessageHandler : IDisposable
             $"Received message: ({messageType}) {messageID} of type {messageDataType} with data {messageData} from {clientId} on the server.");
 #endif
 
+        LNetworkVariableBase? variable;
+
         switch (messageType)
         {
             case EMessageType.Event | EMessageType.ServerMessage:
@@ -158,8 +208,28 @@ internal class UnnamedMessageHandler : IDisposable
                 LNetworkMessages[messageID].InvokeOnClientReceivedFromClient(messageData, clientId);
                 break;
 
-            case EMessageType.Variable:
-                throw new NotImplementedException();
+            case EMessageType.Variable | EMessageType.DataUpdate:
+                variable = LNetworkVariables[messageID];
+
+                if (!variable.CanWrite()) break;
+
+                variable.ReceiveUpdate(messageData);
+                break;
+            case EMessageType.Variable | EMessageType.OwnershipUpdate:
+                variable = LNetworkVariables[messageID];
+
+                if (clientId != NetworkManager.ServerClientId ||
+                    variable.WritePerms != LNetworkVariableWritePerms.Owner) break;
+
+                variable.OwnerClients = (ulong[]?)messageData;
+                break;
+            case EMessageType.Variable | EMessageType.ForceUpdate:
+                variable = LNetworkVariables[messageID];
+
+                if (clientId != NetworkManager.ServerClientId) break;
+
+                variable.ReceiveUpdate(messageData);
+                break;
 
             case EMessageType.UpdateClientList:
                 if (clientId != NetworkManager.ServerClientId) break;
@@ -236,5 +306,12 @@ internal class UnnamedMessageHandler : IDisposable
 
 #endif
 
-    public void Dispose() => this.CustomMessagingManager.OnUnnamedMessage -= this.ReceiveMessage;
+    public void Dispose()
+    {
+        this.CustomMessagingManager.OnUnnamedMessage -= this.ReceiveMessage;
+        foreach (var variable in LNetworkVariables.Values)
+        {
+            variable.ResetValue();
+        }
+    }
 }

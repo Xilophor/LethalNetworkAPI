@@ -14,5 +14,10 @@ internal enum EMessageType
     ServerMessage           = 0b0001_0000, // 16
     ClientMessage           = 0b0010_0000, // 32
     ClientMessageToClient   = 0b0100_0000,  // 64
-    Request          = 0b1000_0000, // 128
+    [Obsolete] Request      = 0b1000_0000,  // 128
+
+    DataUpdate              = 0b0001_0000, // 16
+    OwnershipUpdate         = 0b0010_0000, // 32
+    ForceUpdate             = 0b0100_0000, // 64
+    UpdateClientList        = 0b1000_0000, // 128
 }

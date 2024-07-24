@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using Unity.Collections;
 using Unity.Netcode;
+using Utils;
 
 #if NETSTANDARD2_1
 using HarmonyLib;
@@ -33,9 +34,23 @@ internal class UnnamedMessageHandler : IDisposable
         this.CustomMessagingManager = this.NetworkManager.CustomMessagingManager;
 
         this.CustomMessagingManager.OnUnnamedMessage += this.ReceiveMessage;
+
+        if (this.NetworkManager.IsServer || this.NetworkManager.IsHost)
+            this.NetworkManager.OnClientConnectedCallback += this.UpdateNewClientVariables;
     }
 
     #region Messaging
+
+    private void UpdateNewClientVariables(ulong newClient)
+    {
+        this.SendMessageToClients(
+            new MessageData(
+                "Internal.UpdateClientList",
+                EMessageType.UpdateClientList,
+                LNetworkUtils.OtherConnectedClients),
+            LNetworkUtils.AllConnectedClients);
+
+    }
 
     #region Send
 
@@ -145,6 +160,12 @@ internal class UnnamedMessageHandler : IDisposable
 
             case EMessageType.Variable:
                 throw new NotImplementedException();
+
+            case EMessageType.UpdateClientList:
+                if (clientId != NetworkManager.ServerClientId) break;
+
+                LNetworkUtils.AllConnectedClients = (ulong[]?)messageData ?? [];
+                break;
 
             case EMessageType.None:
             default:

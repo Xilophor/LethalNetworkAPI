@@ -38,13 +38,35 @@ public static class LNetworkUtils
     /// All connected clients' GUIDs.
     /// </summary>
     /// <remarks>This will be empty if not connected to a server.</remarks>
-    public static ulong[] AllConnectedClients => NetworkManager.Singleton?.ConnectedClientsIds.ToArray() ?? [];
+    public static ulong[] AllConnectedClients
+    {
+        get
+        {
+            if (NetworkManager.Singleton == null) return [];
+            if (NetworkManager.Singleton.IsServer || NetworkManager.Singleton.IsHost)
+                return NetworkManager.Singleton.ConnectedClientsIds.ToArray() ?? [];
+            return _allClients;
+        }
+        internal set => _allClients = value;
+    }
+
+    private static ulong[] _allClients = [];
 
     /// <summary>
     /// All connected clients' GUIDs, except this client.
     /// </summary>
     /// <remarks>This will be empty if not connected to a server.</remarks>
-    public static ulong[] OtherConnectedClients => NetworkManager.Singleton?.ConnectedClientsIds.Where(i => i != NetworkManager.Singleton.LocalClientId).ToArray() ?? [];
+    public static ulong[] OtherConnectedClients
+    {
+        get
+        {
+            if (NetworkManager.Singleton == null) return [];
+            if (NetworkManager.Singleton.IsServer || NetworkManager.Singleton.IsHost)
+                return NetworkManager.Singleton.ConnectedClientsIds.Where(i => i != NetworkManager.Singleton.LocalClientId)
+                    .ToArray();
+            return _allClients.Where(i => i != NetworkManager.Singleton.LocalClientId).ToArray();
+        }
+    }
 
     internal static string GetModGuid(int frameIndex)
     {

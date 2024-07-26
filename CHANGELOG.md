@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.1.0]
+
+### Added
+- Added `LNetworkVariable` - replaces `LethalNetworkVariable`.
+  -  Added `LNetworkVariableWritePerms` enum to control the write permissions of the variable.
+  -  Added `UpdateOwner` method to update the owner of the variable.
+  -  Added `Dispose` method to dispose of the variable.
+
+### Fixed
+- Fixed clients not sending events/messages/variable updates to other clients.
+
+## [v3.0.3]
+
+### Fixed
+- NGO `ConnectedClients should only be accessed on the server` error.
+
 ## [v3.0.2]
 
 ### Fixed

@@ -70,9 +70,9 @@ public sealed class LethalClientMessage<TData> : LNetworkMessageDeprecated
         if (IsNetworkHandlerNull()) return;
 
         NetworkHandler.Instance!.MessageServerRpc(Identifier, LethalNetworkSerializer.Serialize(data),
-            toOtherClients: true, sendToOriginator: includeLocalClient && waitForServerResponse);
+            toOtherClients: true);
 
-        if(includeLocalClient && !waitForServerResponse)
+        if(includeLocalClient)
             OnReceivedFromClient?.Invoke(data, NetworkManager.Singleton.LocalClientId);
 
 #if DEBUG

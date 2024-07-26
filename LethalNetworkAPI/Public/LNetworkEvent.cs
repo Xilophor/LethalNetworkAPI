@@ -270,13 +270,22 @@ public sealed class LNetworkEvent
             "Please send this log to the LethalNetworkAPI developer."
         );
 
-        UnnamedMessageHandler.Instance.SendMessageToClients(
-            new MessageData
-            (
-                this.Identifier,
-                EMessageType.Event | EMessageType.ClientMessageToClient
-            ),
-            clientGuidArray);
+        if (UnnamedMessageHandler.Instance.IsServer)
+            UnnamedMessageHandler.Instance.SendMessageToClients(
+                new MessageData
+                (
+                    this.Identifier,
+                    EMessageType.Event | EMessageType.ClientMessageToClient
+                ),
+                clientGuidArray);
+        else
+            UnnamedMessageHandler.Instance.SendMessageToServer(
+                new MessageData
+                (
+                    this.Identifier,
+                    EMessageType.Event | EMessageType.ClientMessageToClient,
+                    TargetClients: clientGuidArray
+                ));
     }
 
     /// <summary>

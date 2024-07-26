@@ -44,7 +44,7 @@ public static class LNetworkUtils
         {
             if (NetworkManager.Singleton == null) return [];
             if (NetworkManager.Singleton.IsServer || NetworkManager.Singleton.IsHost)
-                return NetworkManager.Singleton.ConnectedClientsIds.ToArray() ?? [];
+                return NetworkManager.Singleton.ConnectedClientsIds.ToArray();
             return _allClients;
         }
         internal set => _allClients = value;
@@ -56,17 +56,21 @@ public static class LNetworkUtils
     /// All connected clients' GUIDs, except this client.
     /// </summary>
     /// <remarks>This will be empty if not connected to a server.</remarks>
-    public static ulong[] OtherConnectedClients
-    {
-        get
-        {
-            if (NetworkManager.Singleton == null) return [];
-            if (NetworkManager.Singleton.IsServer || NetworkManager.Singleton.IsHost)
-                return NetworkManager.Singleton.ConnectedClientsIds.Where(i => i != NetworkManager.Singleton.LocalClientId)
-                    .ToArray();
-            return _allClients.Where(i => i != NetworkManager.Singleton.LocalClientId).ToArray();
-        }
-    }
+    public static ulong[] OtherConnectedClients => AllConnectedClientsExcept(NetworkManager.Singleton.LocalClientId);
+
+    /// <summary>
+    /// All connected clients' GUIDs, except the specified client.
+    /// </summary>
+    /// <param name="clientId">The client to exclude.</param>
+    /// <remarks>This will be empty if not connected to a server.</remarks>
+    public static ulong[] AllConnectedClientsExcept(ulong clientId) => AllConnectedClients.Where(i => i != clientId).ToArray();
+
+    /// <summary>
+    /// All connected clients' GUIDs, except the specified client.
+    /// </summary>
+    /// <param name="clientIds">The clients to exclude.</param>
+    /// <remarks>This will be empty if not connected to a server.</remarks>
+    public static ulong[] AllConnectedClientsExcept(params ulong[] clientIds) => AllConnectedClients.Where(i => !clientIds.Contains(i)).ToArray();
 
     internal static string GetModGuid(int frameIndex)
     {

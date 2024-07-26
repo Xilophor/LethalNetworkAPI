@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Unity.Collections;
 using Unity.Netcode;
 
 // ReSharper disable MemberCanBeMadeStatic.Global
@@ -12,10 +10,6 @@ namespace LethalNetworkAPI.Old.Networking;
 using System.Runtime.CompilerServices;
 using Internal;
 using Utils;
-
-#if NETSTANDARD2_1
-using OdinSerializer;
-#endif
 
 internal class NetworkHandler : IDisposable
 {
@@ -35,6 +29,8 @@ internal class NetworkHandler : IDisposable
 #endif
     }
 
+    internal bool IsServer => UnnamedMessageHandler.Instance?.IsServer ?? false;
+
     [MethodImpl(MethodImplOptions.NoInlining)]
     private void InvokeNetworkTick() => NetworkTick?.Invoke();
 
@@ -52,15 +48,25 @@ internal class NetworkHandler : IDisposable
     private void OnClientConnectedCallback(ulong client) =>
         OnPlayerJoin?.Invoke(client);
 
-    public void ReceiveMessage(ulong clientId, FastBufferReader reader)
+    public void ReadMessage(ulong clientId, ref FastBufferReader reader)
     {
-#if NETSTANDARD2_1
         reader.ReadValueSafe(out string messageID);
         reader.ReadValueSafe(out EMessageType messageType);
 
         reader.ReadValueSafe(out byte[] messageData);
         reader.Dispose();
 
+#if DEBUG
+        LethalNetworkAPIPlugin.Logger.LogDebug(
+            $"Received message: ({messageType}) {messageID} from {clientId}.");
+#endif
+
+        this.HandleMessage(clientId, messageID, messageType, messageData);
+    }
+
+    public void HandleMessage(ulong clientId, string messageID, EMessageType messageType, byte[] messageData)
+    {
+#if NETSTANDARD2_1
         switch (messageType)
         {
             case EMessageType.Event | EMessageType.ServerMessage:
@@ -70,14 +76,16 @@ internal class NetworkHandler : IDisposable
                 OnServerEvent?.Invoke(messageID, clientId);
                 break;
             case EMessageType.Event | EMessageType.ClientMessageToClient:
+                if (this.IsServer)
+                    UnnamedMessageHandler.Instance!.SendMessageToClientsExcept(new MessageData(messageID, messageType, messageData), clientId, true);
                 OnClientEvent?.Invoke(messageID, clientId);
                 break;
 
-#pragma warning disable CS0612 // Type or member is obsolete
             case EMessageType.SyncedEvent:
+                if (this.IsServer)
+                    UnnamedMessageHandler.Instance!.SendMessageToClientsExcept(new MessageData(messageID, messageType, messageData), clientId, true);
                 OnSyncedServerEvent?.Invoke(messageID, UnnamedMessageHandler.Deserialize<double>(messageData), clientId);
                 break;
-#pragma warning restore CS0612 // Type or member is obsolete
 
             case EMessageType.Message | EMessageType.ServerMessage:
                 OnClientMessage?.Invoke(messageID, messageData, 99999);
@@ -86,6 +94,8 @@ internal class NetworkHandler : IDisposable
                 OnServerMessage?.Invoke(messageID, messageData, clientId);
                 break;
             case EMessageType.Message | EMessageType.ClientMessageToClient:
+                if (this.IsServer)
+                    UnnamedMessageHandler.Instance!.SendMessageToClientsExcept(new MessageData(messageID, messageType, messageData), clientId, true);
                 OnClientMessage?.Invoke(messageID, messageData, clientId);
                 break;
 
@@ -93,6 +103,8 @@ internal class NetworkHandler : IDisposable
                 GetVariableValue?.Invoke(messageID, clientId);
                 break;
             case EMessageType.Variable:
+                if (this.IsServer)
+                    UnnamedMessageHandler.Instance!.SendMessageToClientsExcept(new MessageData(messageID, messageType, messageData), clientId, true);
                 OnVariableUpdate?.Invoke(messageID, messageData);
                 break;
 
@@ -107,8 +119,7 @@ internal class NetworkHandler : IDisposable
 
     internal void MessageServerRpc(string identifier,
         byte[] data,
-        bool toOtherClients = false,
-        bool sendToOriginator = false
+        bool toOtherClients = false
         )
     {
         if (!toOtherClients)
@@ -122,13 +133,22 @@ internal class NetworkHandler : IDisposable
         }
         else
         {
-            this.SendMessageToClients(
-                new MessageData(
-                    identifier,
-                    EMessageType.Message | EMessageType.ClientMessageToClient,
-                    data),
-                sendToOriginator ? LNetworkUtils.AllConnectedClients : LNetworkUtils.OtherConnectedClients
-            );
+            if (this.IsServer)
+                this.SendMessageToClients(
+                    new MessageData(
+                        identifier,
+                        EMessageType.Message | EMessageType.ClientMessageToClient,
+                        data),
+                    LNetworkUtils.OtherConnectedClients
+                );
+            else
+                this.SendMessageToServer(
+                    new MessageData(
+                        identifier,
+                        EMessageType.Message | EMessageType.ClientMessageToClient,
+                        data
+                    )
+                );
         }
     }
 
@@ -150,8 +170,7 @@ internal class NetworkHandler : IDisposable
     #region Events
 
     internal void EventServerRpc(string identifier,
-        bool toOtherClients = false,
-        bool sendToOriginator = false
+        bool toOtherClients = false
     )
     {
         if (!toOtherClients)
@@ -164,12 +183,19 @@ internal class NetworkHandler : IDisposable
         }
         else
         {
-            this.SendMessageToClients(
-                new MessageData(
-                    identifier,
-                    EMessageType.Event | EMessageType.ClientMessageToClient),
-                sendToOriginator ? LNetworkUtils.AllConnectedClients : LNetworkUtils.OtherConnectedClients
-            );
+            if (this.IsServer)
+                this.SendMessageToClients(
+                    new MessageData(
+                        identifier,
+                        EMessageType.Event | EMessageType.ClientMessageToClient),
+                    LNetworkUtils.OtherConnectedClients
+                );
+            else
+                this.SendMessageToServer(
+                    new MessageData(
+                        identifier,
+                        EMessageType.Event | EMessageType.ClientMessageToClient)
+                );
         }
     }
 
@@ -188,13 +214,21 @@ internal class NetworkHandler : IDisposable
         double time)
     {
 #if NETSTANDARD2_1
-        this.SendMessageToClients(
-            new MessageData(
-                identifier,
-                EMessageType.SyncedEvent,
-                UnnamedMessageHandler.Serialize(time)),
-            LNetworkUtils.OtherConnectedClients
-        );
+        if (this.IsServer)
+            this.SendMessageToClients(
+                new MessageData(
+                    identifier,
+                    EMessageType.SyncedEvent,
+                    UnnamedMessageHandler.Serialize(time)),
+                LNetworkUtils.OtherConnectedClients
+            );
+        else
+            this.SendMessageToServer(
+                new MessageData(
+                    identifier,
+                    EMessageType.SyncedEvent,
+                    UnnamedMessageHandler.Serialize(time))
+            );
 #endif
     }
 
@@ -206,13 +240,21 @@ internal class NetworkHandler : IDisposable
     internal void UpdateVariableServerRpc(string identifier,
         byte[] data)
     {
-        this.SendMessageToClients(
-            new MessageData(
-                identifier,
-                EMessageType.Variable,
-                data),
-            LNetworkUtils.OtherConnectedClients
-        );
+        if (this.IsServer)
+            this.SendMessageToClients(
+                new MessageData(
+                    identifier,
+                    EMessageType.Variable,
+                    data),
+                LNetworkUtils.OtherConnectedClients
+            );
+        else
+            this.SendMessageToServer(
+                new MessageData(
+                    identifier,
+                    EMessageType.Variable,
+                    data)
+            );
     }
 
     [ClientRpc]

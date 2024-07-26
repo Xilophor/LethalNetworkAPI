@@ -71,10 +71,9 @@ public sealed class LethalClientEvent : LNetworkEventDepricated
     {
         if (IsNetworkHandlerNull()) return;
 
-        NetworkHandler.Instance!.EventServerRpc(Identifier, toOtherClients: true,
-            sendToOriginator: includeLocalClient && waitForServerResponse);
+        NetworkHandler.Instance!.EventServerRpc(Identifier, toOtherClients: true);
 
-        if(includeLocalClient && !waitForServerResponse)
+        if(includeLocalClient)
             OnReceivedFromClient?.Invoke(NetworkManager.Singleton.LocalClientId);
 
 #if DEBUG

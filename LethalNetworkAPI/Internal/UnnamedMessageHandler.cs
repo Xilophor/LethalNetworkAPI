@@ -11,6 +11,7 @@ using Utils;
 #if NETSTANDARD2_1
 using HarmonyLib;
 using OdinSerializer;
+using Old.Networking;
 #endif
 
 internal class UnnamedMessageHandler : IDisposable
@@ -21,6 +22,7 @@ internal class UnnamedMessageHandler : IDisposable
     internal static Dictionary<string, LNetworkEvent> LNetworkEvents { get; } = new();
     internal static Dictionary<string, LNetworkVariableBase> LNetworkVariables { get; } = new();
 
+    internal bool IsServer => this.NetworkManager.IsServer || this.NetworkManager.IsHost;
     private NetworkManager NetworkManager { get; }
     private CustomMessagingManager CustomMessagingManager { get; }
 
@@ -40,7 +42,10 @@ internal class UnnamedMessageHandler : IDisposable
         this.CustomMessagingManager.OnUnnamedMessage += this.ReceiveMessage;
 
         if (this.NetworkManager.IsServer || this.NetworkManager.IsHost)
+        {
             this.NetworkManager.OnClientConnectedCallback += this.UpdateNewClientVariables;
+            this.NetworkManager.OnClientDisconnectCallback += this.UpdateClientList;
+        }
     }
 
     #region Messaging
@@ -65,12 +70,19 @@ internal class UnnamedMessageHandler : IDisposable
 
         foreach (var variable in this.DirtyBois)
         {
-            this.SendMessageToClients(
-                new MessageData(
-                    variable.Identifier,
-                    EMessageType.Variable | EMessageType.DataUpdate,
-                    variable.GetValue()),
-                LNetworkUtils.OtherConnectedClients);
+            if (this.IsServer)
+                this.SendMessageToClients(
+                    new MessageData(
+                        variable.Identifier,
+                        EMessageType.Variable | EMessageType.DataUpdate,
+                        variable.GetValue()),
+                    LNetworkUtils.OtherConnectedClients);
+            else
+                this.SendMessageToServer(
+                    new MessageData(
+                        variable.Identifier,
+                        EMessageType.Variable | EMessageType.DataUpdate,
+                        variable.GetValue()));
 
             variable.ResetDirty();
         }
@@ -80,23 +92,26 @@ internal class UnnamedMessageHandler : IDisposable
 
     private void UpdateNewClientVariables(ulong newClient)
     {
-        this.SendMessageToClients(
-            new MessageData(
-                "Internal.UpdateClientList",
-                EMessageType.UpdateClientList,
-                LNetworkUtils.OtherConnectedClients),
-            LNetworkUtils.AllConnectedClients);
+        this.UpdateClientList(newClient);
 
         foreach (var variable in LNetworkVariables.Values)
         {
             this.SendMessageToClients(
                 new MessageData(
                     variable.Identifier,
-                    EMessageType.Variable | EMessageType.ForceUpdate,
+                    EMessageType.Variable | EMessageType.DataUpdate,
                     variable.OwnerClients),
                 [newClient]);
         }
     }
+
+    private void UpdateClientList(ulong changedClient) =>
+        this.SendMessageToClients(
+            new MessageData(
+                "Internal.UpdateClientList",
+                EMessageType.UpdateClientList,
+                LNetworkUtils.OtherConnectedClients),
+            LNetworkUtils.AllConnectedClients);
 
     #endregion
 
@@ -105,20 +120,49 @@ internal class UnnamedMessageHandler : IDisposable
     internal void SendMessageToClients(MessageData messageData, ulong[] clientGuidArray, bool deprecatedMessage = false)
     {
 #if NETSTANDARD2_1
-        WriteMessageData(out var writer, messageData, deprecatedMessage);
-
         if (clientGuidArray.Any(client => client == NetworkManager.ServerClientId))
         {
             clientGuidArray = clientGuidArray.Where(client => client != NetworkManager.ServerClientId).ToArray();
 
-            var reader = new FastBufferReader(writer, Allocator.None);
-            this.ReceiveMessage(NetworkManager.ServerClientId, reader);
+            if (deprecatedMessage)
+                NetworkHandler.Instance!.HandleMessage(
+                    NetworkManager.ServerClientId,
+                    messageData.Identifier,
+                    messageData.MessageType,
+                    (byte[]?)messageData.Data ?? []);
+            else
+                this.HandleMessage(
+                    NetworkManager.ServerClientId,
+                    messageData.Identifier,
+                    messageData.MessageType,
+                    messageData.Data,
+                    messageData.TargetClients ?? []);
         }
 
-        if (!clientGuidArray.Any()) { writer.Dispose(); return; }
+        if (!clientGuidArray.Any()) return;
+
+        WriteMessageData(out var writer, messageData, deprecatedMessage);
 
         this.CustomMessagingManager.SendUnnamedMessage(
             clientGuidArray,
+            writer,
+            NetworkDelivery.ReliableFragmentedSequenced
+        );
+
+        writer.Dispose();
+#endif
+    }
+
+    internal void SendMessageToClientsExcept(MessageData messageData, ulong clientId, bool deprecatedMessage = false)
+    {
+#if NETSTANDARD2_1
+        WriteMessageData(out var writer, messageData, deprecatedMessage);
+
+        var clientIds = LNetworkUtils.AllConnectedClientsExcept(clientId, NetworkManager.ServerClientId);
+        if (clientIds.Length == 0) return;
+
+        this.CustomMessagingManager.SendUnnamedMessage(
+            LNetworkUtils.AllConnectedClientsExcept(clientId, NetworkManager.ServerClientId),
             writer,
             NetworkDelivery.ReliableFragmentedSequenced
         );
@@ -154,15 +198,18 @@ internal class UnnamedMessageHandler : IDisposable
         {
             reader.ReadValueSafe(out identifier);
         }
-        catch (Exception e)
+        catch
         {
             reader.Dispose();
             return;
         }
 
         if (identifier == $"{LibIdentifier}.Old")
-            Old.Networking.NetworkHandler.Instance?.ReceiveMessage(clientId, reader);
-
+        {
+            NetworkHandler.Instance?.ReadMessage(clientId, ref reader);
+            LethalNetworkAPIPlugin.Logger.LogDebug(":huhwuhguh:");
+            return;
+        }
         if (identifier != LibIdentifier)
         {
             reader.Dispose();
@@ -171,20 +218,30 @@ internal class UnnamedMessageHandler : IDisposable
 
         reader.ReadValueSafe(out string messageID);
         reader.ReadValueSafe(out EMessageType messageType);
+        reader.ReadValueSafe(out ulong[] targetClients);
 
         reader.ReadValueSafe(out byte[] serializedMessageData);
         reader.ReadValueSafe(out byte[] serializedType);
+
         reader.Dispose();
 
         var messageDataType = Deserialize<Type?>(serializedType);
         var messageData = messageDataType != null ? Deserialize<object>(serializedMessageData) : null;
 
-#if DEBUG
+        #if DEBUG
         LethalNetworkAPIPlugin.Logger.LogDebug(
-            $"Received message: ({messageType}) {messageID} of type {messageDataType} with data {messageData} from {clientId} on the server.");
-#endif
+            $"Received message: ({messageType}) {messageID} of type {messageDataType} with data {messageData} from {clientId}.");
+        #endif
 
+        this.HandleMessage(clientId, messageID, messageType, messageData, targetClients);
+#endif
+    }
+
+    private void HandleMessage(ulong clientId, string messageID, EMessageType messageType, object? messageData, ulong[] targetClients)
+    {
         LNetworkVariableBase? variable;
+
+        var nonServerTargets = targetClients.Where(i => i != NetworkManager.ServerClientId && i != clientId).ToArray();
 
         switch (messageType)
         {
@@ -195,7 +252,15 @@ internal class UnnamedMessageHandler : IDisposable
                 LNetworkEvents[messageID].InvokeOnServerReceived(clientId);
                 break;
             case EMessageType.Event | EMessageType.ClientMessageToClient:
-                LNetworkEvents[messageID].InvokeOnClientReceivedFromClient(clientId);
+                if (!this.IsServer)
+                {
+                    LNetworkMessages[messageID].InvokeOnClientReceivedFromClient(messageData, clientId);
+                    break;
+                }
+
+                this.SendMessageToClients(new MessageData(messageID, messageType, messageData), nonServerTargets);
+                if (targetClients.Any(i => i == NetworkManager.ServerClientId))
+                    LNetworkEvents[messageID].InvokeOnClientReceivedFromClient(clientId);
                 break;
 
             case EMessageType.Message | EMessageType.ServerMessage:
@@ -205,13 +270,26 @@ internal class UnnamedMessageHandler : IDisposable
                 LNetworkMessages[messageID].InvokeOnServerReceived(messageData, clientId);
                 break;
             case EMessageType.Message | EMessageType.ClientMessageToClient:
-                LNetworkMessages[messageID].InvokeOnClientReceivedFromClient(messageData, clientId);
+                if (!this.IsServer)
+                {
+                    LNetworkMessages[messageID].InvokeOnClientReceivedFromClient(messageData, clientId);
+                    break;
+                }
+
+                this.SendMessageToClients(new MessageData(messageID, messageType, messageData), nonServerTargets);
+                if (targetClients.Any(i => i == NetworkManager.ServerClientId))
+                    LNetworkMessages[messageID].InvokeOnClientReceivedFromClient(messageData, clientId);
                 break;
 
             case EMessageType.Variable | EMessageType.DataUpdate:
                 variable = LNetworkVariables[messageID];
 
-                if (!variable.CanWrite()) break;
+                if (this.IsServer)
+                {
+                    if (!variable.CanWrite()) break;
+
+                    this.SendMessageToClients(new MessageData(messageID, messageType, messageData), nonServerTargets);
+                }
 
                 variable.ReceiveUpdate(messageData);
                 break;
@@ -222,13 +300,6 @@ internal class UnnamedMessageHandler : IDisposable
                     variable.WritePerms != LNetworkVariableWritePerms.Owner) break;
 
                 variable.OwnerClients = (ulong[]?)messageData;
-                break;
-            case EMessageType.Variable | EMessageType.ForceUpdate:
-                variable = LNetworkVariables[messageID];
-
-                if (clientId != NetworkManager.ServerClientId) break;
-
-                variable.ReceiveUpdate(messageData);
                 break;
 
             case EMessageType.UpdateClientList:
@@ -241,7 +312,6 @@ internal class UnnamedMessageHandler : IDisposable
             default:
                 throw new ArgumentOutOfRangeException();
         }
-#endif
     }
 
     #endregion
@@ -251,9 +321,6 @@ internal class UnnamedMessageHandler : IDisposable
 #if NETSTANDARD2_1
 
     #region Helper Methods
-
-    internal static readonly MethodInfo DeserializeMethod =
-        typeof(UnnamedMessageHandler).GetMethod(nameof(Deserialize), AccessTools.all)!;
 
     internal static byte[] Serialize(object? data) =>
         SerializationUtility.SerializeValue(data, DataFormat.Binary);
@@ -272,8 +339,11 @@ internal class UnnamedMessageHandler : IDisposable
             $"to write the message data ({size}) @ {writer.Position}. Shit's hella fucked!");
 
         writer.WriteValue(deprecatedMessage ? $"{LibIdentifier}.Old" : LibIdentifier);
+
         writer.WriteValue(messageData.Identifier);
         writer.WriteValue(messageData.MessageType);
+        if (!deprecatedMessage) writer.WriteValue(messageData.TargetClients ?? []);
+
         writer.WriteValue(serializedData);
         writer.WriteValue(serializedType);
     }
@@ -284,10 +354,12 @@ internal class UnnamedMessageHandler : IDisposable
             (byte[])messageData.Data : Serialize(messageData.Data);
         var serializedType = Serialize(messageData.Data?.GetType());
 
-        var size = 0;
-        size += FastBufferWriter.GetWriteSize(deprecatedMessage ? $"{LibIdentifier}.Old" : LibIdentifier);
+        var size = FastBufferWriter.GetWriteSize(deprecatedMessage ? $"{LibIdentifier}.Old" : LibIdentifier);
+
         size += FastBufferWriter.GetWriteSize(messageData.Identifier);
         size += FastBufferWriter.GetWriteSize(messageData.MessageType);
+        if (!deprecatedMessage) size += FastBufferWriter.GetWriteSize(messageData.TargetClients ?? []);
+
         size += FastBufferWriter.GetWriteSize(serializedData);
         size += FastBufferWriter.GetWriteSize(serializedType);
 
@@ -308,7 +380,15 @@ internal class UnnamedMessageHandler : IDisposable
 
     public void Dispose()
     {
+        this.NetworkManager.NetworkTickSystem.Tick -= this.CheckVariablesForChanges;
         this.CustomMessagingManager.OnUnnamedMessage -= this.ReceiveMessage;
+
+        if (this.NetworkManager.IsServer || this.NetworkManager.IsHost)
+        {
+            this.NetworkManager.OnClientConnectedCallback -= this.UpdateNewClientVariables;
+            this.NetworkManager.OnClientDisconnectCallback -= this.UpdateClientList;
+        }
+
         foreach (var variable in LNetworkVariables.Values)
         {
             variable.ResetValue();

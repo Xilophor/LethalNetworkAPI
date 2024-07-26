@@ -200,21 +200,12 @@ internal class UnnamedMessageHandler : IDisposable
         }
         catch
         {
-            reader.Dispose();
             return;
         }
 
-        if (identifier == $"{LibIdentifier}.Old")
-        {
-            NetworkHandler.Instance?.ReadMessage(clientId, ref reader);
-            LethalNetworkAPIPlugin.Logger.LogDebug(":huhwuhguh:");
-            return;
-        }
-        if (identifier != LibIdentifier)
-        {
-            reader.Dispose();
-            return;
-        }
+        if (identifier == $"{LibIdentifier}.Old") NetworkHandler.Instance?.ReadMessage(clientId, reader);
+
+        if (identifier != LibIdentifier) return;
 
         reader.ReadValueSafe(out string messageID);
         reader.ReadValueSafe(out EMessageType messageType);
@@ -222,8 +213,6 @@ internal class UnnamedMessageHandler : IDisposable
 
         reader.ReadValueSafe(out byte[] serializedMessageData);
         reader.ReadValueSafe(out byte[] serializedType);
-
-        reader.Dispose();
 
         var messageDataType = Deserialize<Type?>(serializedType);
         var messageData = messageDataType != null ? Deserialize<object>(serializedMessageData) : null;

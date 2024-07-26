@@ -48,13 +48,12 @@ internal class NetworkHandler : IDisposable
     private void OnClientConnectedCallback(ulong client) =>
         OnPlayerJoin?.Invoke(client);
 
-    public void ReadMessage(ulong clientId, ref FastBufferReader reader)
+    public void ReadMessage(ulong clientId, FastBufferReader reader)
     {
         reader.ReadValueSafe(out string messageID);
         reader.ReadValueSafe(out EMessageType messageType);
 
         reader.ReadValueSafe(out byte[] messageData);
-        reader.Dispose();
 
 #if DEBUG
         LethalNetworkAPIPlugin.Logger.LogDebug(

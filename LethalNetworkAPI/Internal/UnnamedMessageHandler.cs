@@ -369,14 +369,7 @@ internal class UnnamedMessageHandler : IDisposable
 
     public void Dispose()
     {
-        this.NetworkManager.NetworkTickSystem.Tick -= this.CheckVariablesForChanges;
         this.CustomMessagingManager.OnUnnamedMessage -= this.ReceiveMessage;
-
-        if (this.NetworkManager.IsServer || this.NetworkManager.IsHost)
-        {
-            this.NetworkManager.OnClientConnectedCallback -= this.UpdateNewClientVariables;
-            this.NetworkManager.OnClientDisconnectCallback -= this.UpdateClientList;
-        }
 
         foreach (var variable in LNetworkVariables.Values)
         {

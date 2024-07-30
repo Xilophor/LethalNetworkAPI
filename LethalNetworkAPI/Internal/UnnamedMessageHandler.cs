@@ -29,6 +29,7 @@ internal class UnnamedMessageHandler : IDisposable
     private const string LibIdentifier = "LethalNetworkAPI";
 
     internal HashSet<LNetworkVariableBase> DirtyBois { get; } = [];
+    internal Dictionary<string, object?> UnInitializedValues { get; } = new();
     internal static event Action? VariableCheck;
 
     internal UnnamedMessageHandler()
@@ -228,7 +229,7 @@ internal class UnnamedMessageHandler : IDisposable
 
     private void HandleMessage(ulong clientId, string messageID, EMessageType messageType, object? messageData, ulong[] targetClients)
     {
-        LNetworkVariableBase? variable;
+        LNetworkVariableBase variable;
 
         var nonServerTargets = targetClients.Where(i => i != NetworkManager.ServerClientId && i != clientId).ToArray();
 
@@ -271,7 +272,11 @@ internal class UnnamedMessageHandler : IDisposable
                 break;
 
             case EMessageType.Variable | EMessageType.DataUpdate:
-                variable = LNetworkVariables[messageID];
+                if (!LNetworkVariables.TryGetValue(messageID, out variable))
+                {
+                    this.UnInitializedValues[messageID] = messageData;
+                    break;
+                }
 
                 if (this.IsServer)
                 {

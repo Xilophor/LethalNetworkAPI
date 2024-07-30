@@ -97,7 +97,13 @@ public class LNetworkVariable<TData> : LNetworkVariableBase
         UnnamedMessageHandler.VariableCheck += this.CheckForDirt;
         UnnamedMessageHandler.LNetworkVariables.Add(this.Identifier, this);
 
-        this.SetDirty(true);
+        if (!(UnnamedMessageHandler.Instance?.UnInitializedValues.TryGetValue(this.Identifier, out var value) ?? false)) return;
+
+        this._value = (TData)value!;
+        UnnamedMessageHandler.Instance.UnInitializedValues.Remove(this.Identifier);
+
+        this.OnValueChanged?.Invoke(this._previousValue, this._value);
+        this._previousValue = this._value;
     }
 
     /// <summary>

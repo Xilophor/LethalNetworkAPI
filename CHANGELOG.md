@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.1.1]
+
+### Fixed
+- Fixed Shutdown error for `UnnamedMessageHandler`.
+- Fixed `LNetworkVariable` update error when the variable has not yet been created on the client.
+
 ## [v3.1.0]
 
 ### Added

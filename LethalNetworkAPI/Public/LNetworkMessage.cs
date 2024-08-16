@@ -201,7 +201,7 @@ public sealed class LNetworkMessage<TData> : INetMessage
             "Attempting to use LNetworkMessage method while not connected to a server."
         );
 
-        if (!LNetworkUtils.IsHostOrServer) throw new Exception
+        if (!LNetworkUtils.IsHostOrServer) throw new InvalidOperationException
         (
             "Attempting to use LNetworkMessage Server-Only method while not the host."
         );
@@ -210,7 +210,7 @@ public sealed class LNetworkMessage<TData> : INetMessage
 
         if (UnnamedMessageHandler.Instance == null) throw new NetworkConfigurationException
         (
-            "The NamedMessageHandler is null. Shit's fucked! " +
+            "The UnnamedMessageHandler is null. Shit's fucked! " +
             "Please send this log to the LethalNetworkAPI developer."
         );
 
@@ -257,7 +257,7 @@ public sealed class LNetworkMessage<TData> : INetMessage
 
         if (UnnamedMessageHandler.Instance == null) throw new NetworkConfigurationException
         (
-            "The NamedMessageHandler is null. Shit's fucked! " +
+            "The UnnamedMessageHandler is null. Shit's fucked! " +
             "Please send this log to the LethalNetworkAPI developer."
         );
 
@@ -286,7 +286,7 @@ public sealed class LNetworkMessage<TData> : INetMessage
 
         if (UnnamedMessageHandler.Instance == null) throw new NetworkConfigurationException
         (
-            "The NamedMessageHandler is null. Shit's fucked! " +
+            "The UnnamedMessageHandler is null. Shit's fucked! " +
             "Please send this log to the LethalNetworkAPI developer."
         );
 

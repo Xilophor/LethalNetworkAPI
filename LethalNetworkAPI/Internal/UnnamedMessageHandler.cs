@@ -3,13 +3,12 @@ namespace LethalNetworkAPI.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Unity.Collections;
 using Unity.Netcode;
 using Utils;
+using HarmonyLib;
 
 #if NETSTANDARD2_1
-using HarmonyLib;
 using OdinSerializer;
 using Old.Networking;
 #endif
@@ -106,6 +105,10 @@ internal class UnnamedMessageHandler : IDisposable
         }
     }
 
+    #endregion
+
+    #region Send
+
     private void UpdateClientList(ulong changedClient) =>
         this.SendMessageToClients(
             new MessageData(
@@ -114,30 +117,26 @@ internal class UnnamedMessageHandler : IDisposable
                 LNetworkUtils.OtherConnectedClients),
             LNetworkUtils.AllConnectedClients);
 
-    #endregion
-
-    #region Send
-
     internal void SendMessageToClients(MessageData messageData, ulong[] clientGuidArray, bool deprecatedMessage = false)
     {
 #if NETSTANDARD2_1
-        if (clientGuidArray.Any(client => client == NetworkManager.ServerClientId))
+        if (clientGuidArray.Any(client => client == this.NetworkManager.LocalClientId))
         {
-            clientGuidArray = clientGuidArray.Where(client => client != NetworkManager.ServerClientId).ToArray();
+            clientGuidArray = clientGuidArray.Where(client => client != this.NetworkManager.LocalClientId).ToArray();
 
             if (deprecatedMessage)
                 NetworkHandler.Instance!.HandleMessage(
-                    NetworkManager.ServerClientId,
+                    this.NetworkManager.LocalClientId,
                     messageData.Identifier,
                     messageData.MessageType,
                     (byte[]?)messageData.Data ?? []);
             else
                 this.HandleMessage(
-                    NetworkManager.ServerClientId,
+                    this.NetworkManager.LocalClientId,
                     messageData.Identifier,
                     messageData.MessageType,
                     messageData.Data,
-                    messageData.TargetClients ?? []);
+                    [this.NetworkManager.LocalClientId]);
         }
 
         if (!clientGuidArray.Any()) return;
@@ -154,6 +153,7 @@ internal class UnnamedMessageHandler : IDisposable
 #endif
     }
 
+    /// <remarks>This method will also not send to the server.</remarks>
     internal void SendMessageToClientsExcept(MessageData messageData, ulong clientId, bool deprecatedMessage = false)
     {
 #if NETSTANDARD2_1
@@ -175,6 +175,25 @@ internal class UnnamedMessageHandler : IDisposable
     internal void SendMessageToServer(MessageData messageData, bool deprecatedMessage = false)
     {
 #if NETSTANDARD2_1
+        if (this.IsServer)
+        {
+            if (deprecatedMessage)
+                NetworkHandler.Instance!.HandleMessage(
+                    NetworkManager.ServerClientId,
+                    messageData.Identifier,
+                    messageData.MessageType,
+                    (byte[]?)messageData.Data ?? []);
+            else
+                this.HandleMessage(
+                    NetworkManager.ServerClientId,
+                    messageData.Identifier,
+                    messageData.MessageType,
+                    messageData.Data,
+                    [NetworkManager.ServerClientId]);
+
+            return;
+        }
+
         WriteMessageData(out var writer, messageData, deprecatedMessage);
 
         this.CustomMessagingManager.SendUnnamedMessage(
@@ -297,9 +316,10 @@ internal class UnnamedMessageHandler : IDisposable
                 break;
 
             case EMessageType.UpdateClientList:
-                if (clientId != NetworkManager.ServerClientId) break;
+                if (clientId != NetworkManager.ServerClientId ||
+                    this.NetworkManager.LocalClientId == NetworkManager.ServerClientId) break;
 
-                LNetworkUtils.AllConnectedClients = (ulong[]?)messageData ?? [];
+                LNetworkUtils.AllConnectedClients = ((ulong[]?)messageData ?? [this.NetworkManager.LocalClientId]).AddToArray<ulong>(0);
                 break;
 
             case EMessageType.None:

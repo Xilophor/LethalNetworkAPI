@@ -50,6 +50,8 @@
         <PackageReference Include="BepInEx.PluginInfoProps" Version="2.1.0" PrivateAssets="all"/>
         <PackageReference Include="UnityEngine.Modules" Version="2022.3.9" PrivateAssets="all"/>
         <PackageReference Include="MinVer" Version="4.*" PrivateAssets="all" />
+
+        <PackageReference Include="TeamBMX.LobbyCompatibility" Version="1.*" PrivateAssets="all" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">

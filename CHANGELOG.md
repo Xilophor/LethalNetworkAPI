@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.2.1]
+
+### Added
+- Support for LobbyCompatibility; this will ensure that the server and clients are using the same version of this API.
+
 ### Fixed
 - Fixed `IsConnected` not working properly.
 

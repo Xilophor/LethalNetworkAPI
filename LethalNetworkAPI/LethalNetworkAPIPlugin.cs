@@ -5,6 +5,7 @@ using BepInEx.Logging;
 using HarmonyLib;
 
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
+[BepInDependency("BMX.LobbyCompatibility", BepInDependency.DependencyFlags.SoftDependency)]
 public class LethalNetworkAPIPlugin : BaseUnityPlugin
 {
     public static LethalNetworkAPIPlugin Instance { get; private set; } = null!;
@@ -24,6 +25,9 @@ public class LethalNetworkAPIPlugin : BaseUnityPlugin
         _harmony = new Harmony(MyPluginInfo.PLUGIN_GUID);
 
         _harmony.PatchAll();
+
+        if (LobbyCompatibilityDep.Enabled)
+            LobbyCompatibilityDep.Initialize();
 
         Logger.LogInfo($"LethalNetworkAPI v{MyPluginInfo.PLUGIN_VERSION} has Loaded.");
     }

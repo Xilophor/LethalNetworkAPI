@@ -1,7 +1,9 @@
 namespace LethalNetworkAPI.Utils;
 
+using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using BepInEx;
 using HarmonyLib;
 using Unity.Netcode;
@@ -9,20 +11,10 @@ using Unity.Netcode;
 public static class LNetworkUtils
 {
     /// <summary>
-    /// Get the client's GUID from the player ID.
+    /// Called when the local client establishes a connection to, or starts up, a server.
     /// </summary>
-    /// <param name="playerId">The in-game player ID.</param>
-    /// <returns>The client's NGO GUID.</returns>
-    public static ulong GetClientGuid(int playerId) =>
-        StartOfRound.Instance.allPlayerScripts[playerId].actualClientId;
-
-    /// <summary>
-    /// Get the client's player ID from the client's GUID.
-    /// </summary>
-    /// <param name="clientGuid">The client's NGO GUID.</param>
-    /// <returns>The client's in-game player ID.</returns>
-    public static int GetPlayerId(ulong clientGuid) =>
-        (int)StartOfRound.Instance.allPlayerScripts.First(player => player.actualClientId == clientGuid).playerClientId;
+    /// <remarks>Called with <see cref="bool">bool</see> isServer.</remarks>
+    public static event Action<bool> OnNetworkStartCallback = delegate { };
 
     /// <summary>
     /// Whether the client is connected to a server.
@@ -32,7 +24,7 @@ public static class LNetworkUtils
     /// <summary>
     /// Whether the client is the host or server.
     /// </summary>
-    public static bool IsHostOrServer => IsConnected && (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer);
+    public static bool IsHostOrServer => NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer;
 
     /// <summary>
     /// All connected clients' GUIDs.
@@ -63,14 +55,32 @@ public static class LNetworkUtils
     /// </summary>
     /// <param name="clientId">The client to exclude.</param>
     /// <remarks>This will be empty if not connected to a server.</remarks>
-    public static ulong[] AllConnectedClientsExcept(ulong clientId) => AllConnectedClients.Where(i => i != clientId).ToArray();
+    public static ulong[] AllConnectedClientsExcept(ulong clientId) =>
+        AllConnectedClients.Where(i => i != clientId).ToArray();
 
     /// <summary>
     /// All connected clients' GUIDs, except the specified client.
     /// </summary>
     /// <param name="clientIds">The clients to exclude.</param>
     /// <remarks>This will be empty if not connected to a server.</remarks>
-    public static ulong[] AllConnectedClientsExcept(params ulong[] clientIds) => AllConnectedClients.Where(i => !clientIds.Contains(i)).ToArray();
+    public static ulong[] AllConnectedClientsExcept(params ulong[] clientIds) =>
+        AllConnectedClients.Where(i => !clientIds.Contains(i)).ToArray();
+
+    /// <summary>
+    /// Get the client's GUID from the player ID.
+    /// </summary>
+    /// <param name="playerId">The in-game player ID.</param>
+    /// <returns>The client's NGO GUID.</returns>
+    public static ulong GetClientGuid(int playerId) =>
+        StartOfRound.Instance.allPlayerScripts[playerId].actualClientId;
+
+    /// <summary>
+    /// Get the client's player ID from the client's GUID.
+    /// </summary>
+    /// <param name="clientGuid">The client's NGO GUID.</param>
+    /// <returns>The client's in-game player ID.</returns>
+    public static int GetPlayerId(ulong clientGuid) =>
+        (int)StartOfRound.Instance.allPlayerScripts.First(player => player.actualClientId == clientGuid).playerClientId;
 
     internal static string GetModGuid(int frameIndex)
     {
@@ -81,4 +91,7 @@ public static class LNetworkUtils
 
         return MetadataHelper.GetMetadata(pluginType).GUID;
     }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    internal static void InvokeOnNetworkStartCallback() => OnNetworkStartCallback?.Invoke(IsHostOrServer);
 }

@@ -93,5 +93,18 @@ public static class LNetworkUtils
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    internal static void InvokeOnNetworkStartCallback() => OnNetworkStartCallback?.Invoke(IsHostOrServer);
+    internal static void InvokeOnNetworkStartCallback()
+    {
+        foreach (var callback in OnNetworkStartCallback.GetInvocationList())
+        {
+            try
+            {
+                callback.DynamicInvoke(IsHostOrServer);
+            }
+            catch (Exception e)
+            {
+                LethalNetworkAPIPlugin.Logger.LogFatal(e);
+            }
+        }
+    }
 }

@@ -110,6 +110,10 @@ public sealed class LNetworkEvent
         this.OnClientReceivedFromClient += onClientReceivedFromClient;
 
         UnnamedMessageHandler.LNetworkEvents.Add(identifier, this);
+
+#if DEBUG
+        LethalNetworkAPIPlugin.Logger.LogDebug($"Created new LNetworkEvent with identifier `{identifier}`.");
+#endif
     }
 
     #endregion

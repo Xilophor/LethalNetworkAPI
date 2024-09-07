@@ -101,6 +101,10 @@ public class LNetworkVariable<TData> : LNetworkVariableBase
 
         this.OnValueChanged?.Invoke(this._previousValue, this._value);
         this._previousValue = this._value;
+
+#if DEBUG
+        LethalNetworkAPIPlugin.Logger.LogDebug($"Created new LNetworkVariable of type `{typeof(TData)}` with identifier `{identifier}`.");
+#endif
     }
 
     /// <summary>

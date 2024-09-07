@@ -120,6 +120,10 @@ public sealed class LNetworkMessage<TData> : INetMessage
         this.OnClientReceivedFromClient += onClientReceivedFromClient;
 
         UnnamedMessageHandler.LNetworkMessages.Add(identifier, this);
+
+#if DEBUG
+        LethalNetworkAPIPlugin.Logger.LogDebug($"Created new LNetworkMessage of type `{typeof(TData)}` with identifier `{identifier}`.");
+#endif
     }
 
     #endregion

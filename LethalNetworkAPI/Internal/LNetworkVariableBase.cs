@@ -1,8 +1,9 @@
-namespace LethalNetworkAPI;
+namespace LethalNetworkAPI.Internal;
 
 using System.Linq;
 using Unity.Netcode;
 
+/// <remarks>Internal Class</remarks>
 public abstract class LNetworkVariableBase
 {
     internal string Identifier { get; init; }

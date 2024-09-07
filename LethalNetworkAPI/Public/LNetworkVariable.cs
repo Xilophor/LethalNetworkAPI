@@ -1,14 +1,11 @@
 namespace LethalNetworkAPI;
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
 using Internal;
 using Unity.Netcode;
 using Utils;
-
-internal interface INetVariable;
 
 /// <summary>
 /// A variable that can be used to send data between clients.

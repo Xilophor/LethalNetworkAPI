@@ -1,10 +1,7 @@
 namespace LethalNetworkAPI;
 
 using System;
-using System.Diagnostics;
 using System.Linq;
-using BepInEx;
-using HarmonyLib;
 using Internal;
 using Unity.Netcode;
 using Utils;

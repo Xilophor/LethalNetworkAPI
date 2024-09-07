@@ -1,0 +1,12 @@
+<Project>
+    <!-- Custom Variables -->
+    <PropertyGroup>
+        <DependenciesDirectory>.../Lethal Company/Lethal Company_Data/Managed/</DependenciesDirectory>
+        <PluginDirectory>.../Lethal Company/BepInEx/plugins/</PluginDirectory>
+    </PropertyGroup>
+
+    <!-- Copy to Plugin Directory for Quicker Testing -->
+    <Target Name="CopyFiles" AfterTargets="PostBuildEvent">
+        <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(PluginDirectory)" />
+    </Target>
+</Project>

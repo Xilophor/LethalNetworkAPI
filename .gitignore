@@ -11,3 +11,5 @@ riderModule.iml
 /LethalNetworkAPI.zip
 /TestMod/
 dist/
+
+!*.template.*.user

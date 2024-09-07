@@ -6,7 +6,7 @@
     </PropertyGroup>
 
     <!-- Copy to Plugin Directory for Quicker Testing -->
-    <Target Name="CopyFiles" AfterTargets="PostBuildEvent">
+    <Target Name="CopyFiles" AfterTargets="PostBuildEvent" Condition="$(TargetFramework) == 'netstandard2.1'">
         <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(PluginDirectory)" />
     </Target>
 </Project>

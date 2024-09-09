@@ -19,7 +19,7 @@ public static class LNetworkUtils
     /// <summary>
     /// Whether the client is connected to a server.
     /// </summary>
-    public static bool IsConnected => NetworkManager.Singleton?.LocalClient != null;
+    public static bool IsConnected => NetworkManager.Singleton?.IsConnectedClient ?? false;
 
     /// <summary>
     /// Whether the client is the host or server.

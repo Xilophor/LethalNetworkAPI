@@ -18,16 +18,14 @@ internal static class NetworkManagerPatch
         _ = new UnnamedMessageHandler();
         _ = new NetworkHandler();
 
-        __instance.OnServerStarted += LNetworkUtils.InvokeOnNetworkStartCallback;
-        __instance.OnClientStarted += LNetworkUtils.InvokeOnNetworkStartCallback;
+        __instance.OnClientConnectedCallback += LNetworkUtils.InvokeOnNetworkStart;
     }
 
     [HarmonyPatch(nameof(NetworkManager.ShutdownInternal))]
     [HarmonyPrefix]
     public static void ShutdownPatch(NetworkManager __instance)
     {
-        __instance.OnServerStarted -= LNetworkUtils.InvokeOnNetworkStartCallback;
-        __instance.OnClientStarted -= LNetworkUtils.InvokeOnNetworkStartCallback;
+        __instance.OnClientConnectedCallback -= LNetworkUtils.InvokeOnNetworkStart;
 
         UnnamedMessageHandler.Instance?.Dispose();
         NetworkHandler.Instance?.Dispose();

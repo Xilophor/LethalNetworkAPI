@@ -14,7 +14,7 @@ public static class LNetworkUtils
     /// Called when the local client establishes a connection to, or starts up, a server.
     /// </summary>
     /// <remarks>Called with <see cref="bool">bool</see> isServer.</remarks>
-    public static event Action<bool> OnNetworkStartCallback = delegate { };
+    public static event Action<bool> OnNetworkStart = delegate { };
 
     /// <summary>
     /// Whether the client is connected to a server.
@@ -93,9 +93,11 @@ public static class LNetworkUtils
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    internal static void InvokeOnNetworkStartCallback()
+    internal static void InvokeOnNetworkStart(ulong clientID)
     {
-        foreach (var callback in OnNetworkStartCallback.GetInvocationList())
+        if (clientID != NetworkManager.Singleton?.LocalClientId) return;
+
+        foreach (var callback in OnNetworkStart.GetInvocationList())
         {
             try
             {

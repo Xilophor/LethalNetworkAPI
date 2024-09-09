@@ -103,7 +103,7 @@ public static class LNetworkUtils
             }
             catch (Exception e)
             {
-                LethalNetworkAPIPlugin.Logger.LogFatal(e);
+                LethalNetworkAPIPlugin.Logger.LogError(e);
             }
         }
     }

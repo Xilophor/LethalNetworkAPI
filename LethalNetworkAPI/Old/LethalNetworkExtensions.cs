@@ -5,6 +5,7 @@ using LethalNetworkAPI.Old.Networking;
 using Unity.Netcode;
 using UnityEngine;
 
+// ReSharper disable once CheckNamespace
 namespace LethalNetworkAPI;
 
 /// <summary>

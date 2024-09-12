@@ -41,7 +41,7 @@ internal class UnnamedMessageHandler : IDisposable
         this.NetworkManager.NetworkTickSystem.Tick += this.CheckVariablesForChanges;
         this.CustomMessagingManager.OnUnnamedMessage += this.ReceiveMessage;
 
-        if (this.NetworkManager.IsServer || this.NetworkManager.IsHost)
+        if (this.IsServer)
         {
             this.NetworkManager.OnClientConnectedCallback += this.UpdateNewClientVariables;
             this.NetworkManager.OnClientDisconnectCallback += this.UpdateClientList;
@@ -92,6 +92,8 @@ internal class UnnamedMessageHandler : IDisposable
 
     private void UpdateNewClientVariables(ulong newClient)
     {
+        if (!this.IsServer) return;
+
         this.UpdateClientList(newClient);
 
         foreach (var variable in LNetworkVariables.Values)
@@ -109,13 +111,17 @@ internal class UnnamedMessageHandler : IDisposable
 
     #region Send
 
-    private void UpdateClientList(ulong changedClient) =>
+    private void UpdateClientList(ulong changedClient)
+    {
+        if (!this.IsServer) return;
+
         this.SendMessageToClients(
             new MessageData(
                 "Internal.UpdateClientList",
                 EMessageType.UpdateClientList,
                 LNetworkUtils.OtherConnectedClients),
             LNetworkUtils.AllConnectedClients);
+    }
 
     internal void SendMessageToClients(MessageData messageData, ulong[] clientGuidArray, bool deprecatedMessage = false)
     {
@@ -395,6 +401,15 @@ internal class UnnamedMessageHandler : IDisposable
     public void Dispose()
     {
         this.CustomMessagingManager.OnUnnamedMessage -= this.ReceiveMessage;
+
+        if (this.NetworkManager.NetworkTickSystem != null)
+            this.NetworkManager.NetworkTickSystem.Tick -= this.CheckVariablesForChanges;
+
+        if (this.IsServer)
+        {
+            this.NetworkManager.OnClientConnectedCallback -= this.UpdateNewClientVariables;
+            this.NetworkManager.OnClientDisconnectCallback -= this.UpdateClientList;
+        }
 
         foreach (var variable in LNetworkVariables.Values)
         {

@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.3.1]
+
+### Fixed
+- Fixed error occuring when disconnecting from a lobby when you were previously a host in the game session.
+
 ## [v3.3.0]
 
 ### Added

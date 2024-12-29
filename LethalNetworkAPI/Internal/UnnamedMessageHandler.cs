@@ -92,7 +92,7 @@ internal class UnnamedMessageHandler : IDisposable
 
     private void UpdateNewClientVariables(ulong newClient)
     {
-        if (!this.IsServer) return;
+        if (!this.IsServer || newClient == NetworkManager.ServerClientId) return;
 
         this.UpdateClientList(newClient);
 

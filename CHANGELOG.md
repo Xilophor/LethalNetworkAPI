@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Fixed `NullReferenceException` that occurs in `LNetworkVariable`s when re-hosting a lobby.
+
 ## [v3.3.1]
 
 ### Fixed

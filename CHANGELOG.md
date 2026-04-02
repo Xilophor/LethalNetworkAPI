@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.3.3]
+
+### Changed
+- Updated dependencies (OdinSerializer; UnityModules) to latest applicable versions
+
 ## [v3.3.2]
 
 ### Fixed

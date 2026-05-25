@@ -15,6 +15,7 @@ public abstract class LNetworkVariableBase
     internal abstract bool IsDirty();
     internal abstract void ResetDirty();
     internal abstract object? GetValue();
+    internal abstract void UpdateConnectionStatus(bool isConnected);
 
     internal bool CanWrite() =>
         this.WritePerms switch

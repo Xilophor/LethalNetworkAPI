@@ -41,11 +41,12 @@ internal class UnnamedMessageHandler : IDisposable
         this.NetworkManager.NetworkTickSystem.Tick += this.CheckVariablesForChanges;
         this.CustomMessagingManager.OnUnnamedMessage += this.ReceiveMessage;
 
-        if (this.IsServer)
-        {
-            this.NetworkManager.OnClientConnectedCallback += this.UpdateNewClientVariables;
-            this.NetworkManager.OnClientDisconnectCallback += this.UpdateClientList;
-        }
+        if (!this.IsServer) return;
+
+        this.NetworkManager.OnClientConnectedCallback += this.UpdateNewClientVariables;
+        this.NetworkManager.OnClientDisconnectCallback += this.UpdateClientList;
+
+        LethalNetworkAPIPlugin.Logger.LogDebug("Created UnnamedMessageHandler instance.");
     }
 
     #region Messaging
@@ -101,10 +102,29 @@ internal class UnnamedMessageHandler : IDisposable
             this.SendMessageToClients(
                 new MessageData(
                     variable.Identifier,
-                    EMessageType.Variable | EMessageType.DataUpdate,
+                    EMessageType.Variable | EMessageType.OwnershipUpdate,
                     variable.OwnerClients),
                 [newClient]);
+
+            this.SendMessageToClients(
+                new MessageData(
+                    variable.Identifier,
+                    EMessageType.Variable | EMessageType.DataUpdate,
+                    variable.GetValue()),
+                [newClient]);
+
+            this.SendMessageToClients(
+                new MessageData(
+                    variable.Identifier,
+                    EMessageType.Variable | EMessageType.Initialize,
+                    null),
+                [newClient]);
         }
+    }
+
+    private static void CloseVariableConnectionStatus(bool _)
+    {
+        foreach (var variable in LNetworkVariables.Values) variable.UpdateConnectionStatus(false);
     }
 
     #endregion
@@ -312,6 +332,7 @@ internal class UnnamedMessageHandler : IDisposable
 
                 variable.ReceiveUpdate(messageData);
                 break;
+
             case EMessageType.Variable | EMessageType.OwnershipUpdate:
                 variable = LNetworkVariables[messageID];
 
@@ -319,6 +340,12 @@ internal class UnnamedMessageHandler : IDisposable
                     variable.WritePerms != LNetworkVariableWritePerms.Owner) break;
 
                 variable.OwnerClients = (ulong[]?)messageData;
+                break;
+
+            case EMessageType.Variable | EMessageType.Initialize:
+                variable = LNetworkVariables[messageID];
+
+                variable.UpdateConnectionStatus(true);
                 break;
 
             case EMessageType.UpdateClientList:
@@ -400,6 +427,7 @@ internal class UnnamedMessageHandler : IDisposable
 
     public void Dispose()
     {
+        LethalNetworkAPIPlugin.Logger.LogDebug("Disposing of UnnamedMessageHandler.");
         this.CustomMessagingManager.OnUnnamedMessage -= this.ReceiveMessage;
 
         if (this.NetworkManager.NetworkTickSystem != null)

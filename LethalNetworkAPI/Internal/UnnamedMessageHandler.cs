@@ -46,6 +46,9 @@ internal class UnnamedMessageHandler : IDisposable
         this.NetworkManager.OnClientConnectedCallback += this.UpdateNewClientVariables;
         this.NetworkManager.OnClientDisconnectCallback += this.UpdateClientList;
 
+        foreach (var variable in LNetworkVariables.Values)
+            variable.UpdateConnectionStatus(true);
+
         LethalNetworkAPIPlugin.Logger.LogDebug("Created UnnamedMessageHandler instance.");
     }
 

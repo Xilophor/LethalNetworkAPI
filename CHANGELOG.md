@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.4.0]
+
+### Added
+- IsInitialized property to LNetworkVariable - boolean representing if the variable is synced with the server
+- OnInitialized event to LNetworkVariable - event is called when the variable gets initialized and has data synced down from server (or immediately on server).
+
+### Changed
+- Improved LNetworkVariable logic; added checks (and errors) to ensure the value is not modified when not connected to a server
+
+### Fixed
+- Resolved issue where clients weren't correctly receiving the current state of an LNetworkVariable when joining
+
 ## [v3.3.3]
 
 ### Changed

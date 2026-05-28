@@ -18,6 +18,7 @@ public class LNetworkVariable<TData> : LNetworkVariableBase
 
     private TData _value;
     private TData _previousValue;
+    private bool _isConnected;
 
     internal bool Dirty { get; set; }
 
@@ -49,7 +50,12 @@ public class LNetworkVariable<TData> : LNetworkVariableBase
         get => this._value;
         set
         {
-            if(Equals(this._value, value)) return;
+            if (!this._isConnected && !NetworkManager.Singleton.IsServer)
+            {
+                LethalNetworkAPIPlugin.Logger.LogError("Values of LNetworkVariables cannot be modified while disconnected. Please use OfflineValue instead, or verify that the variable is initialized using IsInitialized.");
+                return;
+            }
+            if (Equals(this._value, value)) return;
 
             this.SetDirty(true);
             this._previousValue = this._value;
@@ -59,9 +65,19 @@ public class LNetworkVariable<TData> : LNetworkVariableBase
     }
 
     /// <summary>
+    /// Whether the variable is synchronizing with the server or not (if the client is connected).
+    /// </summary>
+    public bool IsInitialized => this._isConnected;
+
+    /// <summary>
     /// A callback that runs when the value of the variable changes.
     /// </summary>
     public event Action<TData, TData>? OnValueChanged = delegate { };
+
+    /// <summary>
+    /// A callback that runs when the variable is connected to the server and contains a valid/current value.
+    /// </summary>
+    public event Action? OnInitialized = delegate { };
 
     #endregion
 
@@ -194,7 +210,7 @@ public class LNetworkVariable<TData> : LNetworkVariableBase
     {
         if (this.Dirty) return true;
 
-        if (Equals(this._previousValue, this.Value)) return false;
+        if (Equals(this._previousValue, this._value)) return false;
         if (!this.CanWrite()) return false;
 
         if (typeof(TData).IsByRef)
@@ -208,6 +224,7 @@ public class LNetworkVariable<TData> : LNetworkVariableBase
 
     internal override void ResetValue()
     {
+        this._isConnected = false;
         this._value = this._previousValue = this._offlineValue;
         this.Dirty = false;
     }
@@ -222,6 +239,15 @@ public class LNetworkVariable<TData> : LNetworkVariableBase
     }
 
     internal override object? GetValue() => this._value;
+
+    internal override void UpdateConnectionStatus(bool connectionStatus)
+    {
+        if (connectionStatus == this._isConnected) return;
+
+        this._isConnected = connectionStatus;
+        if (connectionStatus)
+            this.OnInitialized?.Invoke();
+    }
 
     internal override void ReceiveUpdate(object? data)
     {

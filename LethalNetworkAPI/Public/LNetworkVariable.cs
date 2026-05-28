@@ -242,8 +242,11 @@ public class LNetworkVariable<TData> : LNetworkVariableBase
 
     internal override void UpdateConnectionStatus(bool connectionStatus)
     {
+        if (connectionStatus == this._isConnected) return;
+
         this._isConnected = connectionStatus;
-        this.OnInitialized?.Invoke();
+        if (connectionStatus)
+            this.OnInitialized?.Invoke();
     }
 
     internal override void ReceiveUpdate(object? data)

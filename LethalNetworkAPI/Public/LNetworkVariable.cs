@@ -253,7 +253,7 @@ public class LNetworkVariable<TData> : LNetworkVariableBase
     {
         var newValue = (TData)data!;
 
-        if (!Equals(this._value, newValue))
+        if (!Equals(this._value, newValue) && this.IsInitialized)
             this.OnValueChanged?.Invoke(this._value, newValue);
 
         this._value = newValue;

@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.4.2]
+
+### Fixed
+- LNetworkVariables on clients getting the OnValueChanged event called when getting initialized upon connection to server.
+
 ## [v3.4.1]
 
 ### Fixed
